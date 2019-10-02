@@ -11,15 +11,21 @@ My name is Eric Freitas.
 
   MacPractice
   - Clipboard
+    https://apps.apple.com/us/app/macpractice-clipboard/id1447801858
   - iEHR
+    https://apps.apple.com/us/app/macpractice-iehr/id1447801801
   
   Surgical Labs
-  - Created one app
-  - Maintained two others
+  - eRounds
+    https://apps.apple.com/tn/app/erounds/id867704400
+  - SamePage
+    https://apps.apple.com/tn/app/samepage-alerts/id1213395057
   
   Concordia Publishing House
   - Portal of Prayers
+    https://apps.apple.com/us/app/portals-of-prayer/id1139206276
   
   HATCX
-  - HATCX Core (removed from sale)
+  - HATCX Core 
+    (removed from sale earlier this summer.)
   
