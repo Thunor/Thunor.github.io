@@ -25,8 +25,7 @@ My name is Eric Freitas.
     (removed from sale earlier this summer.)
     
   LyncStream
-  - [TAGG] (https://apps.apple.com/us/app/together-a-greater-good-tagg/id900641585)
-    (maintaining)
-  - [BHyve] (https://apps.apple.com/us/app/b-hyve/id1066451939)
-    Added features and functionality.
+  - [TAGG](https://apps.apple.com/us/app/together-a-greater-good-tagg/id900641585)
+	  (maintaining)
+  - [b-hyve](https://apps.apple.com/us/app/b-hyve/id1066451939)    Added features and functionality.
   
