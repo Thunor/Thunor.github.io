@@ -27,5 +27,6 @@ My name is Eric Freitas.
   LyncStream
   - [TAGG](https://apps.apple.com/us/app/together-a-greater-good-tagg/id900641585)
 	  (maintaining)
-  - [b-hyve](https://apps.apple.com/us/app/b-hyve/id1066451939)    Added features and functionality.
+  - [b-hyve](https://apps.apple.com/us/app/b-hyve/id1066451939)
+  Added features and functionality.
   
