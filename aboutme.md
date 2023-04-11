@@ -12,7 +12,7 @@ My name is Eric Freitas.
 
   [NearStars](/img/NearStarsImage.png)
   - A 3D starmap showing the stars nearest to Earth.
-  - Mac only at this point.  
+  - Mac only at this point, release on the Mac App Store shortly.
   - This is a precursor to a much more involved app that I am currently developing.
 
   [Caster 5E](https://apps.apple.com/us/app/caster-5e/id1533914164)
