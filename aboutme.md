@@ -30,3 +30,11 @@ My name is Eric Freitas.
   - [b-hyve](https://apps.apple.com/us/app/b-hyve/id1066451939)
   Added features and functionality.
   
+  Kroger 
+  - [Kroger App](https://apps.apple.com/us/app/kroger-co/id403901186)
+      On the monetization team, adding and maintaining ads to different locations in the app.
+
+  Improving (Working on the GAP project) 
+  - [GAP App](https://apps.apple.com/us/app/gap/id326347260)
+      Worked on the UI update.
+
