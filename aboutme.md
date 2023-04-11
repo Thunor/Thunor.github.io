@@ -6,8 +6,19 @@ subtitle: Who I am and what I've done
 
 My name is Eric Freitas.  
 
-- I have been an iOS developer since 2012.  
-- Have written or contributed to many apps, six of which are still on the App Store.
+- I have been an iOS developer since 2012. Have written or contributed to many apps, six of which are still on the App Store.
+
+- Personal Apps:
+
+  [NearStars](/img/NearStarsImage.png)
+  - A 3D starmap showing the stars nearest to Earth.
+  - Mac only at this point.  
+  - This is a precursor to a much more involved app that I am currently developing.
+
+  [Caster 5E](https://apps.apple.com/us/app/caster-5e/id1533914164)
+  - This is a DND 5E spell reference app utilizing the SRD.
+
+- Work Apps:
 
   MacPractice
   - [Clipboard](https://apps.apple.com/us/app/macpractice-clipboard/id1447801858)
