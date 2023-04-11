@@ -1,7 +1,7 @@
 ---
 layout: post
-title: Large Language Model Tools
-subtitle: ChatGPT & Github Copilot
+title: Hit Testing with SceneKit in SwiftUI
+subtitle: How to pick an object in a scene.
 bigimg: /img/StarsBackground.png
 tags: [SceneKit, 3D, macOS, iOS, Code, Swift, SwiftUI]
 ---
