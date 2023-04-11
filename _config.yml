@@ -27,9 +27,9 @@ description: A few things I find interesting.
 navbar-links:
   About Me: "aboutme"
   Resources:
-    - Beautiful Jekyll: "http://deanattali.com/beautiful-jekyll/"
-    - Learn markdown: "http://www.markdowntutorial.com/"
-    - GitHub Pages: "https://pages.github.com/"
+    - Spherical Voronoi Diagram: "https://www.jasondavies.com/maps/voronoi/"
+    - Procedural map generation on a sphere: "https://www.redblobgames.com/x/1843-planet-generation/"
+    - Map Generation on Spherical Planet – Part I: "https://whenitsdone.org/2014/07/29/map-generation-on-spherical-planet-part-i/"
 #   Author's home: "http://deanattali.com"
 
 # Image to show in the navigation bar - image must be a square (width = height)
