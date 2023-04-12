@@ -8,6 +8,8 @@ tags: [SceneKit, 3D, macOS, iOS, Code, Swift, SwiftUI]
 
 SwiftUI &amp; Scenekit hit testing example.
 
+[Source on Github](https://github.com/Thunor/HitTestApp)
+
 This example application is written for macOS, though with minor changes it should be able to be changed to an iOS app fairly quickly.
 
 Many people have run into the issue that the SwiftUI SceneView doesn't appear to have any hit testing ability.  
@@ -25,5 +27,5 @@ An example of using the `DragGesture()` to rotate the view is given.
 I've also included a `TapGesture()` to double click on an object for centering the view on it.  The camera system uses a camera node
 attached as the child of a camera orbit node in order to get the entire view to rotate around. the selected object.  
 
-Finally, there is a SwiftUI overlay on top of the Scene.
+Finally, there is a SwiftUI overlay on top of the Scene that shows the instructions.  This overlay is quite simple, but other more complex interfaces could be used.
 
