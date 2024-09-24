@@ -6,7 +6,7 @@ bigimg: /img/StarsBackground.png
 tags: [SceneKit, 3D, macOS, iOS, Code, Swift, SwiftUI]
 ---
 
-SwiftUI &amp; Scenekit hit testing example.
+SwiftUI and Scenekit hit testing example.
 
 [Source on Github](https://github.com/Thunor/HitTestApp)
 
