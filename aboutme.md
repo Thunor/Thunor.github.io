@@ -36,16 +36,16 @@ My name is Eric Freitas.
   
   LyncStream
   - [TAGG](https://apps.apple.com/us/app/together-a-greater-good-tagg/id900641585)
-	  (maintaining)
   - [b-hyve](https://apps.apple.com/us/app/b-hyve/id1066451939)
   Added features and functionality.
 
   HATCX
   - HATCX Core
-    (removed from sale earlier this summer.)
+    (removed from sale)
 
   Concordia Publishing House
   - [Portal of Prayers](https://apps.apple.com/us/app/portals-of-prayer/id1139206276)
+    They have a new version out that is not based on our original app.
 
   Surgical Labs
   - [eRounds](https://apps.apple.com/tn/app/erounds/id867704400)
