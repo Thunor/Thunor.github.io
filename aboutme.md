@@ -10,14 +10,13 @@ My name is Eric Freitas.
 
 - Personal Apps:
 
-  [OnyxSky](/img/NearStarsImage.png)
-  - A 3D starmap tool
-  - Mac only, though it would be great on VisionOS
-
   [Caster 5E](https://apps.apple.com/us/app/caster-5e/id1533914164)
   - This is a DND 5E spell reference app utilizing the SRD.
 
 - Work Apps:
+
+  Walmart (contract)
+  - [Walmart App](https://apps.apple.com/us/app/walmart-shopping-savings/id338137227)
 
   PetSmart (1 year contract)
   - [PetSmart App](https://apps.apple.com/us/app/petsmart/id1175467091)
