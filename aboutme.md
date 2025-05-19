@@ -1,19 +1,9 @@
 ---
 layout: page
-title: About me
-subtitle: Who I am and what I've done
+title: Portfolio
 ---
 
-My name is Eric Freitas.  
-
-- I have been an iOS developer since 2012. Have written or contributed to many apps, six of which are still on the App Store.
-
-- Personal Apps:
-
-  [Caster 5E](https://apps.apple.com/us/app/caster-5e/id1533914164)
-  - This is a DND 5E spell reference app utilizing the SRD.
-
-- Work Apps:
+My name is Eric Freitas. I have been an iOS developer since 2012. Have written or contributed to many apps.
 
   Walmart (contract)
   - [Walmart App](https://apps.apple.com/us/app/walmart-shopping-savings/id338137227)
