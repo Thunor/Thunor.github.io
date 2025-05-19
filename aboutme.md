@@ -3,7 +3,7 @@ layout: page
 title: Portfolio
 ---
 
-My name is Eric Freitas. I have been an iOS developer since 2012. Have written or contributed to many apps.
+My name is Eric Freitas. I have been an iOS developer since 2012. I Have written or contributed to many apps.
 
   Walmart (contract)
   - [Walmart App](https://apps.apple.com/us/app/walmart-shopping-savings/id338137227)
