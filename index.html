@@ -351,6 +351,142 @@
     flex: 1;
   }
 
+  /* DETAILS BUTTON */
+  .exp-actions {
+    grid-column: 1 / -1;
+    margin-top: 0.75rem;
+  }
+
+  .details-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid rgba(200,169,110,0.3);
+    border-radius: 6px;
+    padding: 0.35rem 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .details-btn:hover {
+    background: rgba(200,169,110,0.08);
+    border-color: var(--accent);
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.78);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    max-width: 640px;
+    width: 100%;
+    max-height: 82vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.3rem 0.5rem;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--text); }
+
+  .modal-job-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+
+  .modal-company {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.9;
+    margin-bottom: 1.75rem;
+  }
+
+  .modal-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 0.6rem;
+  }
+
+  .modal-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .modal-stack span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    padding: 0.2rem 0.55rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+  }
+
+  .modal-bullets {
+    list-style: none;
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .modal-bullets li {
+    display: flex;
+    gap: 0.8rem;
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.65;
+  }
+
+  .modal-bullets li::before {
+    content: '–';
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
   /* GITHUB */
   .github-strip {
     background: var(--card);
@@ -442,6 +578,8 @@
     .avatar-wrap { width: 160px; height: 160px; }
     section { padding: 4rem 1.5rem; }
     footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+    .modal { padding: 1.75rem; max-height: 88vh; }
+    .modal-overlay { padding: 1rem; }
   }
 </style>
 </head>
@@ -483,9 +621,12 @@
       <div class="exp-apps">
         <span class="app-tag">Walmart App</span>
       </div>
-      <p class="exp-notes">Contributed to the Walmart shopping app, one of the highest-traffic retail apps in the US.</p>
+      <p class="exp-notes">Contributed to the Walmart shopping app, one of the highest-traffic retail apps in the US. Added and maintained features related to fashion search results and Item Pages.</p>
       <div class="exp-apps" style="margin-top:0.25rem">
         <a class="exp-link" href="https://apps.apple.com/us/app/walmart-shopping-savings/id338137227" target="_blank">↗ App Store</a>
+      </div>
+      <div class="exp-actions">
+        <button class="details-btn" data-job="walmart">Details</button>
       </div>
     </div>
 
@@ -499,6 +640,9 @@
       <p class="exp-notes">Added the rescheduling feature to Grooming services. Integrated ContentSquare and Sentry analytics.</p>
       <div class="exp-apps" style="margin-top:0.25rem">
         <a class="exp-link" href="https://apps.apple.com/us/app/petsmart/id1175467091" target="_blank">↗ App Store</a>
+      </div>
+      <div class="exp-actions">
+        <button class="details-btn" data-job="petsmart">Details</button>
       </div>
     </div>
 
@@ -514,6 +658,9 @@
       <div class="exp-apps" style="margin-top:0.25rem">
         <a class="exp-link" href="https://apps.apple.com/us/app/petco-the-pet-parents-partner/id1368715736" target="_blank">↗ App Store</a>
       </div>
+      <div class="exp-actions">
+        <button class="details-btn" data-job="petco">Details</button>
+      </div>
     </div>
 
     <!-- Improving / GAP -->
@@ -527,6 +674,9 @@
       <div class="exp-apps" style="margin-top:0.25rem">
         <a class="exp-link" href="https://apps.apple.com/us/app/gap/id326347260" target="_blank">↗ App Store</a>
       </div>
+      <div class="exp-actions">
+        <button class="details-btn" data-job="improving">Details</button>
+      </div>
     </div>
 
     <!-- Kroger -->
@@ -539,6 +689,9 @@
       <p class="exp-notes">On the monetization team — adding and maintaining ads to different locations throughout the app.</p>
       <div class="exp-apps" style="margin-top:0.25rem">
         <a class="exp-link" href="https://apps.apple.com/us/app/kroger-co/id403901186" target="_blank">↗ App Store</a>
+      </div>
+      <div class="exp-actions">
+        <button class="details-btn" data-job="kroger">Details</button>
       </div>
     </div>
 
@@ -558,6 +711,9 @@
           <a class="exp-link" href="https://apps.apple.com/us/app/b-hyve/id1066451939" target="_blank">↗</a>
         </div>
       </div>
+      <div class="exp-actions">
+        <button class="details-btn" data-job="lyncstream">Details</button>
+      </div>
     </div>
 
     <!-- HATCX -->
@@ -567,6 +723,9 @@
       <div class="exp-apps">
         <span class="app-tag">HATCX Core</span>
         <span class="app-tag">Removed from sale</span>
+      </div>
+      <div class="exp-actions">
+        <button class="details-btn" data-job="hatcx">Details</button>
       </div>
     </div>
 
@@ -599,6 +758,9 @@
           <a class="exp-link" href="https://apps.apple.com/tn/app/samepage-alerts/id1213395057" target="_blank">↗</a>
         </div>
       </div>
+      <div class="exp-actions">
+        <button class="details-btn" data-job="surgicallabs">Details</button>
+      </div>
     </div>
 
     <!-- MacPractice -->
@@ -616,6 +778,9 @@
           <span class="app-name">MacPractice iEHR</span>
           <a class="exp-link" href="https://apps.apple.com/us/app/macpractice-iehr/id1447801801" target="_blank">↗</a>
         </div>
+      </div>
+      <div class="exp-actions">
+        <button class="details-btn" data-job="macpractice">Details</button>
       </div>
     </div>
 
@@ -640,6 +805,20 @@
   <p>© 2025</p>
 </footer>
 
+<!-- JOB DETAILS MODAL -->
+<div class="modal-overlay" id="detailsOverlay" role="dialog" aria-modal="true" aria-labelledby="modalCompany">
+  <div class="modal">
+    <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+    <p class="modal-job-title" id="modalTitle"></p>
+    <h3 class="modal-company" id="modalCompany"></h3>
+    <p class="modal-meta" id="modalMeta"></p>
+    <p class="modal-section-label">Tech Stack</p>
+    <div class="modal-stack" id="modalStack"></div>
+    <p class="modal-section-label">Highlights</p>
+    <ul class="modal-bullets" id="modalBullets"></ul>
+  </div>
+</div>
+
 <script>
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry, i) => {
@@ -652,6 +831,164 @@
   }, { threshold: 0.1 });
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  const jobData = {
+    walmart: {
+      title: 'Senior Software Engineer (iOS)',
+      company: 'Walmart',
+      meta: 'Via TekSystems  ·  Sunnyvale, CA (remote)  ·  September 2024 – Present',
+      stack: ['Swift', 'UIKit', 'Xcode', 'Git', 'GitHub', 'Jira', 'Figma', 'Appium', 'Copilot', 'GraphQL'],
+      bullets: [
+        'Utilized Copilot for tasks that make sense in both Xcode and VSCode',
+        'Added fields to GraphQL queries and associated models',
+        'Updated Shop Similar UI',
+        'Tightened up search result UI and layout',
+        'UI update for Virtual Try On feature',
+        'Added new analytics calls',
+        'Added unit tests when appropriate, minimum 80% coverage',
+        'Updated VoiceOver accessibility functionality in some places, and added it to others',
+        'Automated regression testing using Appium',
+        'Implementing new automated analytics instrumentation',
+      ],
+    },
+    petsmart: {
+      title: 'iOS Developer',
+      company: 'PetSmart',
+      meta: 'Phoenix, AZ (remote)  ·  October 2023 – August 2024',
+      stack: ['Swift', 'SwiftUI', 'UIKit', 'Xcode', 'Git', 'GitHub', 'Jira', 'Figma', 'Android Studio', 'Java', 'Kotlin'],
+      bullets: [
+        'Added appointment rescheduling workflow to the app',
+        'Added unit tests for 80% minimum coverage',
+        'Worked on Sentry crash reporting',
+        'Worked on ContentSquare integrations for iOS and Android',
+      ],
+    },
+    petco: {
+      title: 'iOS Developer',
+      company: 'Petco',
+      meta: 'San Diego, CA (remote)  ·  July 2023 – October 2023',
+      stack: ['Swift', 'SwiftUI', 'Xcode', 'Git', 'GitLab', 'Jira', 'Figma'],
+      bullets: [
+        'Worked on the conversion of the Petco app from Xamarin to SwiftUI',
+        'Added much of the functionality of the Product Detail page, including the quantity picker, fulfillment methods, store locator, and more',
+        'Team made up of over 20 iOS developers working to launch the MVP',
+      ],
+    },
+    improving: {
+      title: 'iOS Developer',
+      company: 'Improving  /  GAP Project',
+      meta: 'Omaha, NE (remote)  ·  February 2022 – March 2023',
+      stack: ['Swift', 'Combine', 'SwiftUI', 'ObjectiveC', 'Xcode', 'Git', 'GitHub', 'Jira'],
+      bullets: [
+        'Worked on the GAP app UI update, utilizing UIKit with programmatic UI',
+        'White label app used for Old Navy, GAP, Banana Republic, and Athleta — each brand with its own layout',
+        'Wrote UI tests for all new code with a minimum 80% coverage rate',
+        'Identified testing frameworks for testing a wider range of items, including SwiftUI elements',
+      ],
+    },
+    kroger: {
+      title: 'iOS Developer',
+      company: 'Kroger',
+      meta: 'Via Apex Systems  ·  Cincinnati, OH (remote)  ·  February 2021 – February 2022',
+      stack: ['Swift', 'ObjectiveC', 'Combine', 'Xcode', 'Git', 'GitLab', 'GitHub', 'Jira'],
+      bullets: [
+        'Working in Monetization to bring ads to the iOS platform on a very large white label app used for all Kroger brands',
+        'As a team, identified locations in the app that could display ads as either banners or cards',
+        'Made the API calls for ads and inserted the ad views into the various view controllers previously identified',
+      ],
+    },
+    lyncstream: {
+      title: 'Lead iOS Developer',
+      company: 'LyncStream',
+      meta: 'Omaha, NE  ·  December 2019 – February 2021',
+      stack: ['SwiftUI', 'Swift', 'ObjectiveC', 'Xcode', 'Git', 'GitLab', 'SourceTree', 'React', 'Azure DevOps', 'Jira'],
+      bullets: [
+        'Lead iOS developer — managed the codebase and the development team',
+        'Instituted new procedures to clean up code changes',
+        'Built multiple native applications using ObjectiveC, Swift and SwiftUI',
+        'IoT experience using Bluetooth and cloud connectivity',
+        'Responsibilities included assigning stories, determining acceptance criteria, writing and reviewing code',
+      ],
+    },
+    hatcx: {
+      title: 'Software Developer III',
+      company: 'Blue Cross Blue Shield of NE  /  HATCX',
+      meta: 'Omaha, NE  ·  July 2017 – November 2019',
+      stack: ['Swift', 'Xcode', 'Visual Studio', 'Xamarin', 'Android Studio', 'Git', 'GitHub', 'SourceTree', 'Realm', 'Azure DevOps', 'Zeplin.io'],
+      bullets: [
+        'Worked on native (iOS) and cross-platform (iOS and Android) apps for HATCX',
+        'Architecting, design, coding, and testing — highly integrated with everyone having input',
+        'Started the conversion of the app from Xamarin to Swift',
+      ],
+    },
+    surgicallabs: {
+      title: 'Software Engineer — Consultant',
+      company: 'Surgical Laboratories, LLC',
+      meta: 'Nashville, TN (remote)  ·  January 2016 – May 2017',
+      stack: ['Xcode', 'ObjectiveC', 'Swift', 'Git', 'Bitbucket', 'Jira', 'SourceTree', 'Reveal', 'Appcelerator', 'JavaScript'],
+      bullets: [
+        'Provided iOS development services for multiple enterprise apps',
+        'Added new features and made bug fixes across the app portfolio',
+        'Refactored code to reduce complexity and improve maintainability',
+      ],
+    },
+    macpractice: {
+      title: 'iOS Engineer',
+      company: 'MacPractice, Inc.',
+      meta: 'Lincoln, NE  ·  January 2012 – December 2014',
+      stack: ['Xcode', 'ObjectiveC', 'Python', 'MySQL', 'Git', 'SourceTree', 'Jenkins', 'Core Graphics', 'Core Animation', 'Phabricator', 'JSON', 'REST', 'Trello'],
+      bullets: [
+        'Worked with the project manager and owner to schedule feature implementation, provide time estimates, and mentor junior developers',
+        'Performed ongoing development of several iOS apps: iEHR, Clipboard, and Patient Check In — all integrating with MacPractice EHR',
+        'Worked with the Meaningful Use 2014 guidelines to develop required features',
+        'Gained deep knowledge of Objective-C, Xcode, and the full App Store release process',
+        'Set up and maintained a MySQL replication server to back up the in-house ticket tracking system',
+      ],
+    },
+  };
+
+  const overlay = document.getElementById('detailsOverlay');
+  const closeBtn = document.getElementById('modalClose');
+
+  function openModal(jobKey) {
+    const job = jobData[jobKey];
+    if (!job) return;
+
+    document.getElementById('modalTitle').textContent = job.title;
+    document.getElementById('modalCompany').textContent = job.company;
+    document.getElementById('modalMeta').textContent = job.meta;
+
+    const stackEl = document.getElementById('modalStack');
+    stackEl.innerHTML = job.stack.map(t => `<span>${t}</span>`).join('');
+
+    const bulletsEl = document.getElementById('modalBullets');
+    bulletsEl.innerHTML = job.bullets.map(b => `<li>${b}</li>`).join('');
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.details-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openModal(btn.dataset.job);
+    });
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
 </script>
 </body>
 </html>
