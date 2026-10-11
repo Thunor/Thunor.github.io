@@ -503,6 +503,9 @@
   }
 
   .github-strip:hover { border-color: rgba(126,159,200,0.4); }
+  .app-strip { margin-top: 3rem; }
+  .app-strip + .github-strip { margin-top: 1rem; }
+  .app-strip:hover { border-color: rgba(200,169,110,0.4); }
 
   .github-strip svg { color: var(--muted); flex-shrink: 0; }
 
@@ -587,7 +590,10 @@
 
 <nav>
   <a href="#" class="nav-logo">Eric Freitas</a>
-  <a href="https://github.com/Thunor" class="nav-link" target="_blank">GitHub →</a>
+  <div style="display:flex;gap:1.75rem;">
+    <a href="caster/" class="nav-link">Caster 5E</a>
+    <a href="https://github.com/Thunor" class="nav-link" target="_blank">GitHub →</a>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -785,6 +791,16 @@
     </div>
 
   </div>
+
+  <!-- Caster 5E -->
+  <a href="caster/" class="github-strip app-strip reveal">
+    <img src="caster/img/icon.png" alt="" width="44" height="44" style="border-radius:10px;flex-shrink:0;">
+    <div class="github-text">
+      <h3>Caster 5E</h3>
+      <p>My 5th Edition spell reference for iPhone &amp; iPad, built with SwiftUI</p>
+    </div>
+    <span class="github-arrow">→</span>
+  </a>
 
   <!-- GitHub -->
   <a href="https://github.com/Thunor" target="_blank" class="github-strip reveal">
