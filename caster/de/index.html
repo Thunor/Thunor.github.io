@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caster 5E — Zauber-Nachschlagewerk für iPhone und iPad</title>
+<meta name="description" content="Caster 5E ist ein schnelles, schönes Zauber-Nachschlagewerk für die 5. Edition auf iPhone und iPad. 339 SRD-Zauber, starke Filter, drei Designs und sechs Sprachen.">
+<meta property="og:title" content="Caster 5E — Zauber-Nachschlagewerk für iPhone und iPad">
+<meta property="og:description" content="339 SRD-Zauber, starke Filter, drei Designs und sechs Sprachen. Kostenlos im App Store.">
+<meta property="og:image" content="https://thunor.github.io/caster/img/icon.png">
+<meta property="og:url" content="https://thunor.github.io/caster/de/">
+<meta name="twitter:card" content="summary">
+<meta name="apple-itunes-app" content="app-id=1533914164">
+<link rel="alternate" hreflang="en" href="https://thunor.github.io/caster/">
+<link rel="alternate" hreflang="es" href="https://thunor.github.io/caster/es/">
+<link rel="alternate" hreflang="fr" href="https://thunor.github.io/caster/fr/">
+<link rel="alternate" hreflang="de" href="https://thunor.github.io/caster/de/">
+<link rel="alternate" hreflang="pt-BR" href="https://thunor.github.io/caster/pt-br/">
+<link rel="alternate" hreflang="pt-PT" href="https://thunor.github.io/caster/pt-pt/">
+<link rel="alternate" hreflang="x-default" href="https://thunor.github.io/caster/">
+<link rel="icon" href="../img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0e;
+    --surface: #141418;
+    --border: #1e1e26;
+    --accent: #c8a96e;
+    --accent2: #7e9fc8;
+    --violet: #9b7fe0;
+    --text: #e8e4dc;
+    --muted: #6b6878;
+    --card: #16161c;
+    --parchment: #f1e4c3;
+    --ink: #3b2a1a;
+    --crimson: #8b1e1e;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.3;
+  }
+
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(12,12,14,0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .nav-logo, .nav-link {
+    font-family: 'DM Mono', monospace;
+    text-decoration: none;
+    letter-spacing: 0.1em;
+  }
+  .nav-logo { font-size: 0.8rem; color: var(--accent); text-transform: uppercase; }
+  .nav-links { display: flex; gap: 1.75rem; }
+  .nav-link { font-size: 0.75rem; color: var(--muted); transition: color 0.2s; }
+  .nav-link:hover { color: var(--text); }
+
+
+  /* LANGUAGE SWITCHER */
+  .lang-menu { position: relative; }
+  .lang-menu summary {
+    list-style: none; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .lang-menu summary::-webkit-details-marker { display: none; }
+  .lang-menu summary:hover, .lang-menu[open] summary { color: var(--text); }
+  .lang-menu ul {
+    position: absolute; right: 0; top: calc(100% + 0.9rem); list-style: none;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 0.4rem; min-width: 210px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+  .lang-menu a { display: block; padding: 0.55rem 0.8rem; border-radius: 8px; text-decoration: none; font-size: 0.9rem; }
+  .lang-menu a:hover { background: var(--card); }
+  .lang-menu a[aria-current] { color: var(--accent); }
+  a.lang { text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+  a.lang:hover { border-color: rgba(200,169,110,0.4); }
+  a.lang[aria-current] { color: var(--accent); border-color: rgba(200,169,110,0.4); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    padding: 8rem 6rem 4rem;
+    gap: 4rem;
+    position: relative;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: 15%; right: 0;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(155,127,224,0.10) 0%, rgba(200,169,110,0.05) 40%, transparent 70%);
+    pointer-events: none;
+  }
+  .app-id {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .app-id img {
+    width: 72px; height: 72px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(200,169,110,0.18);
+  }
+  .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: clamp(3rem, 5.5vw, 5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-desc {
+    font-size: 1.1rem;
+    color: #a9a5b3;
+    max-width: 480px;
+    line-height: 1.75;
+    margin-bottom: 2.5rem;
+  }
+  .cta-row { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+  .badge img { height: 54px; width: auto; }
+  .badge { display: inline-block; transition: transform 0.2s; }
+  .badge:hover { transform: translateY(-2px); }
+  .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    padding: 0.55rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+  }
+
+  .hero-phones {
+    position: relative;
+    height: 620px;
+    z-index: 1;
+  }
+  .phone {
+    position: absolute;
+    width: 270px;
+    border-radius: 36px;
+    overflow: hidden;
+    border: 6px solid #22222a;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  }
+  .phone.back { left: 0; top: 50px; transform: rotate(-6deg); opacity: 0.85; }
+  .phone.front { right: 0; top: 0; transform: rotate(4deg); }
+
+  /* SECTIONS */
+  section { padding: 6rem 6rem; border-top: 1px solid var(--border); position: relative; }
+  .section-header { display: flex; align-items: baseline; gap: 1.25rem; margin-bottom: 3.5rem; }
+  .section-number { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--accent); }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+  .section-lede { color: #a9a5b3; max-width: 620px; margin: -2rem 0 3.5rem; font-size: 1.05rem; }
+
+  /* STATS */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .stat { padding: 2rem 1.5rem; text-align: center; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.8rem;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .stat-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* FEATURES */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .feature {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+  .feature:hover { border-color: rgba(200,169,110,0.35); transform: translateY(-3px); }
+  .feature-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: rgba(200,169,110,0.1);
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+  }
+  .feature h3 { font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .feature p { color: #9e9aa8; font-size: 0.95rem; }
+
+  /* SHOWCASE */
+  .showcase { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.25rem; }
+  .shot figure { margin: 0; }
+  .shot img {
+    border-radius: 24px;
+    border: 4px solid #22222a;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+  .shot figcaption {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 1rem;
+    letter-spacing: 0.06em;
+  }
+
+  /* IPAD (parchment band) */
+  .parchment {
+    background: var(--parchment);
+    color: var(--ink);
+    border-top: none;
+  }
+  .parchment .section-number { color: var(--crimson); }
+  .parchment .section-lede { color: #6e553c; }
+  .ipad-wrap { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 4rem; align-items: center; }
+  .ipad-wrap .section-header { margin-bottom: 1.5rem; }
+  .ipad-wrap .section-lede { margin: 0 0 2rem; }
+  .ipad-wrap ul { list-style: none; display: grid; gap: 0.85rem; }
+  .ipad-wrap li { display: flex; gap: 0.75rem; align-items: baseline; font-size: 1rem; }
+  .ipad-wrap li::before { content: '✦'; color: var(--crimson); font-size: 0.8rem; }
+  .ipad {
+    border-radius: 28px;
+    border: 10px solid #1a1612;
+    overflow: hidden;
+    box-shadow: 0 30px 70px rgba(59,42,26,0.35);
+  }
+
+  /* THEMES */
+  .themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .theme {
+    border-radius: 16px;
+    padding: 1.75rem;
+    border: 1px solid var(--border);
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .theme h3 { font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 1.5rem; }
+  .theme p { font-size: 0.9rem; opacity: 0.8; }
+  .swatches { display: flex; gap: 0.4rem; margin-bottom: 1rem; }
+  .swatches span { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(128,128,128,0.35); }
+  .t-standard { background: #f2f2f7; color: #1c1c1e; }
+  .t-fantasy { background: #f1e4c3; color: #3b2a1a; font-family: Georgia, serif; }
+  .t-original { background: #415ea3; color: #fff; }
+
+  /* LANGUAGES */
+  .langs { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .lang {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--surface);
+  }
+
+  /* FINAL CTA */
+  .final {
+    text-align: center;
+    padding: 7rem 2rem;
+  }
+  .final img.icon { width: 110px; height: 110px; border-radius: 24px; margin: 0 auto 2rem; box-shadow: 0 12px 50px rgba(155,127,224,0.25); }
+  .final h2 { font-family: 'DM Serif Display', serif; font-weight: 400; font-size: clamp(2.2rem, 4vw, 3.2rem); margin-bottom: 1rem; }
+  .final h2 em { color: var(--accent); }
+  .final p { color: #a9a5b3; margin-bottom: 2.5rem; }
+  .final .badge img { margin: 0 auto; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  footer .links { display: flex; gap: 1.5rem; font-family: 'DM Mono', monospace; font-size: 0.72rem; }
+  footer a { text-decoration: none; }
+  footer a:hover { color: var(--text); }
+  .legal { max-width: 560px; font-size: 0.72rem; line-height: 1.6; }
+
+  /* REVEAL */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+  @media (max-width: 1100px) {
+    .showcase { grid-template-columns: repeat(3, 1fr); }
+    .features { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 3rem; text-align: left; }
+    .hero-phones { height: 480px; max-width: 420px; width: 100%; margin: 0 auto; }
+    .phone { width: 210px; border-radius: 28px; }
+    .ipad-wrap { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { gap: 1rem; }
+    .nav-links .hide-sm { display: none; }
+    section { padding: 4rem 1rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat:nth-child(2) { border-right: none; }
+    .stat:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
+    .features, .themes { grid-template-columns: 1fr; }
+    .showcase {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      margin: 0 -1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .shot { flex: 0 0 62%; scroll-snap-align: center; }
+    footer { padding: 2rem 1rem; flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../../" class="nav-logo">← Eric Freitas</a>
+  <div class="nav-links">
+    <a href="#features" class="nav-link hide-sm">Funktionen</a>
+    <a href="#screens" class="nav-link hide-sm">Screenshots</a>
+    <details class="lang-menu"><summary aria-label="Language">DE ▾</summary><ul><li><a href="../" hreflang="en" lang="en">English</a></li><li><a href="../es/" hreflang="es" lang="es">Español</a></li><li><a href="../fr/" hreflang="fr" lang="fr">Français</a></li><li><a href="../de/" hreflang="de" lang="de" aria-current="page">Deutsch</a></li><li><a href="../pt-br/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a></li><li><a href="../pt-pt/" hreflang="pt-PT" lang="pt-PT">Português (Portugal)</a></li></ul></details>
+    <a href="https://apps.apple.com/de/app/caster-5e/id1533914164" class="nav-link" style="color:var(--accent)" target="_blank" rel="noopener">Laden →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-content reveal">
+    <div class="app-id">
+      <img src="../img/icon.png" alt="App-Symbol von Caster 5E">
+      <div>
+        <div class="label">Caster 5E</div>
+        <div style="color:var(--muted);font-size:0.9rem;">iPhone und iPad · Kostenlos</div>
+      </div>
+    </div>
+    <h1>Jeder Zauber,<br><em>immer griffbereit.</em></h1>
+    <p class="hero-desc">Caster ist ein schnelles, schönes Zauber-Nachschlagewerk für die 5. Edition. Durchsuche und filtere alle 339 SRD-Zauber nach Klasse, Grad, Schule und Komponenten – und spiel weiter.</p>
+    <div class="cta-row">
+      <a class="badge" href="https://apps.apple.com/de/app/caster-5e/id1533914164" target="_blank" rel="noopener">
+        <img src="../img/app-store-badge.svg" alt="Laden im App Store">
+      </a>
+      <span class="pill">Version 2.0 · Mit SwiftUI entwickelt</span>
+    </div>
+  </div>
+  <div class="hero-phones reveal">
+    <img class="phone back" src="../img/de/01_spell_list.jpg" alt="Zauberliste in Caster">
+    <img class="phone front" src="../img/de/02_spell_card.jpg" alt="Zauberkarte Feuerball in Caster">
+  </div>
+</header>
+
+<!-- STATS -->
+<section style="padding-top:3rem;padding-bottom:3rem;">
+  <div class="stats reveal">
+    <div class="stat"><div class="stat-num">339</div><div class="stat-label">SRD-Zauber</div></div>
+    <div class="stat"><div class="stat-num">8</div><div class="stat-label">Zauberklassen</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Designs</div></div>
+    <div class="stat"><div class="stat-num">6</div><div class="stat-label">Sprachen</div></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-header reveal">
+    <span class="section-number">01</span>
+    <h2 class="section-title">Gemacht für den Spieltisch</h2>
+  </div>
+  <p class="section-lede reveal">Keine Werbung, keine Konten, kein Internet während der Sitzung nötig. Nur der Zauber, den du brauchst – genau dann, wenn du ihn brauchst.</p>
+
+  <div class="features">
+    <div class="feature reveal">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
+      <h3>Sofortsuche</h3>
+      <p>Tippe ein paar Buchstaben und die Liste schrumpft sofort. Finde Gegenzauber, bevor der feindliche Magier fertig gewirkt hat.</p>
+    </div>
+    <div class="feature reveal">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></div>
+      <h3>Starke Filter</h3>
+      <p>Filtere nach Grad 0–9, Klasse, Schule, Ritual, Konzentration und den Komponenten V/G/M. Halte eine Option gedrückt, um nur sie auszuwählen.</p>
+    </div>
+    <div class="feature reveal">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></div>
+      <h3>Übersichtliche Zauberkarten</h3>
+      <p>Zeitaufwand, Reichweite, Wirkungsdauer, Komponenten und Klassen auf einen Blick – mit vollständiger Beschreibung und Wirkung auf höheren Graden.</p>
+    </div>
+    <div class="feature reveal">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/></svg></div>
+      <h3>Drei Designs</h3>
+      <p>Standard von iOS, ein Fantasy-Zauberbuch mit Tinte auf Pergament oder das klassische Original-Blau – jeweils hell und dunkel.</p>
+    </div>
+    <div class="feature reveal">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg></div>
+      <h3>Sechs Sprachen</h3>
+      <p>Oberfläche und Zaubertexte auf Deutsch, Englisch, Spanisch, Französisch sowie brasilianischem und europäischem Portugiesisch.</p>
+    </div>
+    <div class="feature reveal">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 5v14"/></svg></div>
+      <h3>Geteilte Ansicht auf dem iPad</h3>
+      <p>Links die Liste, rechts der Zauber – perfekt hinter dem Spielleiterschirm.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENS -->
+<section id="screens">
+  <div class="section-header reveal">
+    <span class="section-number">02</span>
+    <h2 class="section-title">Ein genauerer Blick</h2>
+  </div>
+  <div class="showcase">
+    <div class="shot reveal"><figure><img src="../img/de/01_spell_list.jpg" alt="Zauberliste" loading="lazy"><figcaption>Zauberliste</figcaption></figure></div>
+    <div class="shot reveal"><figure><img src="../img/de/02_spell_card.jpg" alt="Zauberkarte" loading="lazy"><figcaption>Zauberkarte</figcaption></figure></div>
+    <div class="shot reveal"><figure><img src="../img/de/03_filters.jpg" alt="Filter" loading="lazy"><figcaption>Filter</figcaption></figure></div>
+    <div class="shot reveal"><figure><img src="../img/de/04_spell_card_dark.jpg" alt="Zauberkarte im dunklen Modus" loading="lazy"><figcaption>Dunkler Modus</figcaption></figure></div>
+    <div class="shot reveal"><figure><img src="../img/de/05_settings.jpg" alt="Einstellungen" loading="lazy"><figcaption>Einstellungen</figcaption></figure></div>
+  </div>
+</section>
+
+<!-- IPAD -->
+<section class="parchment">
+  <div class="ipad-wrap">
+    <div class="reveal">
+      <div class="section-header">
+        <span class="section-number">03</span>
+        <h2 class="section-title">Auch fürs iPad gemacht</h2>
+      </div>
+      <p class="section-lede">Ein Zauberbuch, das offen auf dem Tisch liegt.</p>
+      <ul>
+        <li>Liste und Zauber nebeneinander</li>
+        <li>Zauberwerte in einer kompakten Seitenleiste</li>
+        <li>Große, gut lesbare Serifenschrift im Fantasy-Design</li>
+        <li>Ideal für Multitasking</li>
+      </ul>
+    </div>
+    <div class="ipad reveal"><img src="../img/de/ipad_split.jpg" alt="Caster auf dem iPad mit der Zauberliste neben Feuerball" loading="lazy"></div>
+  </div>
+</section>
+
+<!-- THEMES -->
+<section>
+  <div class="section-header reveal">
+    <span class="section-number">04</span>
+    <h2 class="section-title">Wähle deinen Look</h2>
+  </div>
+  <div class="themes">
+    <div class="theme t-standard reveal">
+      <div><div class="swatches"><span style="background:#f2f2f7"></span><span style="background:#fff"></span><span style="background:#007aff"></span></div><h3>Standard</h3></div>
+      <p>Standardfarben von iOS – hell, dunkel oder automatisch je nach Tageszeit.</p>
+    </div>
+    <div class="theme t-fantasy reveal">
+      <div><div class="swatches"><span style="background:#f1e4c3"></span><span style="background:#3b2a1a"></span><span style="background:#8b1e1e"></span></div><h3>Fantasy</h3></div>
+      <p>Tinte auf Pergament – oder im dunklen Modus Leder und Gold bei Kerzenschein.</p>
+    </div>
+    <div class="theme t-original reveal">
+      <div><div class="swatches"><span style="background:#415ea3"></span><span style="background:#fff"></span><span style="background:#ffd60a"></span></div><h3>Original</h3></div>
+      <p>Das ursprüngliche blaue Design von Caster, passend zum Erscheinungsbild des Systems.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LANGUAGES -->
+<section>
+  <div class="section-header reveal">
+    <span class="section-number">05</span>
+    <h2 class="section-title">Spricht deine Sprache</h2>
+  </div>
+  <div class="langs reveal">
+    <a class="lang" href="../" hreflang="en" lang="en">English</a>
+    <a class="lang" href="../es/" hreflang="es" lang="es">Español</a>
+    <a class="lang" href="../fr/" hreflang="fr" lang="fr">Français</a>
+    <a class="lang" href="../de/" hreflang="de" lang="de" aria-current="page">Deutsch</a>
+    <a class="lang" href="../pt-br/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+    <a class="lang" href="../pt-pt/" hreflang="pt-PT" lang="pt-PT">Português (Portugal)</a>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="reveal">
+    <img class="icon" src="../img/icon.png" alt="">
+    <h2>Initiative <em>würfeln!</em></h2>
+    <p>Caster 5E ist kostenlos im App Store für iPhone und iPad.</p>
+    <a class="badge" href="https://apps.apple.com/de/app/caster-5e/id1533914164" target="_blank" rel="noopener">
+      <img src="../img/app-store-badge.svg" alt="Laden im App Store">
+    </a>
+  </div>
+</section>
+
+<footer>
+  <p class="legal">Caster 5E verwendet Open Game Content aus dem System Reference Document, lizenziert unter der Open Game License v1.0a, Copyright 2000, Wizards of the Coast, Inc. Caster steht in keiner Verbindung zu Wizards of the Coast und wird nicht von Wizards of the Coast unterstützt.</p>
+  <div class="links">
+    <a href="../../">Eric Freitas</a>
+    <a href="https://github.com/Thunor" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('.lang-menu[open]').forEach((d) => { if (!d.contains(e.target)) d.removeAttribute('open'); });
+  });
+</script>
+</body>
+</html>

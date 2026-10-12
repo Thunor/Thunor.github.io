@@ -11,6 +11,13 @@
 <meta property="og:url" content="https://thunor.github.io/caster/">
 <meta name="twitter:card" content="summary">
 <meta name="apple-itunes-app" content="app-id=1533914164">
+<link rel="alternate" hreflang="en" href="https://thunor.github.io/caster/">
+<link rel="alternate" hreflang="es" href="https://thunor.github.io/caster/es/">
+<link rel="alternate" hreflang="fr" href="https://thunor.github.io/caster/fr/">
+<link rel="alternate" hreflang="de" href="https://thunor.github.io/caster/de/">
+<link rel="alternate" hreflang="pt-BR" href="https://thunor.github.io/caster/pt-br/">
+<link rel="alternate" hreflang="pt-PT" href="https://thunor.github.io/caster/pt-pt/">
+<link rel="alternate" hreflang="x-default" href="https://thunor.github.io/caster/">
 <link rel="icon" href="img/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="img/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -79,6 +86,28 @@
   .nav-links { display: flex; gap: 1.75rem; }
   .nav-link { font-size: 0.75rem; color: var(--muted); transition: color 0.2s; }
   .nav-link:hover { color: var(--text); }
+
+
+  /* LANGUAGE SWITCHER */
+  .lang-menu { position: relative; }
+  .lang-menu summary {
+    list-style: none; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .lang-menu summary::-webkit-details-marker { display: none; }
+  .lang-menu summary:hover, .lang-menu[open] summary { color: var(--text); }
+  .lang-menu ul {
+    position: absolute; right: 0; top: calc(100% + 0.9rem); list-style: none;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 0.4rem; min-width: 210px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+  .lang-menu a { display: block; padding: 0.55rem 0.8rem; border-radius: 8px; text-decoration: none; font-size: 0.9rem; }
+  .lang-menu a:hover { background: var(--card); }
+  .lang-menu a[aria-current] { color: var(--accent); }
+  a.lang { text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+  a.lang:hover { border-color: rgba(200,169,110,0.4); }
+  a.lang[aria-current] { color: var(--accent); border-color: rgba(200,169,110,0.4); }
 
   /* HERO */
   .hero {
@@ -355,6 +384,7 @@
   <div class="nav-links">
     <a href="#features" class="nav-link hide-sm">Features</a>
     <a href="#screens" class="nav-link hide-sm">Screens</a>
+    <details class="lang-menu"><summary aria-label="Language">EN ▾</summary><ul><li><a href="./" hreflang="en" lang="en" aria-current="page">English</a></li><li><a href="es/" hreflang="es" lang="es">Español</a></li><li><a href="fr/" hreflang="fr" lang="fr">Français</a></li><li><a href="de/" hreflang="de" lang="de">Deutsch</a></li><li><a href="pt-br/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a></li><li><a href="pt-pt/" hreflang="pt-PT" lang="pt-PT">Português (Portugal)</a></li></ul></details>
     <a href="https://apps.apple.com/us/app/caster-5e/id1533914164" class="nav-link" style="color:var(--accent)" target="_blank" rel="noopener">Get the App →</a>
   </div>
 </nav>
@@ -500,12 +530,12 @@
     <h2 class="section-title">Speaks your language</h2>
   </div>
   <div class="langs reveal">
-    <span class="lang">English</span>
-    <span class="lang">Español</span>
-    <span class="lang">Français</span>
-    <span class="lang">Deutsch</span>
-    <span class="lang">Português (Brasil)</span>
-    <span class="lang">Português (Portugal)</span>
+    <a class="lang" href="./" hreflang="en" lang="en" aria-current="page">English</a>
+    <a class="lang" href="es/" hreflang="es" lang="es">Español</a>
+    <a class="lang" href="fr/" hreflang="fr" lang="fr">Français</a>
+    <a class="lang" href="de/" hreflang="de" lang="de">Deutsch</a>
+    <a class="lang" href="pt-br/" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>
+    <a class="lang" href="pt-pt/" hreflang="pt-PT" lang="pt-PT">Português (Portugal)</a>
   </div>
 </section>
 
@@ -536,6 +566,9 @@
     });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('.lang-menu[open]').forEach((d) => { if (!d.contains(e.target)) d.removeAttribute('open'); });
+  });
 </script>
 </body>
 </html>
