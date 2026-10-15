@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnyxKeep — Projects by Eric Freitas</title>
+<meta name="description" content="OnyxKeep: current projects by Eric Freitas, including Caster 5E and Estrelas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0e;
+    --surface: #141418;
+    --border: #1e1e26;
+    --accent: #c8a96e;
+    --accent2: #7e9fc8;
+    --text: #e8e4dc;
+    --muted: #6b6878;
+    --card: #16161c;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.3;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(12,12,14,0.88);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .nav-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+  .nav-link:hover, .nav-link.active { color: var(--text); }
+
+  /* SECTION */
+  section {
+    flex: 1;
+    padding: 9rem 6rem 6rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .section-title em { font-style: italic; color: var(--accent); }
+
+  .section-desc {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+
+  /* PROJECT STRIPS */
+  .github-strip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.25s;
+    margin-top: 2rem;
+  }
+
+  .app-strip { margin-top: 3rem; }
+  .app-strip + .app-strip { margin-top: 1rem; }
+  .app-strip:hover { border-color: rgba(200,169,110,0.4); }
+
+  .github-text { flex: 1; padding: 0 1.5rem; }
+
+  .github-text h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .github-text p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .github-arrow {
+    font-size: 1.3rem;
+    color: var(--accent2);
+    transition: transform 0.2s;
+  }
+
+  .github-strip:hover .github-arrow { transform: translateX(4px); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  footer p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    section { padding: 7rem 1.5rem 4rem; }
+    .github-strip { padding: 1.5rem; }
+    .github-text { padding: 0 1rem; }
+    footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../" class="nav-logo">Eric Freitas</a>
+  <div style="display:flex;gap:1.75rem;">
+    <a href="./" class="nav-link active">OnyxKeep</a>
+    <a href="https://github.com/Thunor" class="nav-link" target="_blank">GitHub →</a>
+  </div>
+</nav>
+
+<section>
+  <div class="section-header reveal">
+    <span class="section-number">ONYXKEEP</span>
+  </div>
+  <h1 class="section-title reveal">Current <em>Projects</em></h1>
+
+  <a href="../caster/" class="github-strip app-strip reveal">
+    <img src="../caster/img/icon.png" alt="" width="44" height="44" style="border-radius:10px;flex-shrink:0;">
+    <div class="github-text">
+      <h3>Caster 5E</h3>
+      <p>A 5th Edition spell reference for iPhone &amp; iPad, built with SwiftUI</p>
+    </div>
+    <span class="github-arrow">→</span>
+  </a>
+
+  <a href="../estrelas/" class="github-strip app-strip reveal">
+    <img src="../estrelas/img/icon.png" alt="" width="44" height="44" style="border-radius:10px;flex-shrink:0;">
+    <div class="github-text">
+      <h3>Estrelas</h3>
+      <p>An endless star map for science-fiction game masters, for Mac, built with SwiftUI &amp; RealityKit</p>
+    </div>
+    <span class="github-arrow">→</span>
+  </a>
+</section>
+
+<footer>
+  <p>Eric Freitas &nbsp;·&nbsp; iOS Developer since 2012</p>
+  <p>© 2025</p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
