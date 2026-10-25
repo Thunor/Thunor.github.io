@@ -31,13 +31,13 @@ class StatusError extends Error {
 const sleep = (seconds) => new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 
 /** Sends a request, trying again after the glitches a busy TravellerMap gives; other answers come back as they are */
-async function send(url, { method = 'GET', accept = null, what = url } = {}) {
+async function send(url, { method = 'GET', accept = null, what = url, retries = retryDelays.length, timeout = 60000 } = {}) {
     const proxied = await launcherAvailable();
     const address = proxied ? `/__launcher/fetch?url=${encodeURIComponent(url)}` : url;
     for (let attempt = 1; ; attempt++) {
         try {
             const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 60000);
+            const timer = setTimeout(() => controller.abort(), timeout);
             let response;
             try {
                 response = await fetch(address, { method, headers: accept ? { Accept: accept } : {}, signal: controller.signal,
@@ -52,7 +52,7 @@ async function send(url, { method = 'GET', accept = null, what = url } = {}) {
         } catch (error) {
             const transient = error instanceof TypeError || error.name === 'AbortError' ||
                 (error instanceof StatusError && (error.status === 429 || error.status >= 500));
-            if (!transient || attempt > retryDelays.length) throw error;
+            if (!transient || attempt > retries) throw error;
             await sleep(retryDelays[attempt - 1]);
         }
     }
@@ -116,10 +116,23 @@ export async function metadata(listing) {
 
 /** The world map drawn for a hex, as JPEG bytes, if there is one: TravellerMap has a thumbnail exactly for the hexes it has a map of */
 export async function worldMap(abbreviation, hex) {
+    if (worldMapsUnreachable) return null;
     const file = encodeURIComponent(`${abbreviation} ${hex}.jpg`);
-    const thumb = await send(`${images}/thumbs/${file}`, { method: 'HEAD', what: file });
-    if (thumb.status !== 200) return null;
-    const response = await send(`${images}/${file}`, { what: file });
-    if (response.status !== 200) return null;
-    return new Uint8Array(await response.arrayBuffer());
+    // Maps are a nicety, so they're given up on quickly. Without the launcher, TravellerMap's image store doesn't let a
+    // page fetch from it at all: the first refusal stops the rest being tried, rather than each waiting through retries.
+    const proxied = await launcherAvailable();
+    const options = proxied ? { retries: 2, timeout: 15000 } : { retries: 0, timeout: 8000 };
+    try {
+        const thumb = await send(`${images}/thumbs/${file}`, { method: 'HEAD', what: file, ...options });
+        if (thumb.status !== 200) return null;
+        const response = await send(`${images}/${file}`, { what: file, ...options });
+        if (response.status !== 200) return null;
+        return new Uint8Array(await response.arrayBuffer());
+    } catch (error) {
+        if (!proxied && (error instanceof TypeError || error.name === 'AbortError')) worldMapsUnreachable = true;
+        throw error;
+    }
 }
+
+/** Set once a page served without the launcher finds it can't reach TravellerMap's world maps */
+let worldMapsUnreachable = false;
