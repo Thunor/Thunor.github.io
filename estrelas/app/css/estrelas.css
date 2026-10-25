@@ -734,8 +734,14 @@ body[data-style="retroSpace"] .data-value {
 
 .button-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
     align-items: center;
+}
+
+/* Buttons keep their whole label, in any language: one that doesn't fit goes to the next line instead */
+.button-row > .styled-button:not(.grow) {
+    flex-shrink: 0;
 }
 
 .button-row > .grow {
@@ -1618,6 +1624,7 @@ body[data-style="macOS"] .resolution-menu {
 
 .button-row > .data-row {
     flex: 1;
+    min-width: 0;
 }
 
 .add-route {
@@ -2528,13 +2535,27 @@ dialog.themed-sheet.weather-sheet {
     opacity: 0.5;
 }
 
+/* A suggested advisory: its button keeps its whole label, and goes under the suggestion if they don't fit */
+.zone-picker.suggested {
+    flex-wrap: wrap;
+}
+.zone-picker > .styled-button {
+    flex-shrink: 0;
+}
+
 /* The Settle button's options: the world's city style, and placing its settlements */
 .settle-options {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    width: 340px;
+    width: max-content;
+    min-width: 340px;
+    max-width: min(460px, calc(100vw - 48px));
     padding: 4px;
+}
+/* Pickers keep their whole choice, in any language */
+.settle-options .field select {
+    flex-shrink: 0;
 }
 .settle-options .heading {
     font-weight: 600;
@@ -2555,15 +2576,8 @@ dialog.themed-sheet.weather-sheet {
     gap: 8px;
 }
 
-/* The city map's details give way to its buttons, cut short rather than wrapping them */
-.city-sheet .map-header {
-    flex-wrap: nowrap;
-}
+/* The city map's details each stay whole, in any language; when they and the buttons don't fit, the buttons wrap */
 .city-sheet .map-header > .hint {
-    min-width: 0;
-    flex-shrink: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
 }
 .city-sheet .map-header > .styled-button,

@@ -9,7 +9,7 @@
 //
 
 import { h, panel, button, icon, popover } from './components.js';
-import { t } from './i18n.js';
+import { t, locale } from './i18n.js';
 import * as Settings from './settings.js';
 import { showSheet } from './sheets.js';
 import { noteButton, inlineMarkdown, placeKindName, landmarkTypeName } from './notes.js';
@@ -372,7 +372,7 @@ export function showSurfaceMap(world, options) {
                 }
                 const resolution = h('select', { 'aria-label': t('Globe resolution') }, [1, 2, 4].map((scale, index) =>
                     h('option', { value: String(scale), selected: scale === (Settings.get('globeExportResolution') ?? 1) },
-                        `${scale === 1 ? t('Standard') : `${scale}×`} (${cellCount(globeSubdivisions + index).toLocaleString()} ${t('cells')})`)));
+                        `${scale === 1 ? t('Standard') : `${scale}×`} (${cellCount(globeSubdivisions + index).toLocaleString(locale())} ${t('cells')})`)));
                 resolution.addEventListener('change', () => Settings.set('globeExportResolution', Number(resolution.value)));
                 const mount = h('select', { 'aria-label': t('Mount') }, mounts.map((m) =>
                     h('option', { value: m.id, selected: m.id === (Settings.get('globeExportMount') ?? 'none') }, t(m.title))));
