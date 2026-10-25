@@ -215,6 +215,11 @@ export const mapPath = (listing, hex) => `${chartFolder}/maps/${systemID(listing
  * `readTemplates`, the maps are only kept.
  */
 export async function fetchMaps(sectors, folder, { readTemplates = true, progress = () => {} } = {}) {
+    // Run from the website rather than the launcher, world maps can't be fetched: none are looked for
+    if (!(await Client.canFetchWorldMaps())) {
+        for (const sector of sectors) sector.maps = sector.maps ?? {};
+        return {};
+    }
     const wanted = [];
     sectors.forEach((sector, index) => {
         for (const world of snapshotWorlds(currentSnapshot(sector))) {
@@ -290,7 +295,7 @@ export async function populate(store, { listings, milieu, seed, dataOnly = false
         const snapshot = await fetchSnapshot(listing);
         sectors.push({ listing, snapshots: [snapshot], inUse: snapshot.id });
     }
-    progress(t('Looking for world maps…'), 0.4);
+    if (await Client.canFetchWorldMaps()) progress(t('Looking for world maps…'), 0.4);
     const templates = await fetchMaps(sectors, folder, { readTemplates: !dataOnly,
         progress: (done) => progress(t('Reading world maps…'), 0.4 + done * (dataOnly ? 0.55 : 0.35)) });
     const source = { format: 'estrelas.traveller.source', version: 1, milieu,

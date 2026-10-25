@@ -3,7 +3,7 @@
 //  Estrelas (web)
 //
 //  The panels and controls the interface is built from, each drawn in the active interface style (Theme.swift,
-//  EstrelaStyle.swift, RetroSpace.swift, MacOSStyle.swift): titled panels, buttons, toggles, section headers, data
+//  EstrelaStyle.swift, MacOSStyle.swift): titled panels, buttons, toggles, section headers, data
 //  rows and strips, plus the small pieces several views share (popovers, context menus, prompts).
 //  Colours are theme roles ('primary', 'highlight'…) or any CSS colour.
 //
@@ -23,7 +23,7 @@ export function faded(color, opacity) {
 
 export function style() {
     const value = document.body.dataset.style;
-    return value === 'retroSpace' || value === 'macOS' ? value : 'estrela';
+    return value === 'macOS' ? value : 'estrela';
 }
 
 /** Makes an element: h('div', { class: 'x', onclick }, child, 'text', …) */
@@ -119,18 +119,6 @@ export function estrelaFrame(element, color, cut = 16, bracketLength = 26, glass
     }, true);
 }
 
-/** The RetroSpace elbow: a top bar joined to a left bar by a sweeping curve (flipped: left bar to a bottom bar) */
-function elbow(element, color, sidebarWidth, barHeight, flipped = false) {
-    return decorate(element, (svg, w, h) => {
-        const outer = Math.min(h, sidebarWidth * 1.4);
-        const inner = Math.min(barHeight, sidebarWidth) * 0.8;
-        let d = `M0,${h} L0,${outer} A${outer},${outer} 0 0 1 ${outer},0 L${w},0 L${w},${barHeight} ` +
-            `L${sidebarWidth + inner},${barHeight} A${inner},${inner} 0 0 0 ${sidebarWidth},${barHeight + inner} L${sidebarWidth},${h} Z`;
-        const element2 = path(svg, d, { fill: cssColor(color) });
-        if (flipped) element2.setAttribute('transform', `matrix(1 0 0 -1 0 ${h})`);
-    });
-}
-
 // MARK: panel
 
 /** A titled panel framed in the active style */
@@ -139,24 +127,6 @@ export function panel({ title, color = 'primary', segments = ['accent', 'label',
     if (style() === 'macOS') {
         // The HIG look keeps panels plain: a glass card with the title as a headline
         const element = h('section', { class: `panel macos-panel ${className}` }, h('h3', { class: 'macos-title' }, title), body);
-        element.panelBody = body;
-        return element;
-    }
-    if (style() === 'retroSpace') {
-        const top = h('div', { class: 'retro-elbow-top' },
-            h('div', { class: 'retro-title' },
-                h('span', { class: 'retro-title-text', style: { color: cssColor(color) } }, title),
-                h('span', { class: 'retro-title-cap', style: { background: cssColor(color) } })));
-        elbow(top, color, 26, 18);
-        const sidebar = h('div', { class: 'retro-sidebar' },
-            segments.map((segment, index) => h('div', {
-                class: index === segments.length - 1 ? 'retro-segment last' : 'retro-segment',
-                style: { background: cssColor(segment) },
-            })));
-        const bottom = h('div', { class: 'retro-elbow-bottom' });
-        elbow(bottom, color, 26, 18 * 0.6, true);
-        const element = h('section', { class: `panel retro-panel ${className}` }, top,
-            h('div', { class: 'retro-middle' }, sidebar, body), bottom);
         element.panelBody = body;
         return element;
     }
@@ -201,9 +171,8 @@ export function toggle({ title, isOn, color = 'control', onChange, help }) {
         input.addEventListener('change', () => onChange(input.checked));
         return h('label', { class: 'macos-toggle', title: help }, h('span', {}, title), input);
     }
-    const retro = style() === 'retroSpace';
-    const shown = isOn ? cssColor(color) : faded(color, retro ? 0.35 : 0.5);
-    const lamp = h('i', { class: 'lamp', style: retro ? { background: isOn ? '#000' : faded(color, 0.6) } : {} });
+    const shown = isOn ? cssColor(color) : faded(color, 0.5);
+    const lamp = h('i', { class: 'lamp' });
     const element = button([lamp, h('span', { class: 'toggle-title' }, title)], {
         color: shown, pill: false, className: `toggle ${isOn ? 'on' : 'off'}`, grow: true,
         onClick: () => onChange(!isOn), title: help,
@@ -215,10 +184,6 @@ export function toggle({ title, isOn, color = 'control', onChange, help }) {
 /** A section heading in the active style */
 export function sectionHeader(title, color = 'label') {
     if (style() === 'macOS') return h('div', { class: 'section-header macos', style: { '--color': cssColor(color) } }, title);
-    if (style() === 'retroSpace') {
-        return h('div', { class: 'section-header retro', style: { '--color': cssColor(color) } },
-            h('i', { class: 'cap' }), h('span', {}, title), h('i', { class: 'bar' }));
-    }
     return h('div', { class: 'section-header estrela', style: { '--color': cssColor(color) } },
         h('i', { class: 'diamond' }), h('span', {}, title), h('i', { class: 'rule' }), ticks(color, 3, 3));
 }
@@ -233,9 +198,6 @@ export function dataRow(label, value, valueColor = 'primary') {
 /** A horizontal strip of controls, like the time controls */
 export function strip(...content) {
     if (style() === 'macOS') return h('div', { class: 'strip macos-strip' }, ...content);
-    if (style() === 'retroSpace') {
-        return h('div', { class: 'strip retro-strip' }, h('i', { class: 'strip-cap' }), ...content);
-    }
     const element = h('div', { class: 'strip estrela-strip' }, ...content);
     decorate(element, (svg, width, height) => {
         path(svg, chamfer(width, height, 12), { fill: 'var(--background)' });

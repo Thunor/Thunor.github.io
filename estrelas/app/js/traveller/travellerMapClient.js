@@ -114,25 +114,24 @@ export async function metadata(listing) {
     return result;
 }
 
-/** The world map drawn for a hex, as JPEG bytes, if there is one: TravellerMap has a thumbnail exactly for the hexes it has a map of */
-export async function worldMap(abbreviation, hex) {
-    if (worldMapsUnreachable) return null;
-    const file = encodeURIComponent(`${abbreviation} ${hex}.jpg`);
-    // Maps are a nicety, so they're given up on quickly. Without the launcher, TravellerMap's image store doesn't let a
-    // page fetch from it at all: the first refusal stops the rest being tried, rather than each waiting through retries.
-    const proxied = await launcherAvailable();
-    const options = proxied ? { retries: 2, timeout: 15000 } : { retries: 0, timeout: 8000 };
-    try {
-        const thumb = await send(`${images}/thumbs/${file}`, { method: 'HEAD', what: file, ...options });
-        if (thumb.status !== 200) return null;
-        const response = await send(`${images}/${file}`, { what: file, ...options });
-        if (response.status !== 200) return null;
-        return new Uint8Array(await response.arrayBuffer());
-    } catch (error) {
-        if (!proxied && (error instanceof TypeError || error.name === 'AbortError')) worldMapsUnreachable = true;
-        throw error;
-    }
+/**
+ * Whether world maps can be fetched: only through the Estrelas launcher, as TravellerMap's image store doesn't let a web
+ * page fetch from it. Run from the website (or any other server), world maps are left out and worlds get generated
+ * surfaces.
+ */
+export function canFetchWorldMaps() {
+    return launcherAvailable();
 }
 
-/** Set once a page served without the launcher finds it can't reach TravellerMap's world maps */
-let worldMapsUnreachable = false;
+/** The world map drawn for a hex, as JPEG bytes, if there is one: TravellerMap has a thumbnail exactly for the hexes it has a map of */
+export async function worldMap(abbreviation, hex) {
+    if (!(await canFetchWorldMaps())) return null;
+    const file = encodeURIComponent(`${abbreviation} ${hex}.jpg`);
+    // Maps are a nicety, so a slow one is given up on quickly
+    const options = { retries: 2, timeout: 15000 };
+    const thumb = await send(`${images}/thumbs/${file}`, { method: 'HEAD', what: file, ...options });
+    if (thumb.status !== 200) return null;
+    const response = await send(`${images}/${file}`, { what: file, ...options });
+    if (response.status !== 200) return null;
+    return new Uint8Array(await response.arrayBuffer());
+}

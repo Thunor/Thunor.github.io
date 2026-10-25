@@ -2,7 +2,7 @@
    estrelas.css
    Estrelas (web)
 
-   The two interface styles (Estrela, a holographic HUD; RetroSpace, a retro starship console) as colour roles and
+   The interface styles (Estrela, a holographic HUD; macOS, plain glass cards) as colour roles and
    type, the styled panels and controls, and the app's chrome: menu bar, side panel, time strip and sheets.
 */
 
@@ -34,25 +34,6 @@ body[data-style="estrela"] {
     --font-scale: 0.86;
     --numeric-font: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     --numeric-scale: 0.9;
-}
-
-body[data-style="retroSpace"] {
-    --primary: rgb(255 153 0);
-    --accent: rgb(255 153 102);
-    --highlight: rgb(255 204 102);
-    --label: rgb(204 153 204);
-    --control: rgb(153 153 255);
-    --info: rgb(153 204 255);
-    --muted: rgb(204 153 102);
-    --alert: rgb(204 102 102);
-    --background: rgb(0 0 0 / 0.85);
-    --glass: rgb(0 0 0 / 0.85);
-    --font: "SF Pro Display", "Antonio", "Arial Narrow", "Roboto Condensed", "Helvetica Neue", var(--system-font);
-    --font-stretch: condensed;
-    --letter-spacing: 0.01em;
-    --font-scale: 1;
-    --numeric-font: var(--font);
-    --numeric-scale: 1;
 }
 
 * {
@@ -192,84 +173,6 @@ svg.defs {
     height: 5px;
 }
 
-.retro-panel {
-    padding: 8px;
-    background: var(--background);
-    border-radius: 20px;
-}
-
-.retro-elbow-top {
-    position: relative;
-    height: 44px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-}
-
-.retro-title {
-    position: relative;
-    display: flex;
-    gap: 4px;
-    height: 18px;
-    max-width: calc(100% - 50px);
-}
-
-.retro-title-text {
-    background: #000;
-    padding: 0 6px;
-    height: 18px;
-    line-height: 19px;
-    font-family: var(--font);
-    font-stretch: condensed;
-    font-weight: 700;
-    font-size: 20px;
-    text-transform: uppercase;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.retro-title-cap {
-    width: 18px;
-    height: 18px;
-    border-radius: 9px;
-    flex: none;
-}
-
-.retro-middle {
-    display: flex;
-    gap: 8px;
-    min-height: 0;
-    flex: 1;
-}
-
-.retro-sidebar {
-    width: 26px;
-    flex: none;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 4px 0;
-}
-
-.retro-segment {
-    height: 36px;
-}
-
-.retro-segment.last {
-    flex: 1;
-    min-height: 12px;
-}
-
-.retro-panel .panel-content {
-    padding: 6px 10px 6px 0;
-}
-
-.retro-elbow-bottom {
-    position: relative;
-    height: 26px;
-}
-
 /* MARK: buttons */
 
 .styled-button {
@@ -343,36 +246,6 @@ body[data-style="estrela"] .styled-button:disabled {
     opacity: 0.35;
 }
 
-body[data-style="retroSpace"] .styled-button {
-    background: var(--color);
-    color: #000;
-    font-family: var(--font);
-    font-stretch: condensed;
-    font-weight: 700;
-    font-size: calc(var(--height) * 0.55);
-    text-transform: uppercase;
-    align-items: flex-end;
-    justify-content: flex-end;
-    padding: 0 calc(var(--height) * 0.5) 2px;
-    border-radius: calc(var(--height) / 2);
-}
-
-body[data-style="retroSpace"] .styled-button.block {
-    border-radius: calc(var(--height) / 2) 0 0 calc(var(--height) / 2);
-}
-
-body[data-style="retroSpace"] .styled-button:disabled {
-    background: color-mix(in srgb, var(--color) 30%, transparent);
-}
-
-body[data-style="retroSpace"] .styled-button:active:not(:disabled) {
-    filter: brightness(1.25);
-}
-
-body[data-style="retroSpace"] .styled-button .label {
-    justify-content: flex-end;
-}
-
 /* Toggles */
 
 .toggle .lamp {
@@ -395,21 +268,6 @@ body[data-style="estrela"] .toggle .lamp {
 body[data-style="estrela"] .toggle.on .lamp {
     background: var(--color);
     box-shadow: 0 0 4px var(--color);
-}
-
-body[data-style="retroSpace"] .toggle .label {
-    justify-content: space-between;
-}
-
-body[data-style="retroSpace"] .toggle .lamp {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    align-self: center;
-}
-
-body[data-style="retroSpace"] .toggle .toggle-title {
-    text-align: right;
 }
 
 /* MARK: section headers and data rows */
@@ -457,30 +315,6 @@ body[data-style="retroSpace"] .toggle .toggle-title {
     background: color-mix(in srgb, var(--color) 50%, transparent);
 }
 
-.section-header.retro {
-    padding-top: 4px;
-}
-
-.section-header.retro .cap {
-    width: 14px;
-    height: 10px;
-    border-radius: 5px;
-    background: var(--color);
-    flex: none;
-}
-
-.section-header.retro span {
-    font-stretch: condensed;
-    font-weight: 700;
-    font-size: 14px;
-}
-
-.section-header.retro .bar {
-    flex: 1;
-    height: 10px;
-    background: var(--color);
-}
-
 .data-row {
     display: flex;
     align-items: baseline;
@@ -517,17 +351,6 @@ body[data-style="estrela"] .data-value {
     font-size: calc(13px * 0.9);
 }
 
-body[data-style="retroSpace"] .data-label {
-    font-size: 13px;
-    font-weight: 600;
-}
-
-body[data-style="retroSpace"] .data-value {
-    font-size: 14px;
-    font-weight: 500;
-    font-stretch: condensed;
-}
-
 .muted-text {
     font-family: var(--font);
     font-stretch: var(--font-stretch);
@@ -553,20 +376,6 @@ body[data-style="retroSpace"] .data-value {
 
 .estrela-strip {
     padding: 8px 16px;
-}
-
-.retro-strip {
-    padding: 8px;
-    background: var(--background);
-    border-radius: 999px;
-}
-
-.retro-strip .strip-cap {
-    width: 34px;
-    height: 34px;
-    border-radius: 17px 0 0 17px;
-    background: var(--primary);
-    flex: none;
 }
 
 /* MARK: app chrome */
@@ -974,6 +783,11 @@ dialog.plain-sheet {
 .plain-sheet .footnote {
     font-size: 12px;
     color: var(--sheet-secondary);
+}
+
+/* About: kept to a readable width, since the Traveller notice is a long paragraph */
+dialog.plain-sheet.about {
+    width: min(480px, calc(100vw - 32px));
 }
 
 .plain-sheet .error {

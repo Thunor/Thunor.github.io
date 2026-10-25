@@ -141,7 +141,7 @@ function settingChanged(key) {
 
 function applyStyle() {
     const value = Settings.get('interfaceStyle');
-    document.body.dataset.style = value === 'retroSpace' || value === 'macOS' ? value : 'estrela';
+    document.body.dataset.style = value === 'macOS' ? value : 'estrela';
 }
 
 function translateStatic() {
@@ -580,6 +580,8 @@ function showAbout() {
         h('p', {}, copyrightNotice),
         h('p', { class: 'footnote' }, t('Free to use. You may share unmodified copies, but not sell or modify the app. Anything you make with it is yours.')),
         h('p', { class: 'footnote' }, t('Includes three.js, © three.js authors, under the MIT licence.')),
+        // Required by Mongoose's Traveller Fair Use Policy; kept in English, word for word, as the policy gives it
+        h('p', { class: 'footnote', lang: 'en' }, travellerNotice),
         h('div', { class: 'actions', style: { justifyContent: 'space-between' } },
             h('a', { href: 'LICENSE.txt', target: '_blank', rel: 'noopener' }, t('Licence…')),
             h('button', { type: 'button', class: 'default', onclick: () => sheet.close() }, t('OK'))));
@@ -588,6 +590,15 @@ function showAbout() {
 
 /** The app's copyright notice */
 const copyrightNotice = '© 2026 Eric Freitas. All rights reserved.';
+
+/** The notice Mongoose Publishing's Traveller Fair Use Policy asks every fan work to carry */
+const travellerNotice = 'The Traveller game in all forms is owned by Mongoose Publishing. Copyright 1977 – 2024 Mongoose Publishing. '
+    + 'Traveller is a registered trademark of Mongoose Publishing. Mongoose Publishing permits web sites and fanzines for this '
+    + 'game, provided it contains this notice, that Mongoose Publishing is notified, and subject to a withdrawal of permission '
+    + 'on 90 days notice. The contents of this site are for personal, non-commercial use only. Any use of Mongoose '
+    + "Publishing's copyrighted material or trademarks anywhere on this web site and its files should not be viewed as a "
+    + 'challenge to those copyrights or trademarks. In addition, any program/articles/file on this site cannot be republished '
+    + 'or distributed without the consent of the author who contributed it.';
 
 function showAlert(message, detail) {
     let sheet;
@@ -787,7 +798,7 @@ async function showSettings() {
         h('p', { class: 'footnote' }, t('Cloud layers over the globes of planets with atmospheres.')),
         h('hr'),
         h('label', { class: 'field' }, h('span', {}, t('Interface style')),
-            select('interfaceStyle', [['retroSpace', 'RetroSpace'], ['estrela', 'Estrela'], ['macOS', 'macOS']])),
+            select('interfaceStyle', [['estrela', 'Estrela'], ['macOS', 'macOS']])),
         h('p', { class: 'footnote' }, t('How the panels and controls over the star map are drawn.')),
         h('hr'),
         h('label', { class: 'field' }, h('span', {}, t('Language')),
