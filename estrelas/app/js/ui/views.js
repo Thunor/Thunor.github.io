@@ -877,14 +877,18 @@ function worldDataEditor(overrides, radiusKm, massEarths, environment, social, o
         const next = { ...current, [key]: value ?? undefined };
         onChange(overridesAreEmpty(next) ? null : next);
     };
+    /** Text with its Earth symbols (R⊕, M⊕) set in a font that draws them small, as the data rows do */
+    const withSymbols = (text) => (typeof text === 'string' && text.includes('⊕')
+        ? text.split('⊕').flatMap((part, index) => (index === 0 ? [part] : [h('span', { class: 'earth-symbol' }, '⊕'), part]))
+        : [text]);
     /** A value as what it means, lit when set by hand, with buttons to step it down and up, and what was generated */
     const row = (label, shown, wasShown, canGoDown, canGoUp, down, up) => h('div', { class: 'stepper-row' },
         h('span', { class: 'data-label' }, label),
         button(icon('stepMinus'), { color: 'control', pill: false, height: 20, disabled: !canGoDown, onClick: down }),
         button(icon('stepPlus'), { color: 'control', pill: false, height: 20, disabled: !canGoUp, onClick: up }),
         h('span', { class: 'value-stack' },
-            h('span', { class: 'value', style: { color: wasShown === null ? 'var(--primary)' : 'var(--highlight)' } }, shown),
-            wasShown !== null ? h('span', { class: 'was' }, t('was %@', wasShown)) : null));
+            h('span', { class: 'value', style: { color: wasShown === null ? 'var(--primary)' : 'var(--highlight)' } }, ...withSymbols(shown)),
+            wasShown !== null ? h('span', { class: 'was' }, ...withSymbols(t('was %@', wasShown))) : null));
     /** A value from a list, stepped through the list's order */
     const choice = (label, key, generated, all, describe) => {
         const value = current[key];
