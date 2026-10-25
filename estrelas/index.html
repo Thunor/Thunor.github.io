@@ -84,6 +84,9 @@
   .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
   .platform { margin-top: 18px; color: var(--muted); font-size: 14px; }
   .platform a { color: var(--cyan); }
+  .browser-note { margin: 18px auto 0; text-align: left; }
+  .browser-note p { margin: 0 0 6px; }
+  .browser-note ul { margin: 0 0 18px; padding-left: 20px; }
 
   /* Screenshots from the app; each links to the full-size image */
   .showcase { margin: 70px auto 0; max-width: 1040px; }
@@ -427,6 +430,19 @@
         <a class="button primary" href="downloads/Estrelas-Linux.tar.gz" download>Linux</a>
       </div>
       <p class="platform"><a href="downloads/estrelas_web_signing.pub">Public signing key</a></p>
+      <div class="cta" style="margin-top: 28px;">
+        <a class="button secondary" href="app/">Run in your browser</a>
+        <a class="button secondary" href="app/player.html">Players' edition in your browser</a>
+      </div>
+      <div class="fine browser-note">
+        <p>No download needed: the app loads from this site and runs entirely in your browser, on your own computer. Run this way, a few things differ from the downloads above:</p>
+        <ul>
+          <li>TravellerMap's world maps can't be imported (sector data still is), so Traveller worlds get generated surfaces instead of their published maps.</li>
+          <li>Universes are kept in this browser only, apart from the downloaded app's. Clearing site data removes them, and Safari may remove them after a few weeks unused, so keep copies (File ▸ Save Universe As…).</li>
+          <li>It needs an internet connection to start.</li>
+          <li>Safari and Firefox save and open universes as .zip files rather than folders.</li>
+        </ul>
+      </div>
       <p class="platform">In English, Português, Español, Deutsch and Français. Two interface styles: Estrela and macOS.</p>
     </div>
   </div>
