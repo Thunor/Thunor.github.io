@@ -801,7 +801,15 @@ export function environmentRows(environment) {
 /** The society of a world or moon in its data sheet, in two columns: the summary and government lead the first */
 function socialView(title, social, body) {
     const sections = WorldText.socialSections(social, body);
-    const split = Math.min(3, sections.length);
+    // Split where the two columns come out closest in length, counting a header as a row
+    const lengths = sections.map((section) => section.rows.length + 1);
+    const total = lengths.reduce((a, b) => a + b, 0);
+    let split = 1, best = Infinity, running = 0;
+    lengths.forEach((length, index) => {
+        running += length;
+        const difference = Math.abs(total - 2 * running);
+        if (index < sections.length - 1 && difference < best) { best = difference; split = index + 1; }
+    });
     const columns = [h('div', {}, sectionHeader(title, 'highlight')), h('div', {})];
     sections.forEach((section, index) => {
         const column = columns[index < split ? 0 : 1];

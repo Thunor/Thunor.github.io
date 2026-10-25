@@ -126,8 +126,10 @@ export function factbookSections(social, body = {}, names = {}) {
         const majority = Math.round(clamp(100 * (1 - society.diversity * 0.95), 8, 99));
         const minorities = majority >= 99 ? 0 : 1 + Math.round(society.diversity * 12 * random());
         people.push([t('Ethnic groups'), !minorities ? t('homogeneous') : minorities === 1
-            ? t('majority group %@%, one minority group %@%', majority, 100 - majority)
-            : t('majority group %@%, %@ minority groups %@%', majority, minorities, 100 - majority)]);
+            ? (majority >= 50 ? t('majority group %@%, one minority group %@%', majority, 100 - majority)
+                : t('largest group %@%, one other group %@%', majority, 100 - majority))
+            : majority >= 50 ? t('majority group %@%, %@ minority groups %@%', majority, minorities, 100 - majority)
+                : t('largest group %@%, %@ other groups %@%', majority, minorities, 100 - majority)]);
         const languages = population < 100000 ? 0 : Math.round(society.diversity * 8 * random()) + (government.states > 1 ? government.states : 0);
         people.push([t('Languages'), languages === 0 ? t('one common language (official)')
             : languages === 1 ? t('one common language (official), one regional language')

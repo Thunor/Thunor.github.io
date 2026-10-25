@@ -5948,6 +5948,18 @@ const translations = {
         "es": "antes %@",
         "fr": "auparavant %@",
         "pt": "era %@"
+    },
+    "largest group %@%, one other group %@%": {
+        "de": "größte Gruppe %@ %, eine weitere Gruppe %@ %",
+        "es": "grupo más numeroso %@%, otro grupo %@%",
+        "fr": "groupe le plus nombreux %@ %, un autre groupe %@ %",
+        "pt": "maior grupo %@%, outro grupo %@%"
+    },
+    "largest group %@%, %@ other groups %@%": {
+        "de": "größte Gruppe %@ %, %@ weitere Gruppen %@ %",
+        "es": "grupo más numeroso %@%, %@ otros grupos %@%",
+        "fr": "groupe le plus nombreux %@ %, %@ autres groupes %@ %",
+        "pt": "maior grupo %@%, %@ outros grupos %@%"
     }
 };
 
