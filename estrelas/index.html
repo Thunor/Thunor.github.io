@@ -4,15 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Estrelas — An endless star map for your science-fiction campaign</title>
-<meta name="description" content="Estrelas is a Mac app for science-fiction game masters: an endless, procedurally generated star map with full planetary systems, living worlds, and a players' edition that only shows what you choose to share.">
+<meta name="description" content="Estrelas is a free app for science-fiction game masters, for macOS, Windows and Linux: an endless, procedurally generated star map with nebulae and every kind of star, full planetary systems, living worlds with cities and traffic, printable maps, and a players' edition that only shows what you choose to share.">
 <meta name="theme-color" content="#05070f">
+<meta name="author" content="Eric Freitas">
 <meta property="og:title" content="Estrelas — An endless star map for your science-fiction campaign">
-<meta property="og:description" content="An endless, procedurally generated star map for science-fiction game masters, with full planetary systems, living worlds, and a players' edition. For Mac.">
-<meta property="og:image" content="https://thunor.github.io/estrelas/img/icon.png">
+<meta property="og:description" content="A free, endless, procedurally generated star map for science-fiction game masters, with full planetary systems, living worlds, and a players' edition. For macOS, Windows and Linux.">
+<meta property="og:image" content="https://thunor.github.io/estrelas/images/icon.png">
 <meta property="og:url" content="https://thunor.github.io/estrelas/">
 <meta name="twitter:card" content="summary">
-<link rel="icon" href="img/favicon.png" type="image/png">
-<link rel="apple-touch-icon" href="img/icon.png">
+<link rel="icon" href="images/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="images/icon.png">
 <style>
   :root {
     --bg: #05070f;
@@ -73,9 +74,6 @@
   .button.primary { background: var(--accent); color: #1a0f00; box-shadow: 0 8px 30px rgba(255, 179, 71, 0.35); }
   .button.secondary { color: var(--text); border: 1px solid var(--panel-edge); background: rgba(255, 255, 255, 0.04); }
   .button:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
-  /* Download buttons stay switched off until there's a release to download */
-  .button.disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
-  .button.disabled:hover { transform: none; }
 
   /* Hero */
   header.hero { padding: 110px 0 80px; text-align: center; }
@@ -85,6 +83,7 @@
   .lede { max-width: 680px; margin: 0 auto 36px; color: var(--muted); font-size: 20px; }
   .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
   .platform { margin-top: 18px; color: var(--muted); font-size: 14px; }
+  .platform a { color: var(--cyan); }
 
   /* Screenshots from the app; each links to the full-size image */
   .showcase { margin: 70px auto 0; max-width: 1040px; }
@@ -161,14 +160,13 @@
   <div class="wrap">
     <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span>ESTRELAS</a>
     <ul>
-      <li><a href="../">← Eric Freitas</a></li>
       <li><a href="#features">Features</a></li>
       <li><a href="#worlds">Worlds</a></li>
       <li><a href="#editions">Editions</a></li>
       <li><a href="#how">How it works</a></li>
+      <li><a href="../">← Eric Freitas</a></li>
     </ul>
-    <!-- Point this at the App Store page or download once there is one -->
-    <span class="button primary disabled" role="link" aria-disabled="true" title="Coming soon" style="padding: 8px 18px; font-size: 14px;">Get Estrelas</span>
+    <a class="button primary" href="#download" style="padding: 8px 18px; font-size: 14px;">Get Estrelas</a>
   </div>
 </nav>
 
@@ -176,16 +174,16 @@
   <div class="wrap">
     <div class="eyebrow">For game masters of science-fiction campaigns</div>
     <h1>A whole galaxy,<br><span class="glow">one seed away.</span></h1>
-    <p class="lede">Estrelas builds an endless, explorable star map for your campaign: star systems, every planet and moon in them, whole worlds with climates, cities and spaceports. Then it hands your players exactly the parts you choose to share.</p>
+    <p class="lede">Estrelas builds an endless, explorable star map for your campaign: nebulae and star systems, every planet and moon in them, whole worlds with climates, cities, traffic and spaceports. Then it hands your players exactly the parts you choose to share.</p>
     <div class="cta">
-      <span class="button primary disabled" role="link" aria-disabled="true" title="Coming soon">Download for Mac</span>
+      <a class="button primary" href="#download">Download free</a>
       <a class="button secondary" href="#features">See what it does</a>
     </div>
-    <p class="platform">A native Mac app, built with SwiftUI and RealityKit.</p>
+    <p class="platform">Free for macOS, Windows and Linux.</p>
 
     <div class="showcase">
-      <a class="shot" href="img/planetary-system.jpg">
-        <img src="img/planetary-system.jpg" width="2252" height="1560"
+      <a class="shot" href="images/planetary-system.jpg">
+        <img src="images/planetary-system.jpg" width="2252" height="1560"
              alt="The Estrelas planetary view of the binary system Kravogi: orbits around the main star with a green habitable zone and an asteroid belt, the companion star's own system in the distance, the list of planets and moons beside it, and the simulation clock below">
       </a>
       <p class="caption">The binary Kravogi system: eight planets and their moons around its main star, with the habitable zone in green.</p>
@@ -204,6 +202,11 @@
         <p>Fly in any direction and new sectors appear ahead of you, generated from your universe's seed. Every sector is saved, so the same seed always gives the same galaxy.</p>
       </div>
       <div class="card">
+        <div class="icon violet" aria-hidden="true">✺</div>
+        <h3>Every kind of star, and nebulae</h3>
+        <p>Red dwarfs to blue supergiants and hypergiants, brown dwarfs, white dwarfs, Wolf–Rayet and carbon stars, pulsars, magnetars and black holes, with variable and newborn stars among them. Glowing star-forming clouds, dark nebulae, planetary nebulae and supernova remnants drift between them.</p>
+      </div>
+      <div class="card">
         <div class="icon" aria-hidden="true">◎</div>
         <h3>Full planetary systems</h3>
         <p>Single, binary and multiple stars, with planets, belts, gas giants and moons, each in an orbit that makes sense for its stars. Moons are drawn in proportion, so a giant moon looks the part.</p>
@@ -211,7 +214,7 @@
       <div class="card">
         <div class="icon green" aria-hidden="true">◐</div>
         <h3>Living worlds</h3>
-        <p>Every planet turns on its own tilted axis, with day lengths, tidal locks and backwards-spinning worlds. Night falls across the globe and city lights come on.</p>
+        <p>Every planet turns on its own tilted axis, with day lengths, tidal locks and backwards-spinning worlds. Night falls across the globe and city lights come on, while ships, aircraft and spacecraft come and go, and starships flash in and out of the system.</p>
       </div>
       <div class="card">
         <div class="icon violet" aria-hidden="true">⌖</div>
@@ -222,6 +225,16 @@
         <div class="icon amber" aria-hidden="true">✎</div>
         <h3>Your universe, your notes</h3>
         <p>Rename stars and worlds, set spaceports, mark cities on the map and write notes anywhere. Notes are private until you choose to share them.</p>
+      </div>
+      <div class="card">
+        <div class="icon green" aria-hidden="true">▦</div>
+        <h3>Cities that fit their land</h3>
+        <p>Settle a world in one click: cities and towns where people would build them, on coasts and rivers, ringed by farmland. Each one opens as a city map built for its terrain, climate and technology.</p>
+      </div>
+      <div class="card">
+        <div class="icon violet" aria-hidden="true">⎙</div>
+        <h3>Print, fold, 3D-print</h3>
+        <p>Export maps as images or PDFs, in colour or as topographic contour maps for the printer, flat or as a fold-up icosahedral world. Export the globe itself as a 3D model, ready for a 3D printer.</p>
       </div>
       <div class="card">
         <div class="icon" aria-hidden="true">⇄</div>
@@ -241,13 +254,14 @@
         <ul>
           <li><b>Sectors stream in</b> ahead of you as you fly, nearest first, and drop away behind.</li>
           <li><b>Smooth however far it reaches.</b> Nearby stars are drawn in full, glowing and flaring; distant ones as points of light.</li>
-          <li><b>Filters</b> pick out systems with planets, habitable worlds, belts and gas giants, or the ones you've marked as dangerous.</li>
+          <li><b>Nebulae</b> glow among the stars: star-forming clouds lit by young stars, dark dust clouds, and the shells and wrecks of dying stars.</li>
+          <li><b>Filters</b>, folded into a drop-down, pick out systems with planets, habitable worlds, belts and gas giants, the ones you've marked as dangerous, or the ones you've written notes on.</li>
           <li><b>Search by name</b> and fly straight to any system you've visited.</li>
           <li><b>Keep the view clear</b> by hiding orbit paths, habitable zones or the orbits of multiple stars with a click.</li>
         </ul>
       </div>
-      <a class="shot" href="img/star-map.jpg">
-        <img src="img/star-map.jpg" width="2252" height="1560" loading="lazy"
+      <a class="shot" href="images/star-map.jpg">
+        <img src="images/star-map.jpg" width="2252" height="1560" loading="lazy"
              alt="The Estrelas star map with a route planned between two systems at a range of 3 parsecs, red and yellow rings marking the systems in reach of the last waypoint, and the Stellar Cartography panel with filters and the selected star's data">
       </a>
     </div>
@@ -258,12 +272,12 @@
         <p class="section-lede" style="margin-bottom: 18px;">Every inhabited world comes with a full profile in the measures used for countries on Earth: its people, government, rights, economy, port and defence.</p>
         <ul>
           <li><b>Real units throughout:</b> kilometres, bar and degrees, headcounts, GDP per person, Gini and the Human Development Index.</li>
-          <li><b>Edit in plain language.</b> Step a world's air, water, population, government, weapons laws or technology and read what each one means as you go, with what was generated beside it.</li>
+          <li><b>Edit in plain language.</b> Step a world's size, mass, air and pressure, water, population, government, weapons laws or technology and read what each one means as you go, with what was generated beside it. Change its size and its mass follows, keeping its gravity.</li>
           <li><b>Print a data sheet</b> with the world's map for the table.</li>
         </ul>
       </div>
-      <a class="shot" href="img/world-society.jpg">
-        <img src="img/world-society.jpg" width="1280" height="1040" loading="lazy"
+      <a class="shot" href="images/world-society.jpg">
+        <img src="images/world-society.jpg" width="1280" height="1040" loading="lazy"
              alt="The society profile of a world: population, technology, government and regime, rights and law, its people, its economy with GDP, Gini and HDI, and its spaceport">
       </a>
     </div>
@@ -278,8 +292,8 @@
           <li><b>Ports and installations</b> set with a click: from bare landing field to hub, with orbital stations, military bases and research stations.</li>
         </ul>
       </div>
-      <a class="shot" href="img/world-data.jpg">
-        <img src="img/world-data.jpg" width="1280" height="1040" loading="lazy"
+      <a class="shot" href="images/world-data.jpg">
+        <img src="images/world-data.jpg" width="1280" height="1040" loading="lazy"
              alt="The world data sheet for a temperate world: radius, mass and gravity, its environment and atmosphere, its orbit and rotation, and the port and installations editor">
       </a>
     </div>
@@ -293,9 +307,9 @@
           <li><b>Time controls</b> run the system forward or back, from real time to a year a second, while the camera stays on your world and tucks in beside your data.</li>
         </ul>
       </div>
-      <a class="shot" href="img/world.jpg">
-        <img src="img/world.jpg" width="2252" height="1560" loading="lazy"
-             alt="A temperate world seen close up: blue oceans, green and tan continents and swirling white clouds, with city lights glowing on the night side, and the simulation clock below">
+      <a class="shot" href="images/world.jpg">
+        <img src="images/world.jpg" width="2252" height="1284" loading="lazy"
+             alt="A temperate world seen close up: blue oceans and continents under white clouds, with the precipitation radar showing rain in green, yellow and red, city lights glowing across the night side, and the simulation clock below">
       </a>
     </div>
 
@@ -304,14 +318,49 @@
         <h2>Maps you can mark</h2>
         <p class="section-lede" style="margin-bottom: 18px;">Every world unrolls into a detailed surface map, ready for your campaign's places.</p>
         <ul>
-          <li><b>Mark cities, towns and ports</b> anywhere on the map, and open a settlement as a street-level city map.</li>
+          <li><b>Settle the world</b> in one click, with as many cities as its people call for and two or three times as many towns, or mark cities, towns and ports anywhere by hand.</li>
           <li><b>Zoom in close</b> with a latitude and longitude grid to keep your bearings.</li>
-          <li><b>Export the map</b> as an image, or as a PDF with the world's data below it, for the table.</li>
+          <li><b>Export the map</b> as an image, or as a PDF with the world's data below it, flat or as a fold-up icosahedral globe.</li>
         </ul>
       </div>
-      <a class="shot" href="img/surface-map.jpg">
-        <img src="img/surface-map.jpg" width="1800" height="1200" loading="lazy"
+      <a class="shot" href="images/surface-map.jpg">
+        <img src="images/surface-map.jpg" width="1800" height="1200" loading="lazy"
              alt="The surface map of a temperate world: continents, oceans and polar ice on a latitude and longitude grid, with eight cities marked">
+      </a>
+    </div>
+
+    <div class="feature flip">
+      <div class="copy">
+        <h2>Cities built for their ground</h2>
+        <p class="section-lede" style="margin-bottom: 18px;">Open any settlement and Estrelas lays it out street by street, from what surrounds it on its world.</p>
+        <ul>
+          <li><b>The land decides:</b> coasts, rivers and lakes, hills and woods shape where the streets run and where the harbour goes.</li>
+          <li><b>Built by its people:</b> technology sets how tall it grows, and climate how it's built, in desert, temperate, tropical or cold-country styles, until high technology builds the same towers anywhere.</li>
+          <li><b>Your call:</b> choose the architecture, the street plan and the look for a whole world or a single city.</li>
+          <li><b>Farmland round it,</b> in fields that follow the land, with terraces in the hills, and lights by night that match its streets.</li>
+          <li><b>Export a city map</b> as an image or PDF, with a scale bar and compass.</li>
+        </ul>
+      </div>
+      <a class="shot" href="images/city-map.jpg">
+        <img src="images/city-map.jpg" width="1600" height="1600" loading="lazy"
+             alt="An exported top-down city map of Port Ardent, a city of 180,000: ring roads and radial avenues around a dense centre, cut by a river that runs down to the sea, with a scale bar and north arrow">
+      </a>
+    </div>
+
+    <div class="feature">
+      <div class="copy">
+        <h2>Maps made for paper</h2>
+        <p class="section-lede" style="margin-bottom: 18px;">Print a world the way a surveyor would draw it, and spend your ink on the land rather than a black page.</p>
+        <ul>
+          <li><b>Topographic outline maps:</b> contour lines over the land, every fifth one bolder, dashed depth contours at sea, and the coastline drawn heavy and clear.</li>
+          <li><b>Fold-up globes:</b> export any world as an icosahedral net with its hex grid, to cut out and fold, or to play on hex by hex.</li>
+          <li><b>3D prints:</b> export the globe as an STL model with its relief, on a stand or with a loop to hang it by.</li>
+        </ul>
+      </div>
+      <a class="shot" href="images/topographic-map.jpg">
+        <img src="images/topographic-map.jpg" width="1800" height="900" loading="lazy"
+             style="background: #fff;"
+             alt="A topographic outline map of a world: brown contour lines over its continents, dashed blue depth contours at sea, bold coastlines, a latitude and longitude grid, and six settlements marked">
       </a>
     </div>
   </div>
@@ -331,7 +380,7 @@
         <ul>
           <li>Create as many universes as you like, each from its own seed</li>
           <li>Rename, annotate and edit stars, worlds and moons, all in plain language</li>
-          <li>Put travel advisories on dangerous systems, and set spaceports and bases</li>
+          <li>Put travel advisories on dangerous systems (or hide them, if your setting has none), and set spaceports and bases</li>
           <li>Write private notes, and share the ones players should see</li>
           <li>Export a universe for your players as a single file</li>
         </ul>
@@ -371,12 +420,13 @@
   <div class="wrap">
     <div class="card">
       <h2>Your players are waiting at the spaceport.</h2>
-      <p class="section-lede" style="margin: 0 auto 32px;">Estrelas runs natively on your Mac. Pick a seed and start charting.</p>
+      <p class="section-lede" style="margin: 0 auto 32px;">Free for macOS, Windows and Linux. Each download has both Estrelas and Estrelas Player. Pick a seed and start charting.</p>
       <div class="cta">
-        <!-- Replace with the real download or App Store links -->
-        <span class="button primary disabled" role="link" aria-disabled="true" title="Coming soon">Download Estrelas</span>
-        <span class="button secondary disabled" role="link" aria-disabled="true" title="Coming soon">Get Estrelas Player</span>
+        <a class="button primary" href="downloads/Estrelas-macOS.zip" download>macOS</a>
+        <a class="button primary" href="downloads/Estrelas-Windows.zip" download>Windows</a>
+        <a class="button primary" href="downloads/Estrelas-Linux.tar.gz" download>Linux</a>
       </div>
+      <p class="platform"><a href="downloads/estrelas_web_signing.pub">Public signing key</a></p>
       <p class="platform">In English, Português, Español, Deutsch and Français. Three interface styles: Estrela, RetroSpace and macOS.</p>
     </div>
   </div>
@@ -384,7 +434,7 @@
 
 <footer>
   <div class="wrap">
-    <div>© 2026 <a href="../">Eric Freitas</a>. Estrelas.</div>
+    <div>© 2026 Eric Freitas. Estrelas.</div>
   </div>
 </footer>
 
