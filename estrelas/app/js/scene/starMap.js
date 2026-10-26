@@ -2709,8 +2709,11 @@ export class StarMap extends EventTarget {
                     return this.showGlobe(designation, planetary, body, surface, { preview: true });
                 }).catch((error) => console.warn('Globe preview failed', error));
         }
-        // Every world's quick preview first, then the full globes: the previews take the workers while there are any
-        planetary.previewQueue.idle().then(() => planetary.queue.run(target.planet,
+        // Every world's quick preview first, then the full globes: the previews take the workers while there are any.
+        // The system's main world is the exception: its full globe starts straight away, so it's resolved (and settled)
+        // first.
+        const isMainWorld = designation === this.mainWorldOf(planetary);
+        (isMainWorld ? Promise.resolve() : planetary.previewQueue.idle()).then(() => planetary.queue.run(target.planet,
             () => this.store.globe(systemID, designation, style, resolution, coarse))).then((surface) => {
             if (!surface || !this.stillShown(body, planetary)) return;
             const current = planetary.globes.get(designation);
@@ -2789,6 +2792,18 @@ export class StarMap extends EventTarget {
         planetary.globeTests.delete(designation);
         const places = this.annotations[planetary.systemID]?.worlds?.[designation]?.places ?? [];
         if (places.some((place) => settlementKinds.has(place.kind))) this.refreshCityLights();
+        // For the app to settle the main world once its surface is known
+        this.emit('globe', { systemID: planetary.systemID, designation, surface, isMainWorld: designation === this.mainWorldOf(planetary) });
+    }
+
+    /** The designation of the planetary system's main (principal) world, a planet or a moon */
+    mainWorldOf(planetary) {
+        for (const world of planetary?.system.worlds ?? []) {
+            if (world.isPrincipal) return world.designation;
+            const moon = world.moons?.find((m) => m.isPrincipal);
+            if (moon) return moon.designation;
+        }
+        return null;
     }
 
     /**

@@ -30,7 +30,6 @@ import {
     placeKinds, landmarkTypes, applyingAnnotations, architectureStyles, architectureNames, architectureSummaries,
     streetLayouts, streetLayoutNames, harmonies, harmonyNames, cityStyleIsEmpty,
 } from '../model/savedData.js';
-import { planSettlements, settlementTerrain } from '../gen/settlementPlanner.js';
 import { settlementKinds } from '../gen/cityGenerator.js';
 import { placeName } from '../gen/placeNames.js';
 import { insolation, gravityOf } from '../model/planetarySystem.js';
@@ -418,68 +417,6 @@ export function showSurfaceMap(world, options) {
         }
     };
 
-    // MARK: settlements
-
-    // The world's people as the GM has them, if anyone lives there, with their society
-    const settled = applyingAnnotations(world, options.annotation)?.social;
-    const settledSociety = settled?.population > 0 && settled.society ? settled : null;
-    let isSettling = false;
-    // Places the world's settlements (see settlementPlanner.js), in place of any already on the map; other places are
-    // kept, and the new settlements' names are kept apart from theirs
-    const generateSettlements = async () => {
-        const style = styleFor(world);
-        if (!settledSociety || !style || isSettling) return;
-        isSettling = true;
-        settleButton.disabled = true;
-        try {
-            // The globe's rivers, as the planetary view draws them; only climate and biome surfaces have them
-            const globe = style.biomes && options.loadGlobe ? await options.loadGlobe().catch(() => null) : null;
-            const kept = places.filter((place) => !settlementKinds.has(place.kind));
-            const settlements = planSettlements({ population: settledSociety.population, society: settledSociety.society,
-                terrain: settlementTerrain(style, globe), taken: kept.map((place) => place.name), generator: freshGenerator() });
-            places = [...kept, ...settlements];
-            changed();
-        } catch (error) {
-            alert(`${t("Couldn't place settlements")}\n${error.message ?? error}`);
-        } finally {
-            isSettling = false;
-            settleButton.disabled = !image;
-        }
-    };
-    const settleButton = settledSociety && canEdit ? button([icon('city'), t('Settle')], {
-        color: 'highlight', pill: false, className: 'dimmed',
-        title: t('Place the world\'s capital, its cities and its towns and villages where people would settle, and choose how its cities are built'),
-        onClick: () => {
-            const menu = h('div', { class: 'settle-options' });
-            const showOptions = () => menu.replaceChildren(
-                h('div', { class: 'heading' }, t("How this world's cities are built")),
-                ...cityStylePickers(cityStyle, t('Automatic'), (style) => {
-                    cityStyle = style;
-                    options.onCityStyleChange?.(cityStyleIsEmpty(style) ? null : structuredClone(style));
-                }),
-                h('div', { class: 'footnote' }, t('Automatic choices follow each place\'s climate, terrain and technology. A settlement can set its own in its editor.')),
-                h('div', { class: 'row end' }, h('button', { type: 'button', class: 'default', onclick: () => {
-                    if (places.some((place) => settlementKinds.has(place.kind))) {
-                        // Asks before placing settlements over those already on the map
-                        menu.replaceChildren(h('div', { class: 'heading' }, t('Replace the cities, towns and villages on the map?')),
-                            h('div', { class: 'footnote' }, t('New ones are placed in their stead. Ports, bases, outposts and landmarks are kept.')),
-                            h('div', { class: 'row end' },
-                                h('button', { type: 'button', onclick: () => pop.close() }, t('Cancel')),
-                                h('button', { type: 'button', class: 'destructive', onclick: () => {
-                                    pop.close();
-                                    generateSettlements();
-                                } }, t('Replace'))));
-                    } else {
-                        pop.close();
-                        generateSettlements();
-                    }
-                } }, t('Place Settlements'))));
-            showOptions();
-            const pop = popover(settleButton, menu);
-        },
-    }) : null;
-    if (settleButton) settleButton.disabled = true;
-
     // Worlds with an atmosphere have weather
     const weatherButton = hasWeather(world) ? button([icon('cloud'), t('Weather')], {
         color: 'info', pill: false, title: t('The weather all over this world now: precipitation radar and temperature maps, with its winds and storms'),
@@ -515,7 +452,7 @@ export function showSurfaceMap(world, options) {
     const header = h('div', { class: 'map-header' },
         h('span', { class: 'name', style: { color: world.isPrincipal ? 'var(--highlight)' : 'var(--primary)' } }, (world.isPrincipal ? '★ ' : '') + worldName),
         h('span', { class: 'sah summary' }, WorldText.summary({ radiusKm: world.radiusKm, gasGiant: world.gasGiant, environment: world.environment })),
-        h('span', { class: 'spacer' }), weatherButton, settleButton, addPlaceButton, exportButton, zoomOut, zoomText, zoomIn,
+        h('span', { class: 'spacer' }), weatherButton, addPlaceButton, exportButton, zoomOut, zoomText, zoomIn,
         button(t('Close'), { color: 'alert', onClick: () => sheet.close() }));
     const element = panel({ title: `${t('Surface map')}  ${worldName}`, color: 'info', segments: ['control', 'label', 'info'] }, header, viewport, footer);
     sheet = showSheet(element, { className: 'themed-sheet wide', onClose: () => { resizeObserver.disconnect(); clearTimeout(pinTimer); } });
@@ -535,7 +472,6 @@ export function showSurfaceMap(world, options) {
         progressBar.hidden = false;
         if (!progress.parentNode) viewport.append(progress);
         exportButton.disabled = true;
-        if (settleButton) settleButton.disabled = true;
         load((fraction) => { if (run === drawing) progressBar.value = fraction; }, scale).then((loaded) => {
             if (run !== drawing) return;
             shown(loaded);
@@ -559,7 +495,6 @@ export function showSurfaceMap(world, options) {
         canvas.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(image.pixels.buffer, image.pixels.byteOffset, image.pixels.length), image.width, image.height), 0, 0);
         progress.remove();
         exportButton.disabled = false;
-        if (settleButton) settleButton.disabled = false;
     }
 }
 

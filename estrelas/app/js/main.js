@@ -22,7 +22,10 @@ import {
     showMoonDetail, showSheet, resolutionTitle, globeResolutionTitle,
 } from './ui/views.js';
 import { showSurfaceMap } from './ui/surfaceMapView.js';
-import { worldAnnotationsAreEmpty } from './model/savedData.js';
+import { worldAnnotationsAreEmpty, applyingAnnotations } from './model/savedData.js';
+import { planSettlements, settlementTerrain } from './gen/settlementPlanner.js';
+import { settlementKinds } from './gen/cityGenerator.js';
+import { SplitMix64 } from './gen/random.js';
 import { canEdit, isGMEdition } from './edition.js';
 import { keepLauncherAlive } from './launcher.js';
 import { HexChart, updates as travellerUpdates, showNewTravellerUniverse } from './traveller/hexChart.js';
@@ -141,7 +144,7 @@ function settingChanged(key) {
 
 function applyStyle() {
     const value = Settings.get('interfaceStyle');
-    document.body.dataset.style = value === 'macOS' ? value : 'estrela';
+    document.body.dataset.style = value === 'retroSpace' || value === 'macOS' ? value : 'estrela';
 }
 
 function translateStatic() {
@@ -269,6 +272,7 @@ async function openUniverse(universe) {
         renderRoute();
     });
     map.addEventListener('counts', () => renderSide());
+    map.addEventListener('globe', (event) => settleMainWorld(map, event.detail));
     map.addEventListener('route', (event) => {
         state.route = event.detail;
         renderRoute();
@@ -319,6 +323,36 @@ function renderAll() {
 }
 
 /** Changes what's been added by hand to a system and saves it; the open panels and sheets show it straight away */
+/**
+ * Settles a system's main world, once its surface is drawn, if nobody has yet: its capital, cities and towns placed
+ * where its people would build them (settlementPlanner.js), as the surface map's places. Done once per world; after
+ * that its places are the GM's to change. The same world always gets the same settlements.
+ */
+function settleMainWorld(map, { systemID, designation, surface, isMainWorld }) {
+    if (!canEdit || !isMainWorld || map.planetary?.systemID !== systemID) return;
+    const annotation = map.annotations[systemID]?.worlds?.[designation];
+    const places = annotation?.places ?? [];
+    if (annotation?.autoSettled || places.some((place) => settlementKinds.has(place.kind))) return;
+    const world = map.surfaceWorld(designation);
+    const social = world ? applyingAnnotations(world, annotation)?.social : null;
+    const style = world ? SurfaceMap.styleFor(world) : null;
+    if (!(social?.population > 0) || !social.society || !style || style.kind === 'gasGiant') return;
+    try {
+        const seed = BigInt.asUintN(64, SurfaceMap.stableHash(`settle|${map.field?.seed ?? 0}|${systemID}|${designation}`));
+        const settlements = planSettlements({ population: social.population, society: social.society,
+            terrain: settlementTerrain(style, style.biomes ? surface : null), taken: places.map((place) => place.name),
+            generator: new SplitMix64(seed) });
+        changeAnnotations(systemID, (document) => {
+            const entry = structuredClone(document.worlds[designation] ?? { places: [] });
+            entry.places = [...(entry.places ?? []), ...settlements];
+            entry.autoSettled = true;
+            document.worlds[designation] = entry;
+        });
+    } catch (error) {
+        console.warn(`Couldn't settle ${designation}: ${error}`);
+    }
+}
+
 function changeAnnotations(systemID, change) {
     if (!canEdit || !systemID) return;
     state.map?.updateSystemAnnotations(systemID, (document) => {
@@ -411,7 +445,16 @@ function renderSide() {
     }
     const scroll = side.querySelector('.planet-list')?.scrollTop ?? 0;
     const focusedSearch = side.querySelector('.system-search input') === document.activeElement;
+    // Keeps the panel where it was scrolled to (a phone held sideways scrolls it) while it shows the same thing
+    const scrollKey = planetary ? `system:${planetary.systemID}` : 'map';
+    const scrollers = ['.panel-content', '.planet-list'];
+    const scrolled = side.dataset.scrollKey === scrollKey ? scrollers.map((selector) => side.querySelector(selector)?.scrollTop ?? 0) : null;
     side.replaceChildren(fold, element);
+    side.dataset.scrollKey = scrollKey;
+    if (scrolled) scrollers.forEach((selector, index) => {
+        const scroller = side.querySelector(selector);
+        if (scroller && scrolled[index]) scroller.scrollTop = scrolled[index];
+    });
     const list = side.querySelector('.planet-list');
     if (list) list.scrollTop = scroll;
     if (focusedSearch) side.querySelector('.system-search input')?.focus();
@@ -580,8 +623,6 @@ function showAbout() {
         h('p', {}, copyrightNotice),
         h('p', { class: 'footnote' }, t('Free to use. You may share unmodified copies, but not sell or modify the app. Anything you make with it is yours.')),
         h('p', { class: 'footnote' }, t('Includes three.js, © three.js authors, under the MIT licence.')),
-        // Required by Mongoose's Traveller Fair Use Policy; kept in English, word for word, as the policy gives it
-        h('p', { class: 'footnote', lang: 'en' }, travellerNotice),
         h('div', { class: 'actions', style: { justifyContent: 'space-between' } },
             h('a', { href: 'LICENSE.txt', target: '_blank', rel: 'noopener' }, t('Licence…')),
             h('button', { type: 'button', class: 'default', onclick: () => sheet.close() }, t('OK'))));
@@ -590,15 +631,6 @@ function showAbout() {
 
 /** The app's copyright notice */
 const copyrightNotice = '© 2026 Eric Freitas. All rights reserved.';
-
-/** The notice Mongoose Publishing's Traveller Fair Use Policy asks every fan work to carry */
-const travellerNotice = 'The Traveller game in all forms is owned by Mongoose Publishing. Copyright 1977 – 2024 Mongoose Publishing. '
-    + 'Traveller is a registered trademark of Mongoose Publishing. Mongoose Publishing permits web sites and fanzines for this '
-    + 'game, provided it contains this notice, that Mongoose Publishing is notified, and subject to a withdrawal of permission '
-    + 'on 90 days notice. The contents of this site are for personal, non-commercial use only. Any use of Mongoose '
-    + "Publishing's copyrighted material or trademarks anywhere on this web site and its files should not be viewed as a "
-    + 'challenge to those copyrights or trademarks. In addition, any program/articles/file on this site cannot be republished '
-    + 'or distributed without the consent of the author who contributed it.';
 
 function showAlert(message, detail) {
     let sheet;
@@ -798,7 +830,7 @@ async function showSettings() {
         h('p', { class: 'footnote' }, t('Cloud layers over the globes of planets with atmospheres.')),
         h('hr'),
         h('label', { class: 'field' }, h('span', {}, t('Interface style')),
-            select('interfaceStyle', [['estrela', 'Estrela'], ['macOS', 'macOS']])),
+            select('interfaceStyle', [['retroSpace', 'RetroSpace'], ['estrela', 'Estrela'], ['macOS', 'macOS']])),
         h('p', { class: 'footnote' }, t('How the panels and controls over the star map are drawn.')),
         h('hr'),
         h('label', { class: 'field' }, h('span', {}, t('Language')),
