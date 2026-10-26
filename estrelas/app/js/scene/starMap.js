@@ -37,6 +37,7 @@ import * as WorldTraffic from './worldTraffic.js';
 import { applyingAnnotations } from '../model/savedData.js';
 import { eraRank } from '../gen/socialGenerator.js';
 import { SurfaceQueue } from './surfaceQueue.js';
+import { t } from '../ui/i18n.js';
 
 THREE.ColorManagement.enabled = false;
 
@@ -436,6 +437,7 @@ export class StarMap extends EventTarget {
         this.resizeObserver.disconnect();
         this.removeInput();
         this.removeGlobePin();
+        this.resolvingStatus?.remove();
         this.scene.traverse((object) => {
             if (object.geometry && !object.userData.sharedGeometry) object.geometry.dispose?.();
             const materials = Array.isArray(object.material) ? object.material : object.material ? [object.material] : [];
@@ -2094,6 +2096,7 @@ export class StarMap extends EventTarget {
         this.planetary?.queue.clear();
         this.planetary?.previewQueue?.clear();
         this.planetary = null;
+        this.refreshResolvingStatus();
         this.nightShades = [];
         this.cityLights = [];
         this.cityGrounds = [];
@@ -2148,6 +2151,7 @@ export class StarMap extends EventTarget {
         // Its surfaces jump the queue, if they're still waiting
         this.planetary.queue.moveToFront(world.designation);
         this.planetary.previewQueue.moveToFront(world.designation);
+        this.refreshResolvingStatus();
         this.applySurfaceMap(body, world);
         // Its globe at the chosen resolution, and the world zoomed to before back at standard
         this.updateGlobeResolutions();
@@ -2168,6 +2172,7 @@ export class StarMap extends EventTarget {
         // The planet's surface comes with its moons' surfaces, which jump the queue with it if they're still waiting
         this.planetary.queue.moveToFront(world.designation);
         this.planetary.previewQueue.moveToFront(world.designation);
+        this.refreshResolvingStatus();
         this.applySurfaceMap(planet, world);
         this.updateGlobeResolutions();
         this.setHabitableZonesVisible(!world.inHabitableZone);
@@ -2191,6 +2196,7 @@ export class StarMap extends EventTarget {
     showWholeSystem() {
         if (!this.planetary?.selected) return;
         this.planetary.selected = null;
+        this.refreshResolvingStatus();
         this.refreshGlobeWeather();
         // Every globe back at standard
         this.updateGlobeResolutions();
@@ -2689,6 +2695,10 @@ export class StarMap extends EventTarget {
         const target = planetary.globes.get(designation);
         if (!target) return;
         const { body, style, systemID, resolution, coarse } = target;
+        // Until the globe at this resolution arrives, the view shows that the world is still being resolved
+        const pendingKey = `${resolution}|${coarse}`;
+        target.pending = pendingKey;
+        this.refreshResolvingStatus();
         if (!coarse && !target.shown && !target.previewing) {
             target.previewing = true;
             planetary.previewQueue.run(target.planet, () => this.store.globe(systemID, designation, style, 1, true))
@@ -2706,7 +2716,39 @@ export class StarMap extends EventTarget {
             const current = planetary.globes.get(designation);
             if (current?.body !== body || current.resolution !== resolution || current.coarse !== coarse) return;
             return this.showGlobe(designation, planetary, body, surface, { resolution, coarse });
-        }).catch((error) => console.error('Globe failed', error));
+        }).catch((error) => {
+            console.error('Globe failed', error);
+            if (target.pending === pendingKey) target.pending = null;
+        }).finally(() => this.refreshResolvingStatus());
+    }
+
+    /**
+     * Shows "Resolving world…" while the globe of the world zoomed to (or, seeing the whole system, any globe) is still
+     * being drawn at its full resolution, and hides it once it's in
+     */
+    refreshResolvingStatus() {
+        const planetary = this.planetary;
+        let resolving = false;
+        if (planetary && !this.disposed) {
+            const selected = planetary.selected ? planetary.globes.get(planetary.selected) : null;
+            resolving = planetary.selected ? !!selected?.pending : [...planetary.globes.values()].some((g) => g.pending);
+        }
+        if (!resolving) {
+            this.resolvingStatus?.remove();
+            this.resolvingStatus = null;
+            return;
+        }
+        if (this.resolvingStatus) return;
+        const status = document.createElement('div');
+        status.className = 'resolving-status';
+        status.setAttribute('role', 'status');
+        // A small world turning, a moon going round it, and its cells settling as it comes into focus
+        status.innerHTML = '<span class="resolving-spinner" aria-hidden="true"><i class="world"></i><i class="orbit"><b><em></em></b></i></span>';
+        const text = document.createElement('span');
+        text.textContent = t('Resolving world…');
+        status.append(text);
+        (this.options.overlay ?? this.canvas.parentElement)?.append(status);
+        this.resolvingStatus = status;
     }
 
     /** Puts a globe's surface on its body, its mesh built in a worker so the view doesn't stall */
@@ -2739,6 +2781,8 @@ export class StarMap extends EventTarget {
         body.material = new THREE.MeshBasicMaterial({ vertexColors: true });
         if (preview) return;
         current.shown = true;
+        if (current.pending === `${resolution}|${coarse}`) current.pending = null;
+        this.refreshResolvingStatus();
         if (resolution > 1) this.checkGlobeFits(designation, planetary);
         // Its settlements again, ending at the coasts and lakeshores of the globe just drawn
         planetary.surfaces.set(designation, surface);

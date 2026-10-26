@@ -5960,6 +5960,12 @@ const translations = {
         "es": "grupo más numeroso %@%, %@ otros grupos %@%",
         "fr": "groupe le plus nombreux %@ %, %@ autres groupes %@ %",
         "pt": "maior grupo %@%, %@ outros grupos %@%"
+    },
+    "Resolving world…": {
+        "de": "Welt wird verfeinert…",
+        "es": "Refinando el mundo…",
+        "fr": "Affinage du monde…",
+        "pt": "Refinando o mundo…"
     }
 };
 
