@@ -34,12 +34,20 @@ export class SurfaceQueue {
         this.frontRank -= 1;
     }
 
+    /** Resolves once nothing is running or waiting (straight away if that's so already) */
+    idle() {
+        if (this.running === 0 && this.waiting.length === 0) return Promise.resolve();
+        return new Promise((resolve) => (this.idlers ??= []).push(resolve));
+    }
+
     /** Drops all the work still waiting, e.g. when the planetary view closes. Work already running finishes. */
     clear() {
         this.cleared = true;
         const dropped = this.waiting;
         this.waiting = [];
         for (const entry of dropped) entry.resolve(false);
+        for (const resolve of this.idlers ?? []) resolve();
+        this.idlers = [];
     }
 
     /** Runs `work` (which returns a promise) once it's `world`'s turn; null if the queue was cleared before then */
@@ -79,6 +87,11 @@ export class SurfaceQueue {
         });
         if (next < 0) {
             this.running -= 1;
+            if (this.running === 0 && this.idlers?.length) {
+                const idlers = this.idlers;
+                this.idlers = [];
+                for (const resolve of idlers) resolve();
+            }
             return;
         }
         this.waiting.splice(next, 1)[0].resolve(true);

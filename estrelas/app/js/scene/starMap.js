@@ -31,7 +31,7 @@ import { globeMesh, waterTest, reliefTest } from '../surface/voronoiSurface.js';
 import { hasHabitableWorld, hasPlanets, hasAsteroidBelt, hasGasGiant } from '../model/planetarySystem.js';
 import { sectorsWithin, sectorKey, distanceToSector, originSector } from '../gen/sectors.js';
 import { settlementKinds } from '../gen/cityGenerator.js';
-import { planRouteInWorker, drawCityGround, weatherInWorker, terrainInWorker } from '../model/dataStore.js';
+import { planRouteInWorker, drawCityGround, weatherInWorker, terrainInWorker, globeMeshInWorker } from '../model/dataStore.js';
 import { seedFor as cityLightSeed } from './cityLightPattern.js';
 import * as WorldTraffic from './worldTraffic.js';
 import { applyingAnnotations } from '../model/savedData.js';
@@ -56,6 +56,13 @@ const starFocusZoom = 20;
 /** How far outside a star's drawn edge, in pixels, a click still picks it */
 const starClickSlop = 10;
 const starClearance = 1 / Math.sin(cameraFieldOfView / 2 * Math.PI / 180);
+/**
+ * How many full globes are drawn at once, and how many quick previews: more on computers with more cores, as each is
+ * drawn in a surface worker of its own
+ */
+const cores = (typeof navigator !== 'undefined' && navigator.hardwareConcurrency) || 4;
+const fullGlobesAtOnce = Math.min(Math.max(Math.floor(cores / 3), 2), 4);
+const previewGlobesAtOnce = Math.min(Math.max(Math.floor(cores / 2), 2), 6);
 /** The finest globe drawn in 3D: 2× (4.6 million vertices) */
 const maximumGlobeResolution = 2;
 /** How close the camera may come to a planet or moon, as a multiple of its radius: just above its cloud tops */
@@ -1894,7 +1901,7 @@ export class StarMap extends EventTarget {
             system, name: data.systemName ?? data.estrela.name ?? 'System', systemID: data.estrela.systemID ?? '',
             primaryStarName: primary?.userData.data.estrela.name ?? null, primaryStarID: groups[0].head.estrelaID ?? null,
             entities: planetEntities, selected: null, systemViewPivot: center, systemViewZoom: fittedZoom,
-            mapped: new Set(), cloudShells: [], globes: new Map(), queue: new SurfaceQueue(), surfaces: new Map(),
+            mapped: new Set(), cloudShells: [], globes: new Map(), queue: new SurfaceQueue(fullGlobesAtOnce), previewQueue: new SurfaceQueue(previewGlobesAtOnce), surfaces: new Map(),
             globeTests: new Map(),
         };
         if (!this.showOrbits) this.setOrbitPathsVisible(false);
@@ -2085,6 +2092,7 @@ export class StarMap extends EventTarget {
         const wasPlanetary = this.planetary !== null;
         // Surfaces still waiting to be drawn are for worlds no longer shown
         this.planetary?.queue.clear();
+        this.planetary?.previewQueue?.clear();
         this.planetary = null;
         this.nightShades = [];
         this.cityLights = [];
@@ -2139,6 +2147,7 @@ export class StarMap extends EventTarget {
         this.refreshGlobeWeather();
         // Its surfaces jump the queue, if they're still waiting
         this.planetary.queue.moveToFront(world.designation);
+        this.planetary.previewQueue.moveToFront(world.designation);
         this.applySurfaceMap(body, world);
         // Its globe at the chosen resolution, and the world zoomed to before back at standard
         this.updateGlobeResolutions();
@@ -2158,6 +2167,7 @@ export class StarMap extends EventTarget {
         this.refreshGlobeWeather();
         // The planet's surface comes with its moons' surfaces, which jump the queue with it if they're still waiting
         this.planetary.queue.moveToFront(world.designation);
+        this.planetary.previewQueue.moveToFront(world.designation);
         this.applySurfaceMap(planet, world);
         this.updateGlobeResolutions();
         this.setHabitableZonesVisible(!world.inHabitableZone);
@@ -2580,6 +2590,7 @@ export class StarMap extends EventTarget {
         const principals = worlds.filter((w) => w.isPrincipal || w.moons.some((m) => m.isPrincipal));
         const ordered = principals.concat(worlds.filter((w) => !principals.includes(w)));
         planetary.queue.order(ordered.map((w) => w.designation));
+        planetary.previewQueue.order(ordered.map((w) => w.designation));
         for (const world of ordered) {
             const body = planetary.entities.get(world.designation);
             if (body) this.applySurfaceMap(body, world);
@@ -2668,35 +2679,72 @@ export class StarMap extends EventTarget {
         this.updateGlobeResolutions();
     }
 
-    /** Builds (or reads) a world's globe at the resolution last asked for, unless another is asked for meanwhile */
+    /**
+     * Builds (or reads) a world's globe at the resolution last asked for, unless another is asked for meanwhile. A world
+     * with no globe yet first gets a quick, coarse one (a sixteenth of the cells, drawn in a fraction of the time and
+     * ahead of the queue of full globes), so no world sits as a plain ball while the others are drawn; the full globe
+     * replaces it when it's ready.
+     */
     drawGlobe(designation, planetary) {
         const target = planetary.globes.get(designation);
         if (!target) return;
         const { body, style, systemID, resolution, coarse } = target;
-        planetary.queue.run(target.planet, () => this.store.globe(systemID, designation, style, resolution, coarse)).then((surface) => {
+        if (!coarse && !target.shown && !target.previewing) {
+            target.previewing = true;
+            planetary.previewQueue.run(target.planet, () => this.store.globe(systemID, designation, style, 1, true))
+                .then((surface) => {
+                    const current = planetary.globes.get(designation);
+                    // Only while nothing better has arrived
+                    if (!surface || current?.body !== body || current.shown) return;
+                    return this.showGlobe(designation, planetary, body, surface, { preview: true });
+                }).catch((error) => console.warn('Globe preview failed', error));
+        }
+        // Every world's quick preview first, then the full globes: the previews take the workers while there are any
+        planetary.previewQueue.idle().then(() => planetary.queue.run(target.planet,
+            () => this.store.globe(systemID, designation, style, resolution, coarse))).then((surface) => {
             if (!surface || !this.stillShown(body, planetary)) return;
             const current = planetary.globes.get(designation);
             if (current?.body !== body || current.resolution !== resolution || current.coarse !== coarse) return;
-            const mesh = globeMesh(surface.sites, surface.colors, surface.triangles, body.userData.radius, surface.heights, surface.rivers);
-            const geometry = new THREE.BufferGeometry();
-            geometry.setAttribute('position', new THREE.BufferAttribute(mesh.positions, 3));
-            geometry.setAttribute('normal', new THREE.BufferAttribute(mesh.normals, 3));
-            // Colours as the macOS app shows them: each cell's 0–255 value
-            const colors = Float32Array.from(mesh.colors, (c) => Math.trunc(c * 255) / 255);
-            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            geometry.setIndex(new THREE.BufferAttribute(mesh.indices, 1));
-            geometry.computeBoundingSphere();
-            body.geometry.dispose();
-            body.geometry = geometry;
-            body.material.dispose();
-            body.material = new THREE.MeshBasicMaterial({ vertexColors: true });
-            if (resolution > 1) this.checkGlobeFits(designation, planetary);
-            // Its settlements again, ending at the coasts and lakeshores of the globe just drawn
-            planetary.surfaces.set(designation, surface);
-            planetary.globeTests.delete(designation);
-            const places = this.annotations[planetary.systemID]?.worlds?.[designation]?.places ?? [];
-            if (places.some((place) => settlementKinds.has(place.kind))) this.refreshCityLights();
+            return this.showGlobe(designation, planetary, body, surface, { resolution, coarse });
         }).catch((error) => console.error('Globe failed', error));
+    }
+
+    /** Puts a globe's surface on its body, its mesh built in a worker so the view doesn't stall */
+    async showGlobe(designation, planetary, body, surface, { preview = false, resolution = 1, coarse = false } = {}) {
+        let mesh;
+        try {
+            mesh = await globeMeshInWorker(surface, body.userData.radius);
+        } catch {
+            // Built here instead, if the workers can't
+            const built = globeMesh(surface.sites, surface.colors, surface.triangles, body.userData.radius, surface.heights, surface.rivers);
+            mesh = { ...built, colors: Float32Array.from(built.colors, (c) => Math.trunc(c * 255) / 255) };
+        }
+        if (!this.stillShown(body, planetary)) return;
+        const current = planetary.globes.get(designation);
+        if (current?.body !== body) return;
+        if (preview) {
+            if (current.shown) return;
+        } else if (current.resolution !== resolution || current.coarse !== coarse) {
+            return;
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(mesh.positions, 3));
+        geometry.setAttribute('normal', new THREE.BufferAttribute(mesh.normals, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(mesh.colors, 3));
+        geometry.setIndex(new THREE.BufferAttribute(mesh.indices, 1));
+        geometry.computeBoundingSphere();
+        body.geometry.dispose();
+        body.geometry = geometry;
+        body.material.dispose();
+        body.material = new THREE.MeshBasicMaterial({ vertexColors: true });
+        if (preview) return;
+        current.shown = true;
+        if (resolution > 1) this.checkGlobeFits(designation, planetary);
+        // Its settlements again, ending at the coasts and lakeshores of the globe just drawn
+        planetary.surfaces.set(designation, surface);
+        planetary.globeTests.delete(designation);
+        const places = this.annotations[planetary.systemID]?.worlds?.[designation]?.places ?? [];
+        if (places.some((place) => settlementKinds.has(place.kind))) this.refreshCityLights();
     }
 
     /**

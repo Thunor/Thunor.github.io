@@ -68,6 +68,12 @@ export function terrainInWorker(point, style, detailOctaves = 0) {
     return draw({ op: 'terrain', point, style, detailOctaves });
 }
 
+/** A globe's mesh (as globeMesh builds it, colours quantised to 0–255 steps), put together in a worker */
+export function globeMeshInWorker(surface, radius) {
+    return draw({ op: 'globeMesh', sites: surface.sites, colors: surface.colors, triangles: surface.triangles,
+        heights: surface.heights, rivers: surface.rivers, radius });
+}
+
 /** The weather over a whole world (see weatherMap.js), worked out in a worker */
 export function weatherInWorker(parameters) {
     return draw({ op: 'weather', ...parameters });
@@ -497,9 +503,11 @@ export class UniverseStore {
         }
     }
 
-    async save(path, document) {
+    async save(path, document, { inWorker = false } = {}) {
         try {
-            await this.folder.writeText(path, encodeJSON(document));
+            // Big documents (globes) are written out in a worker, so the view doesn't stall while they're saved
+            const text = inWorker ? await draw({ op: 'encodeJSON', value: document }).catch(() => encodeJSON(document)) : encodeJSON(document);
+            await this.folder.writeText(path, text);
         } catch (error) {
             console.warn(`Couldn't save ${path}: ${error}`);
         }
@@ -545,7 +553,7 @@ export class UniverseStore {
                 topology: topologyPath(subdivisions), heights: surface.heights ?? undefined,
                 riverCorners: style.biomes ? Int32Array.from(surface.rivers.flatMap((r) => [r.from, r.to])) : undefined,
                 riverHalfWidths: style.biomes ? Float32Array.from(surface.rivers.map((r) => r.halfWidth)) : undefined,
-            });
+            }, { inWorker: true });
             return surface;
         });
     }

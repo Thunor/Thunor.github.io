@@ -7,7 +7,7 @@
 //
 
 import * as SurfaceMap from './surfaceMap.js';
-import { generateVoronoiSurface, icosphere, mapPixels, cells, cellColors } from './voronoiSurface.js';
+import { generateVoronoiSurface, icosphere, mapPixels, cells, cellColors, globeMesh } from './voronoiSurface.js';
 import { encodePNG } from './png.js';
 import { biomeRivers } from './biomeSurface.js';
 import { polygonRivers } from './polygonSurface.js';
@@ -19,6 +19,7 @@ import { dayPixels, fieldStyle, patchPoint } from '../scene/cityLightPattern.js'
 import { generateStarField } from '../gen/systemStars.js';
 import { StarFieldWindow } from '../scene/starFieldWindow.js';
 import { planRoute } from '../scene/starRoute.js';
+import { encodeJSON } from '../model/savedData.js';
 
 
 self.onmessage = async ({ data }) => {
@@ -34,6 +35,21 @@ self.onmessage = async ({ data }) => {
                     heights: surface.heights, rivers: surface.rivers };
                 transfer = [result.sites.buffer, result.colors.buffer, result.triangles.buffer];
                 if (result.heights) transfer.push(result.heights.buffer);
+                break;
+            }
+            case 'encodeJSON': {
+                // A document written out as JSON, as saved, off the main thread: a globe's is millions of numbers
+                result = encodeJSON(data.value);
+                break;
+            }
+            case 'globeMesh': {
+                // A globe's mesh built off the main thread, its colours as the macOS app shows them (each cell's 0–255
+                // value), so the planetary view doesn't stall putting a million-vertex globe together
+                const mesh = globeMesh(data.sites, data.colors, data.triangles, data.radius, data.heights, data.rivers);
+                const colors = new Float32Array(mesh.colors.length);
+                for (let i = 0; i < colors.length; i++) colors[i] = Math.trunc(mesh.colors[i] * 255) / 255;
+                result = { positions: mesh.positions, normals: mesh.normals, colors, indices: mesh.indices };
+                transfer = [result.positions.buffer, result.normals.buffer, result.colors.buffer, result.indices.buffer];
                 break;
             }
             case 'texture': {
