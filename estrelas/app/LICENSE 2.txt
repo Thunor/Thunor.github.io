@@ -1,0 +1,48 @@
+Estrelas and Estrelas Player
+Copyright © 2026 Eric Freitas. All rights reserved.
+
+FREEWARE LICENCE
+
+Estrelas and Estrelas Player (together, "the Software") are free of charge. Subject to the terms below, you may:
+
+  1. Download, install and use the Software, for personal or commercial purposes, on any number of devices.
+  2. Share unmodified copies of the Software, in the form in which it was originally distributed, provided you
+     charge nothing for them and keep this licence and every copyright notice with them.
+  3. Use, share and sell anything you make with the Software (universes, maps, images, exported files and notes).
+     They are yours.
+
+You may not:
+
+  a. Sell, rent or lease the Software, or include it in a product or service you charge for.
+  b. Modify, adapt, translate, decompile or create derivative works of the Software, except as the law allows despite
+     this restriction.
+  c. Distribute modified copies of the Software, or remove or alter any copyright notice, licence or attribution in it.
+  d. Present the Software, or any part of it, as your own work.
+
+The copyright owner keeps all rights not expressly granted here. This licence ends automatically if you break any of
+its terms; when it ends you must stop using and sharing the Software.
+
+NO WARRANTY. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
+THE COPYRIGHT OWNER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OF OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+THIRD-PARTY SOFTWARE
+
+The Software includes three.js (https://threejs.org), Copyright © 2010–2026 three.js authors, used under the MIT
+licence. Its full licence is in vendor/three-LICENSE.txt. Traveller map data, when imported, comes from the Traveller
+Map (https://travellermap.com) and remains subject to its own terms.
+
+
+TRAVELLER FAIR USE NOTICE
+
+The Traveller game in all forms is owned by Mongoose Publishing. Copyright 1977 – 2024 Mongoose Publishing. Traveller
+is a registered trademark of Mongoose Publishing. Mongoose Publishing permits web sites and fanzines for this game,
+provided it contains this notice, that Mongoose Publishing is notified, and subject to a withdrawal of permission on 90
+days notice. The contents of this site are for personal, non-commercial use only. Any use of Mongoose Publishing's
+copyrighted material or trademarks anywhere on this web site and its files should not be viewed as a challenge to
+those copyrights or trademarks. In addition, any program/articles/file on this site cannot be republished or
+distributed without the consent of the author who contributed it.
+
+Estrelas is an unofficial fan work. It is not affiliated with or endorsed by Mongoose Publishing.
