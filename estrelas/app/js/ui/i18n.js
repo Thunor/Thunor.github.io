@@ -3633,17 +3633,17 @@ const translations = {
         "fr": "Résolution du globe :",
         "pt": "Resolução do globo:"
     },
-    "Globe: %@": {
-        "de": "Globus: %@",
-        "es": "Globo: %@",
-        "fr": "Globe : %@",
-        "pt": "Globo: %@"
+    "Weather: %@": {
+        "de": "Wetter: %@",
+        "es": "Clima: %@",
+        "fr": "Météo : %@",
+        "pt": "Clima: %@"
     },
-    "Globe: Off": {
-        "de": "Globus: Aus",
-        "es": "Globo: desactivado",
-        "fr": "Globe : aucun",
-        "pt": "Globo: Desligado"
+    "Weather: Off": {
+        "de": "Wetter: Aus",
+        "es": "Clima: desactivado",
+        "fr": "Météo : aucune",
+        "pt": "Clima: Desligado"
     },
     "Glowing hydrogen where young, hot stars are being born": {
         "de": "Leuchtender Wasserstoff, wo junge, heiße Sterne entstehen",

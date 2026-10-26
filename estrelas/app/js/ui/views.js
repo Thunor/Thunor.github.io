@@ -541,7 +541,7 @@ export function planetListPanel({ map, planetary, annotations, onChangeAnnotatio
 /** Which weather map, if any, is drawn over the globe of the world zoomed to */
 function globeWeatherMenu(map) {
     const current = map.globeWeather ?? null;
-    const title = (layer) => (layer ? t('Globe: %@', t(weatherLayerTitles[layer])) : t('Globe: Off'));
+    const title = (layer) => (layer ? t('Weather: %@', t(weatherLayerTitles[layer])) : t('Weather: Off'));
     const select = h('select', { class: `resolution-menu globe-weather${current ? ' on' : ''}`, 'aria-label': t('On globe'),
         title: t('Draw precipitation radar or temperature over the globe, kept up to date as time runs') },
     [null, ...weatherLayers].map((layer) => h('option', { value: layer ?? '', selected: layer === current }, title(layer))));
