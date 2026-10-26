@@ -447,6 +447,11 @@ export function planetListPanel({ map, planetary, annotations, onChangeAnnotatio
         if (moon && isWorldlike(moon, world)) mapWorld = worldlike(world, moon);
     }
 
+    // Back out of the system to the star field, or the hex map of a charted universe: what Escape and double clicking
+    // the star do, as a button for touch screens with neither
+    const back = button([icon('chevronLeft'), t(map.isCharted ? 'Hex map' : 'Star map')], {
+        color: 'control', pill: false, title: t(map.isCharted ? 'Back to the hex map' : 'Back to the star map'),
+        onClick: () => map.hideBackdrop() });
     const actions = h('div', { class: 'button-row' },
         button(t('Whole system'), { color: 'primary', disabled: !selected, onClick: () => map.showWholeSystem() }),
         noteButton({ title: systemName, note: annotations?.system?.note,
@@ -529,7 +534,7 @@ export function planetListPanel({ map, planetary, annotations, onChangeAnnotatio
             onChange: (on) => Settings.set('showOrbits', on) }),
         toggle({ title: t('Night sides'), isOn: Settings.get('showNightSides'), color: 'primary',
             help: t('Shade the side of each planet and moon facing away from its star'), onChange: (on) => Settings.set('showNightSides', on) }));
-    return panel({ title: systemName, color: 'highlight', segments: ['primary', 'control', 'label'] }, actions, mapButton, weatherMenu,
+    return panel({ title: systemName, color: 'highlight', segments: ['primary', 'control', 'label'] }, h('div', { class: 'button-row' }, back), actions, mapButton, weatherMenu,
         stars, list, switches);
 }
 

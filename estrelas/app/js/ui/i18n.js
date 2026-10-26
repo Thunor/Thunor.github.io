@@ -5966,6 +5966,18 @@ const translations = {
         "es": "Refinando el mundo…",
         "fr": "Affinage du monde…",
         "pt": "Refinando o mundo…"
+    },
+    "Back to the hex map": {
+        "de": "Zurück zur Hexkarte",
+        "es": "Volver al mapa hexagonal",
+        "fr": "Retour à la carte hexagonale",
+        "pt": "Voltar ao mapa hexagonal"
+    },
+    "Back to the star map": {
+        "de": "Zurück zur Sternkarte",
+        "es": "Volver al mapa estelar",
+        "fr": "Retour à la carte stellaire",
+        "pt": "Voltar ao mapa estelar"
     }
 };
 
