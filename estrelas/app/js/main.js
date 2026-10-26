@@ -271,7 +271,8 @@ async function openUniverse(universe) {
         renderTime();
         renderRoute();
     });
-    map.addEventListener('counts', () => renderSide());
+    // The star counts only show in the star map's panel, not a system's
+    map.addEventListener('counts', () => { if (!map.planetary) renderSide(); });
     map.addEventListener('globe', (event) => settleMainWorld(map, event.detail));
     map.addEventListener('route', (event) => {
         state.route = event.detail;
@@ -362,7 +363,27 @@ function changeAnnotations(systemID, change) {
     renderSide();
 }
 
+// Rebuilding the side panel under a finger would end its scroll, so a rebuild waits for the finger to lift
+let sideTouches = 0;
+let sideRenderPending = false;
+side.addEventListener('touchstart', (event) => { sideTouches = event.touches.length; }, { passive: true });
+const sideTouchEnded = (event) => {
+    sideTouches = event.touches.length;
+    if (sideTouches === 0 && sideRenderPending) {
+        sideRenderPending = false;
+        // After the scroll's momentum has had a moment
+        setTimeout(() => { if (sideTouches === 0) renderSide(); else sideRenderPending = true; }, 400);
+    }
+};
+// On the window, since the touch's element may have left the panel by then
+window.addEventListener('touchend', sideTouchEnded, { passive: true, capture: true });
+window.addEventListener('touchcancel', sideTouchEnded, { passive: true, capture: true });
+
 function renderSide() {
+    if (sideTouches > 0) {
+        sideRenderPending = true;
+        return;
+    }
     const map = state.map;
     // A chart of data alone has no systems of its own, but still has its side panel
     if (!map || (!map.systems && !state.chart)) {

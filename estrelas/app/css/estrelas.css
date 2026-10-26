@@ -3057,3 +3057,21 @@ dialog.world-map .sheet-body {
         zoom: 0.85;
     }
 }
+
+/* A phone held upright: the time controls fit its width, with the resolving status below them */
+@media (max-width: 700px) {
+    #time {
+        left: 8px;
+        right: 8px;
+        justify-content: center;
+    }
+
+    #time > * {
+        zoom: 0.8;
+    }
+
+    .resolving-status {
+        top: 128px;
+        zoom: 0.85;
+    }
+}
