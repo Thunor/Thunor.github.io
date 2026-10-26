@@ -379,6 +379,8 @@ export class HexChart {
     }
 
     zoom(proposed, about) {
+        // A zoom worked out from a stray gesture (no distance to go by) is ignored rather than blanking the chart
+        if (!Number.isFinite(proposed) || !Number.isFinite(about?.x) || !Number.isFinite(about?.y)) return;
         const radius = Math.min(Math.max(proposed, minimumRadius), maximumRadius);
         const factor = radius / this.radius;
         this.offset = { x: about.x - (about.x - this.offset.x) * factor, y: about.y - (about.y - this.offset.y) * factor };
@@ -411,7 +413,7 @@ export class HexChart {
         canvas.addEventListener('pointermove', (event) => {
             if (!pointers.has(event.pointerId)) return;
             pointers.set(event.pointerId, local(event));
-            if (pinch && pointers.size === 2) {
+            if (pinch && !pinch.gesture && pointers.size === 2) {
                 const [a, b] = [...pointers.values()];
                 this.zoom(pinch.radius * Math.hypot(a.x - b.x, a.y - b.y) / Math.max(pinch.distance, 1),
                     { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
@@ -445,14 +447,19 @@ export class HexChart {
             const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY;
             this.zoom(this.radius * (1 - delta * 0.0025), local(event));
         }, { passive: false });
-        // Safari's pinch
+        // Safari's pinch on a Mac trackpad. On iPhone and iPad the same pinch also comes as two pointers, handled above:
+        // the gesture events then only need stopping, or the two would fight over the zoom
         canvas.addEventListener('gesturestart', (event) => {
             event.preventDefault();
-            pinch = { radius: this.radius, gesture: true };
+            if (!pinch) pinch = { radius: this.radius, gesture: true };
         });
         canvas.addEventListener('gesturechange', (event) => {
             event.preventDefault();
             if (pinch?.gesture) this.zoom(pinch.radius * event.scale, local(event));
+        });
+        canvas.addEventListener('gestureend', (event) => {
+            event.preventDefault();
+            if (pinch?.gesture) pinch = null;
         });
     }
 
