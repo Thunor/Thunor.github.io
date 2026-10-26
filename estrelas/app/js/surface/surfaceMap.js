@@ -40,7 +40,7 @@ export const cloudVersion = 2;
  * How rocky worlds' surfaces are generated, chosen in Settings: 'classic', 'biomes' (climate and biomes) or 'polygons'
  * (Amit Patel's polygonal map generation)
  */
-let surfaceGenerator = 'classic';
+let surfaceGenerator = 'biomes';
 export function setSurfaceGenerator(value) {
     surfaceGenerator = value === 'biomes' || value === 'polygons' ? value : 'classic';
 }

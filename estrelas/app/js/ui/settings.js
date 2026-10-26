@@ -17,7 +17,7 @@ const defaults = {
     showNightSides: true,
     showStarOrbitRings: true,
     starSystemLimit: 1000,
-    surfaceGenerator: 'classic',
+    surfaceGenerator: 'biomes',
     mapResolution: 1,
     globeResolution: 1,
     routeRange: 2,
