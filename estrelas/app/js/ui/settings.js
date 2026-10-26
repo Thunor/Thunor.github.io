@@ -61,14 +61,30 @@ export function mapResolution() {
     return mapResolutions.includes(value) ? value : 1;
 }
 
+/** iPhones, iPads (which call themselves Macs, with a touch screen) and Android devices */
+export const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    || (/Mac/.test(navigator.platform ?? '') && navigator.maxTouchPoints > 1);
+
+/**
+ * Settings a phone or tablet keeps for the visit only, starting from the default every time: a finer globe takes more
+ * memory than many of them have
+ */
+const visitOnly = new Set(isMobileDevice ? ['globeResolution'] : []);
+
 const events = new EventTarget();
 const prefix = `${storagePrefix}.`;
 
 export function get(key) {
     if (key in memory) return memory[key];
+    if (visitOnly.has(key)) return defaults[key];
     try {
         const stored = localStorage.getItem(prefix + key);
-        if (stored !== null) return JSON.parse(stored);
+        if (stored !== null) {
+            const value = JSON.parse(stored);
+            // The RetroSpace style is gone; whoever chose it gets the default
+            if (key === 'interfaceStyle' && value === 'retroSpace') return defaults[key];
+            return value;
+        }
     } catch {
         // Storage can be unavailable (private windows) or hold something unreadable
     }
@@ -76,6 +92,11 @@ export function get(key) {
 }
 
 export function set(key, value) {
+    if (visitOnly.has(key)) {
+        memory[key] = value;
+        events.dispatchEvent(new CustomEvent('change', { detail: { key, value } }));
+        return;
+    }
     try {
         localStorage.setItem(prefix + key, JSON.stringify(value));
     } catch {
@@ -127,4 +148,33 @@ export async function setUniversesFolder(handle) {
         console.warn('Couldn’t remember the universes folder', error);
     }
     events.dispatchEvent(new CustomEvent('change', { detail: { key: 'universesFolder', value: handle } }));
+}
+
+// MARK: finer globes on phones and tablets
+
+/*
+ * A finer globe can take more memory than a phone or tablet has, and the browser then closes the page outright. So
+ * while one is being made a mark is left in storage, and taken away once it's shown and drawn; a page that opens to
+ * find the mark still there was closed making one.
+ */
+const fineGlobeKey = `${prefix}fineGlobeAttempt`;
+
+export function markFineGlobeAttempt(attempting) {
+    try {
+        if (attempting) localStorage.setItem(fineGlobeKey, String(Date.now()));
+        else localStorage.removeItem(fineGlobeKey);
+    } catch {
+        // Without storage there's no telling afterwards
+    }
+}
+
+/** Whether the last visit was closed while making a finer globe; asking clears the mark */
+export function fineGlobeAttemptFailed() {
+    try {
+        const failed = localStorage.getItem(fineGlobeKey) !== null;
+        localStorage.removeItem(fineGlobeKey);
+        return failed;
+    } catch {
+        return false;
+    }
 }

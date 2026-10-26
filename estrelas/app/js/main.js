@@ -144,7 +144,7 @@ function settingChanged(key) {
 
 function applyStyle() {
     const value = Settings.get('interfaceStyle');
-    document.body.dataset.style = value === 'retroSpace' || value === 'macOS' ? value : 'estrela';
+    document.body.dataset.style = value === 'macOS' ? value : 'estrela';
 }
 
 function translateStatic() {
@@ -274,6 +274,7 @@ async function openUniverse(universe) {
     // The star counts only show in the star map's panel, not a system's
     map.addEventListener('counts', () => { if (!map.planetary) renderSide(); });
     map.addEventListener('globe', (event) => settleMainWorld(map, event.detail));
+    map.addEventListener('fineGlobe', (event) => watchFineGlobe(event.detail));
     map.addEventListener('route', (event) => {
         state.route = event.detail;
         renderRoute();
@@ -352,6 +353,39 @@ function settleMainWorld(map, { systemID, designation, surface, isMainWorld }) {
     } catch (error) {
         console.warn(`Couldn't settle ${designation}: ${error}`);
     }
+}
+
+// MARK: finer globes on phones and tablets
+
+const notEnoughMemoryMessage = () =>
+    t("This device doesn't have enough memory for high-resolution worlds, so worlds are back at 1×.");
+
+/**
+ * On a phone or tablet, watches each finer globe being made (see Settings.markFineGlobeAttempt): one the device
+ * couldn't hold sets the globes back to 1×, with an alert saying why
+ */
+function watchFineGlobe({ stage }) {
+    if (!Settings.isMobileDevice) return;
+    if (stage === 'start') {
+        Settings.markFineGlobeAttempt(true);
+    } else if (stage === 'fitted') {
+        // Drawn for a few frames without trouble
+        setTimeout(() => Settings.markFineGlobeAttempt(false), 3000);
+    } else if (stage === 'failed') {
+        Settings.markFineGlobeAttempt(false);
+        if (Settings.globeResolution() > 1) {
+            Settings.set('globeResolution', 1);
+            setTimeout(() => alert(notEnoughMemoryMessage()), 0);
+        }
+    }
+}
+
+if (Settings.isMobileDevice) {
+    // Leaving the page isn't a crash
+    window.addEventListener('pagehide', () => Settings.markFineGlobeAttempt(false));
+    Settings.onChange((key, value) => { if (key === 'globeResolution' && value === 1) Settings.markFineGlobeAttempt(false); });
+    // The last visit closed while making a finer globe: globes start at 1× on a phone anyway, so it only needs saying
+    if (Settings.fineGlobeAttemptFailed()) setTimeout(() => alert(notEnoughMemoryMessage()), 1500);
 }
 
 function changeAnnotations(systemID, change) {
@@ -851,7 +885,7 @@ async function showSettings() {
         h('p', { class: 'footnote' }, t('Cloud layers over the globes of planets with atmospheres.')),
         h('hr'),
         h('label', { class: 'field' }, h('span', {}, t('Interface style')),
-            select('interfaceStyle', [['retroSpace', 'RetroSpace'], ['estrela', 'Estrela'], ['macOS', 'macOS']])),
+            select('interfaceStyle', [['estrela', 'Estrela'], ['macOS', 'macOS']])),
         h('p', { class: 'footnote' }, t('How the panels and controls over the star map are drawn.')),
         h('hr'),
         h('label', { class: 'field' }, h('span', {}, t('Language')),

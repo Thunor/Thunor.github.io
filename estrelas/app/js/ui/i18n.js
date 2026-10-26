@@ -5978,6 +5978,12 @@ const translations = {
         "es": "Volver al mapa estelar",
         "fr": "Retour à la carte stellaire",
         "pt": "Voltar ao mapa estelar"
+    },
+    "This device doesn't have enough memory for high-resolution worlds, so worlds are back at 1×.": {
+        "de": "Dieses Gerät hat nicht genug Speicher für hochaufgelöste Welten, daher werden Welten wieder mit 1× angezeigt.",
+        "es": "Este dispositivo no tiene suficiente memoria para mundos en alta resolución, así que los mundos vuelven a 1×.",
+        "fr": "Cet appareil n’a pas assez de mémoire pour les mondes en haute résolution ; les mondes reviennent donc à 1×.",
+        "pt": "Este dispositivo não tem memória suficiente para mundos em alta resolução, por isso os mundos voltaram a 1×."
     }
 };
 

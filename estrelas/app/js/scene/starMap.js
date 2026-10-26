@@ -356,6 +356,10 @@ export class StarMap extends EventTarget {
         this.spinners = new Set();
 
         this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        // Losing the graphics context with a finer globe shown means it was too much for the device
+        canvas.addEventListener('webglcontextlost', () => {
+            if (this.globeScale > 1 && this.planetary) this.emit('fineGlobe', { stage: 'failed' });
+        });
         this.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.setClearColor(0x000000, 1);
@@ -2698,6 +2702,7 @@ export class StarMap extends EventTarget {
         // Until the globe at this resolution arrives, the view shows that the world is still being resolved
         const pendingKey = `${resolution}|${coarse}`;
         target.pending = pendingKey;
+        if (resolution > 1 && !coarse) this.emit('fineGlobe', { stage: 'start', designation });
         this.refreshResolvingStatus();
         if (!coarse && !target.shown && !target.previewing) {
             target.previewing = true;
@@ -2814,7 +2819,12 @@ export class StarMap extends EventTarget {
         const gl = this.renderer.getContext();
         while (gl.getError() !== gl.NO_ERROR) { /* clear earlier errors */ }
         requestAnimationFrame(() => requestAnimationFrame(() => {
-            if (gl.getError() !== gl.OUT_OF_MEMORY || this.planetary !== planetary) return;
+            if (gl.getError() !== gl.OUT_OF_MEMORY) {
+                this.emit('fineGlobe', { stage: 'fitted', designation });
+                return;
+            }
+            this.emit('fineGlobe', { stage: 'failed', designation });
+            if (this.planetary !== planetary) return;
             console.warn('Not enough graphics memory for a finer globe; showing it at standard resolution');
             this.globeResolutionLimit = 1;
             this.updateGlobeResolutions();
