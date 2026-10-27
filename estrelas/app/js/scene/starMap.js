@@ -1524,11 +1524,56 @@ export class StarMap extends EventTarget {
             return;
         }
         this.updateTransforms();
+        this.updateOccluders();
         NightShade.updateNightShades(this.nightShades, this.cityLights);
         this.updateBillboards(now);
         this.renderer.render(this.scene, this.camera);
         this.updateGlobePinLabel();
         requestAnimationFrame(this.frame);
+    }
+
+    /**
+     * Hides any world that passes between the camera and the world zoomed to, while it's in the way: a small minor
+     * planet next to a big world's orbit would otherwise vanish behind it, and the big world be taken for it
+     */
+    updateOccluders() {
+        this.occluders ??= new Set();
+        const planetary = this.planetary;
+        const selected = planetary?.selected;
+        const target = selected
+            ? planetary.entities.get(selected) ?? [...planetary.entities.values()].map((b) => b.getObjectByName(selected)).find(Boolean)
+            : null;
+        const blocking = new Set();
+        if (target) {
+            const camera = this.camera.position;
+            const at = target.getWorldPosition(new THREE.Vector3());
+            const ray = at.clone().sub(camera);
+            const span = ray.length();
+            ray.divideScalar(Math.max(span, 1e-9));
+            const targetRadius = (target.userData.radius ?? 0) * target.matrixWorld.getMaxScaleOnAxis();
+            const centre = new THREE.Vector3();
+            for (const body of planetary.entities.values()) {
+                // Not the world itself, nor the planet a moon zoomed to goes round
+                if (body === target || body.getObjectById(target.id)) continue;
+                body.getWorldPosition(centre);
+                const along = centre.clone().sub(camera).dot(ray);
+                if (!(along > 0 && along < span)) continue;
+                const radius = (body.userData.radius ?? 0) * body.matrixWorld.getMaxScaleOnAxis();
+                const off = centre.clone().sub(camera).addScaledVector(ray, -along).length();
+                if (off < radius * 1.15 + targetRadius) blocking.add(body);
+            }
+        }
+        for (const body of blocking) {
+            if (!this.occluders.has(body) && body.visible) {
+                body.visible = false;
+                this.occluders.add(body);
+            }
+        }
+        for (const body of [...this.occluders]) {
+            if (blocking.has(body)) continue;
+            body.visible = true;
+            this.occluders.delete(body);
+        }
     }
 
     updateOrbits() {

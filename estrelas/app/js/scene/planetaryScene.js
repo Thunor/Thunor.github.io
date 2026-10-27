@@ -25,6 +25,28 @@ const ringColor = new THREE.Color(0.4, 0.4, 0.4);
 const moonRingThickness = ringThickness * 0.4;
 const moonRingColor = new THREE.Color(0.28, 0.28, 0.28);
 const beltColor = new THREE.Color(0.6, 0.6, 0.6);
+/** How far a belt reaches either side of its middle, as a ratio: its rocks stay inside, and its neighbours outside */
+const beltSpread = 1.12;
+/**
+ * A minor planet's orbit as drawn: in its lane (see minorPlanets.js) spread across the whole width of its belt as the
+ * belt is drawn, so that, at the size it's drawn, it never touches the minor planets in the lanes either side, nor
+ * leaves the belt. `laneRoom` is the largest it may be drawn.
+ */
+function minorPlanetElements(world, worlds, mapping, band) {
+    const elements = orbitalElementsFor(world, worlds, mapping);
+    if (!band) return { ...elements, laneRoom: Infinity };
+    const lanes = worlds.filter((w) => w.minorPlanet && w.belt === world.belt).sort((a, b) => a.au - b.au);
+    const lane = lanes.indexOf(world);
+    // The lanes share the belt's band less a margin at each edge
+    const margin = (band.high - band.low) * 0.04;
+    const width = (band.high - band.low - 2 * margin) / lanes.length;
+    const semiMajAxis = band.low + margin + width * (lane + 0.5);
+    // As eccentric, for its lane, as it is in its lane in AU (at most a third of it)
+    const share = Math.min(Math.max(world.eccentricity / (0.08 / lanes.length / 3), 0), 1);
+    const eccentricity = width * 0.15 * share / semiMajAxis;
+    return { ...elements, semiMajAxis, eccentricity, laneRoom: width * (0.5 - 0.15 * share) * 0.9 };
+}
+
 /** A minor planet's orbit, fainter than a planet's */
 const minorRingColor = new THREE.Color(0.24, 0.24, 0.24);
 
@@ -378,11 +400,27 @@ function addMoons(moons, world, frame, body, room) {
 /** Adds an orbit ring and body for each world under `parent`; returns the planet bodies by designation */
 export function addWorlds(worlds, parent, mapping) {
     const bodies = new Map();
+    // Each belt's band as drawn: up to `beltSpread` either side of its middle, but only halfway to its neighbours'
+    // orbits, so its rocks and minor planets never stray into them
+    const orbitBand = (world) => [mapping.distance(world.au * (1 - world.eccentricity)), mapping.distance(world.au * (1 + world.eccentricity))];
+    const beltBands = new Map();
+    for (const belt of worlds.filter((w) => w.type === 'asteroidBelt')) {
+        const middle = mapping.distance(belt.au);
+        let low = middle / beltSpread, high = middle * beltSpread;
+        for (const other of worlds) {
+            if (other === belt || other.minorPlanet || isTrojan(other)) continue;
+            // Another belt shares the space between them equally
+            const [near, far] = other.type === 'asteroidBelt' ? [mapping.distance(other.au), mapping.distance(other.au)] : orbitBand(other);
+            if (far <= middle) low = Math.max(low, (far + middle) / 2);
+            else if (near >= middle) high = Math.min(high, (near + middle) / 2);
+        }
+        beltBands.set(belt.designation, { middle, low: Math.min(low, middle), high: Math.max(high, middle) });
+    }
     const bands = worlds.map((world) => {
-        const nearest = mapping.distance(world.au * (1 - world.eccentricity));
-        const farthest = mapping.distance(world.au * (1 + world.eccentricity));
-        const spread = world.type === 'asteroidBelt' ? 1.12 : 1;
-        return [nearest / spread, Math.max(farthest * spread, nearest / spread)];
+        const belt = beltBands.get(world.designation);
+        if (belt) return [belt.low, belt.high];
+        const [nearest, farthest] = orbitBand(world);
+        return [nearest, Math.max(farthest, nearest)];
     });
 
     // The room each body has: inside the gap between its orbit and its neighbours' (and the star), so planets never
@@ -399,7 +437,11 @@ export function addWorlds(worlds, parent, mapping) {
         const outside = outerEdges.length ? Math.min(...outerEdges) : Infinity;
         return Math.min(band[0] - inside, outside - band[1]);
     });
-    const caps = gaps.map((gap) => Math.max(gap * 0.4, 0.004));
+    // At least a little size to see, unless its neighbours are so close that it would touch them
+    const caps = gaps.map((gap) => {
+        const cap = Math.max(gap * 0.4, Math.min(0.004, gap * 0.48));
+        return cap > 0 ? cap : 0.0005;
+    });
     // Every body is shrunk by the same factor, the most any one needs to fit, so their sizes stay in proportion; only
     // a body far more crowded than the rest is squeezed further on its own
     let shrink = 1;
@@ -410,9 +452,10 @@ export function addWorlds(worlds, parent, mapping) {
     shrink = Math.max(shrink, 0.35);
 
     worlds.forEach((world, index) => {
-        const elements = orbitalElementsFor(world, worlds, mapping);
+        const elements = world.minorPlanet ? minorPlanetElements(world, worlds, mapping, beltBands.get(world.belt))
+            : orbitalElementsFor(world, worlds, mapping);
         if (world.type === 'asteroidBelt') {
-            const belt = beltRocks(elements, stableHash(world.designation));
+            const belt = beltRocks(elements, stableHash(world.designation), beltBands.get(world.designation));
             if (belt) {
                 belt.name = `${world.designation}_belt`;
                 parent.add(belt);
@@ -423,7 +466,8 @@ export function addWorlds(worlds, parent, mapping) {
         ring.name = `${world.designation}_orbit`;
         parent.add(ring);
 
-        const body = world.minorPlanet ? bodyEntity(world, minorPlanetRadius(world.radiusKm)) : bodyEntity(world, caps[index], shrink);
+        const body = world.minorPlanet ? bodyEntity(world, Math.min(minorPlanetRadius(world.radiusKm), elements.laneRoom))
+            : bodyEntity(world, caps[index], shrink);
         if (world.minorPlanet) {
             // Its night side, lights and markers are its children, so they take its shape too
             const shape = minorPlanetShape(world);
@@ -541,7 +585,7 @@ function rockGeometry(shape, faces) {
  * small and a few are large, as in a real belt; each has an orbit of its own, a little eccentric and tilted, crossing
  * the others', and more of them lie near the belt's middle than at its edges.
  */
-export function beltRocks(elements, seed, rockCount = 180) {
+export function beltRocks(elements, seed, band = null, rockCount = 180) {
     const generator = new SplitMix64(seed);
     const semiMajor = Math.fround(elements.semiMajAxis);
     if (!(semiMajor > 0)) return null;
@@ -564,10 +608,13 @@ export function beltRocks(elements, seed, rockCount = 180) {
     for (let n = 0; n < rockCount; n++) {
         const shape = generator.intBelow(0, shapes.length);
         const size = sizeOf();
-        const semiMajAxis = semiMajor * (1 + 0.08 * across());
+        // Never out of the belt's band (see addWorlds), where its neighbours' orbits begin
+        const low = (band?.low ?? semiMajor / beltSpread) * 1.01, high = (band?.high ?? semiMajor * beltSpread) * 0.99;
+        const semiMajAxis = Math.min(Math.max(semiMajor * (1 + 0.06 * across()), low * 1.005), high * 0.995);
+        const room = Math.max(Math.min(high / semiMajAxis - 1, 1 - low / semiMajAxis), 0);
         const orbitElements = {
             ...elements, semiMajAxis,
-            eccentricity: 0.14 * Math.pow(generator.float(0, 1), 1.6),
+            eccentricity: Math.min(0.1, room) * Math.pow(generator.float(0, 1), 1.6),
             inclination: (elements.inclination ?? 0) + 10 * Math.pow(generator.float(0, 1), 2) * (generator.float(0, 1) < 0.5 ? -1 : 1),
             lngAscNode: generator.floatBelow(0, 360), argOfPeriapsis: generator.floatBelow(0, 360),
             trueAnomaly: generator.floatBelow(0, 360), period: beltPeriod * Math.pow(semiMajAxis / semiMajor, 1.5),
