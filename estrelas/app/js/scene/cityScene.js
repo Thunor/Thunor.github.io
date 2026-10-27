@@ -21,6 +21,8 @@ const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a
 const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const centroid = (points) => points.reduce((s, p) => [s[0] + p[0] / points.length, s[1] + p[1] / points.length], [0, 0]);
 const dist2 = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+const add2 = (a, b) => [a[0] + b[0], a[1] + b[1]];
+const scale2 = (a, k) => [a[0] * k, a[1] * k];
 
 /**
  * Flat-shaded triangles for one material. Shapes laid on the ground follow `terrain`, at their height above it;
@@ -238,6 +240,24 @@ class MeshBuilder {
         }
     }
 
+    /** A glass-roofed road: a half-tube over the ground from a to b, following the ground at each end */
+    addTube(a, b, radius, baseA, baseB, sides = 8) {
+        const length = dist2(a, b);
+        if (!(length > 0.5)) return;
+        const across = [-(b[1] - a[1]) / length, (b[0] - a[0]) / length];
+        const at = (p, base, k) => {
+            const angle = Math.PI * k / sides;
+            const offset = Math.cos(angle) * radius;
+            return v3([p[0] + across[0] * offset, p[1] + across[1] * offset], base + Math.sin(angle) * radius);
+        };
+        for (let k = 0; k < sides; k++) {
+            const quad = [at(a, baseA, k), at(b, baseB, k), at(b, baseB, k + 1), at(a, baseA, k + 1)];
+            const middle = scale3(add3(add3(quad[0], quad[1]), add3(quad[2], quad[3])), 0.25);
+            const axis = v3(scale2(add2(a, b), 0.5), (baseA + baseB) / 2);
+            this.addPolygon(quad, sub3(middle, axis));
+        }
+    }
+
     addCone(centre, radius, base, height, sides = 6) {
         const ring = circle(centre, radius, sides).map((p) => v3(p, base));
         const apex = v3(centre, base + height), middle = v3(centre, base);
@@ -334,6 +354,8 @@ export function cityGeometry(layout) {
     });
 
     for (const road of layout.roads) {
+        // Out in the vacuum, under a glass half-tube
+        if (road.covered) add('tubeGlass', (b) => b.addTube(road.a, road.b, road.width * 0.75, ground(road.a), ground(road.b)));
         if (road.kind === 'path') {
             add('path', (b) => b.addRibbon(road.a, road.b, road.width, Layer.path));
             continue;
@@ -468,6 +490,43 @@ export function cityGeometry(layout) {
         }
     }
 
+    // The domes over a city on an airless world, each on a low wall, with ribs up its curve
+    for (const dome of layout.domes ?? []) {
+        const base = ground(dome.centre) + 2;
+        add('domeGlass', (b) => b.addDome(dome.centre, dome.radius, base, 64, 16));
+        add('domeFrame', (b) => {
+            b.addPrism(circle(dome.centre, dome.radius, 64), base - 4, base, false);
+            for (let k = 0; k < 16; k++) {
+                const angle = k / 16 * 2 * Math.PI;
+                for (let r = 0; r < 8; r++) {
+                    const e0 = r / 8 * Math.PI / 2, e1 = (r + 1) / 8 * Math.PI / 2;
+                    const p0 = [dome.centre[0] + Math.cos(angle) * Math.cos(e0) * dome.radius, dome.centre[1] + Math.sin(angle) * Math.cos(e0) * dome.radius];
+                    const p1 = [dome.centre[0] + Math.cos(angle) * Math.cos(e1) * dome.radius, dome.centre[1] + Math.sin(angle) * Math.cos(e1) * dome.radius];
+                    b.addPolygon([v3(p0, base + Math.sin(e0) * dome.radius), v3(p1, base + Math.sin(e1) * dome.radius),
+                        v3(p1, base + Math.sin(e1) * dome.radius + 1.2), v3(p0, base + Math.sin(e0) * dome.radius + 1.2)],
+                    [Math.cos(angle), 0, -Math.sin(angle)]);
+                }
+            }
+        });
+    }
+    // Farms in glass bubbles: crops in rows on the floor of each
+    for (const farm of layout.farmDomes ?? []) {
+        const base = ground(farm.centre) + 1;
+        add('domeGlass', (b) => b.addDome(farm.centre, farm.radius, base, 40, 12));
+        add('domeFrame', (b) => b.addPrism(circle(farm.centre, farm.radius, 40), base - 3, base + 0.6, false));
+        add('crop', (b) => b.addFlat(circle(farm.centre, farm.radius * 0.97, 40), Layer.grass + 0.4));
+        add('cropRow', (b) => {
+            const along = [Math.cos(farm.rowAngle), Math.sin(farm.rowAngle)], across = [-along[1], along[0]];
+            for (let offset = -farm.radius + 4; offset < farm.radius - 4; offset += 5) {
+                const half = Math.sqrt(Math.max(farm.radius * farm.radius * 0.9 - offset * offset, 0));
+                if (half < 3) continue;
+                const middle = [farm.centre[0] + across[0] * offset, farm.centre[1] + across[1] * offset];
+                b.addRibbon([middle[0] - along[0] * half, middle[1] - along[1] * half],
+                    [middle[0] + along[0] * half, middle[1] + along[1] * half], 2, Layer.grass + 0.55);
+            }
+        });
+    }
+
     // Trees, standing on the ground wherever it is
     for (const tree of layout.trees) {
         const foot = ground(tree.position) + Layer.grass;
@@ -568,11 +627,18 @@ function palette(surface, layout, groundColor) {
             return layout.temperature === 'hot' || layout.temperature === 'boiling' ? S([0.36, 0.48, 0.22], 0, 1) : S([0.22, 0.42, 0.18], 0, 1);
         case 'conifer': return S([0.14, 0.30, 0.18], 0, 1);
         case 'palm': return S([0.30, 0.50, 0.20], 0, 1);
+        case 'domeGlass': case 'tubeGlass': return S([0.78, 0.88, 0.96], 0.2, 0.08);
+        case 'domeFrame': return S([0.62, 0.64, 0.68], 0.6, 0.45);
+        case 'crop': return S([0.34, 0.56, 0.24], 0, 1);
+        case 'cropRow': return S([0.22, 0.40, 0.16], 0, 1);
         default: return S([0.6, 0.6, 0.6]);
     }
 }
 
-const flatSurfaces = new Set(['ground', 'marking', 'water', 'fountainWater', 'pavement', 'plaza', 'grass', 'path', 'road', 'shore']);
+const flatSurfaces = new Set(['ground', 'marking', 'water', 'fountainWater', 'pavement', 'plaza', 'grass', 'path', 'road', 'shore',
+    'crop', 'cropRow']);
+/** See-through glass: domes and covered roads */
+const glassSurfaces = new Set(['domeGlass', 'tubeGlass']);
 
 /** A group holding a mesh per surface */
 export function cityObject(builders, layout, groundColor) {
@@ -580,14 +646,16 @@ export function cityObject(builders, layout, groundColor) {
     root.name = 'city';
     for (const [surface, builder] of builders) {
         const style = palette(surface, layout, groundColor);
+        const glass = glassSurfaces.has(surface);
         const material = new THREE.MeshStandardMaterial({
             color: new THREE.Color(...style.color), metalness: style.metallic * 0.6, roughness: style.roughness,
-            side: THREE.DoubleSide,
+            side: THREE.DoubleSide, ...(glass ? { transparent: true, opacity: 0.16, depthWrite: false } : {}),
         });
         const mesh = new THREE.Mesh(builder.geometry(), material);
-        // Flat layers laid on the ground, and open water, cast no shadows of their own
-        mesh.castShadow = !flatSurfaces.has(surface);
-        mesh.receiveShadow = true;
+        // Flat layers laid on the ground, and open water, cast no shadows of their own; nor does glass
+        mesh.castShadow = !flatSurfaces.has(surface) && !glass;
+        mesh.receiveShadow = !glass;
+        if (glass) mesh.renderOrder = 2;
         root.add(mesh);
     }
     return root;
@@ -595,5 +663,7 @@ export function cityObject(builders, layout, groundColor) {
 
 /** Half the width of the square a top-down image covers, in metres */
 export function topDownHalfExtent(layout) {
-    return layout.radius * 1.15;
+    // Out to the farm domes round a town on an airless world
+    const farms = (layout.farmDomes ?? []).map((farm) => Math.max(Math.abs(farm.centre[0]), Math.abs(farm.centre[1])) + farm.radius + 10);
+    return Math.max(layout.radius * 1.15, ...farms);
 }

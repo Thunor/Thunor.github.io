@@ -21,6 +21,12 @@ const f = Math.fround;
 
 export const settlementKinds = new Set(['capital', 'city', 'town', 'village']);
 
+/** Whether a world has no air to breathe or hold a pressure: its settlements live under glass */
+export function isAirless(environment) {
+    if (!environment) return false;
+    return environment.atmosphere === 'none' || environment.atmosphere === 'trace' || (environment.pressureBar ?? 1) < 0.05;
+}
+
 /** The broad look of a city's buildings and streets, from the world's technological era */
 export function cityEra(era) {
     const rank = eraRank(era);
@@ -59,7 +65,7 @@ export function cityParameters(place, world, site = null, worldStyle = null) {
         kind: place.kind, population, era: world.social?.techEra ?? 'information',
         waterPercent: world.environment?.waterPercent ?? 0,
         temperature: world.environment ? environmentTemperature(world.environment) : 'temperate',
-        seed: stableHash(`${world.designation}/${place.id}`),
+        seed: stableHash(`${world.designation}/${place.id}`), airless: isAirless(world.environment),
         site: site ?? plainSite, siteIsKnown: !!site, style: filledCityStyle(place.cityStyle, worldStyle),
     };
 }
@@ -846,9 +852,129 @@ export function generateCity(parameters) {
         layout.trees.push(tree(p));
     }
 
+    // On a world without air, everything lives under glass
+    if (parameters.airless) enclose(layout, parameters, extent, terrain);
+
     layout.roadLength = [...layout.roads, ...layout.bridges].filter((r) => r.kind !== 'path')
         .reduce((sum, r) => sum + distance(r.a, r.b), 0) / 1000;
     return layout;
+}
+
+// MARK: airless worlds
+
+/**
+ * Puts a city on an airless world under glass, after the rest of it is laid out and with draws of its own, so its
+ * streets and buildings are the ones it would have had. Most are domed: one dome over a village or town, a cluster of
+ * them over a city, linked by glass-roofed roads; buildings out from under them go, and those under them stay low
+ * enough to fit. Some are built instead as sealed, pressurized buildings along open roads, with nothing growing
+ * outside. Either way their farmland lies in glass bubbles round about. Sets `layout.enclosure` ('domes' or 'sealed'),
+ * `layout.domes` and `layout.farmDomes` ({ centre, radius }), and marks covered roads.
+ */
+function enclose(layout, parameters, extent, terrain) {
+    const random = new CityRandom(BigInt.asUintN(64, BigInt(parameters.seed) ^ 0xA1E55D0E5n));
+    const kind = parameters.kind;
+    const radius = layout.radius;
+    const sealed = kind !== 'village' && random.float(0, 1) < 0.3;
+    layout.enclosure = sealed ? 'sealed' : 'domes';
+    layout.domes = [];
+    layout.farmDomes = [];
+    layout.water = null;
+    layout.ponds = [];
+    const centroidOf = (polygon) => scale(polygon.reduce((s, p) => add(s, p), [0, 0]), 1 / polygon.length);
+
+    if (sealed) {
+        // Nothing grows in the open; roofs are flat, some crowned with a glass dome over an atrium, and the avenues
+        // are glass-roofed so people can cross the city without suits
+        layout.trees = [];
+        layout.greens = [];
+        layout.gardens = [];
+        for (const building of layout.buildings) {
+            if (building.kind === 'skyscraper' || building.kind === 'warehouse' || building.kind === 'factory') continue;
+            building.roof = random.float(0, 1) < 0.15 ? 'dome' : 'flat';
+            building.eaves = 0;
+        }
+        for (const road of layout.roads) if (road.kind === 'avenue') road.covered = true;
+    } else {
+        // Domes where the buildings are: one over a small place, otherwise a honeycomb of them
+        const centres = layout.buildings.map((b) => centroidOf(b.footprint));
+        if (radius <= 420) {
+            layout.domes.push({ centre: [0, 0], radius: Math.max(radius * 1.2, 90) });
+        } else {
+            const spacing = Math.min(Math.max(radius / 2.4, 260), 520);
+            const domeRadius = spacing * 0.62;
+            const rows = Math.ceil(radius * 1.2 / (spacing * 0.866));
+            for (let j = -rows; j <= rows; j++) {
+                for (let i = -rows - 1; i <= rows + 1; i++) {
+                    const centre = [(i + (j % 2 ? 0.5 : 0)) * spacing, j * spacing * 0.866];
+                    if (length(centre) > radius * 1.15) continue;
+                    const under = centres.filter((c) => distance(c, centre) < domeRadius * 0.85).length;
+                    if (under >= 4 || length(centre) < 1) layout.domes.push({ centre, radius: domeRadius });
+                }
+            }
+        }
+        const domeOver = (p, margin = 0) => layout.domes.find((d) => distance(p, d.centre) < d.radius - margin) ?? null;
+        // Buildings under a dome, and short enough to stand under its curve; the rest go
+        const fits = (footprint, height) => {
+            const dome = domeOver(centroidOf(footprint));
+            if (!dome) return null;
+            const farthest = Math.max(...footprint.map((p) => distance(p, dome.centre)));
+            if (!(farthest < dome.radius * 0.94)) return null;
+            return Math.sqrt(dome.radius * dome.radius - farthest * farthest) * 0.9;
+        };
+        layout.buildings = layout.buildings.filter((building) => {
+            const room = fits(building.footprint, building.height);
+            if (room === null) return false;
+            const total = building.height + (building.spire ?? 0) + 6;
+            if (total > room) {
+                building.spire = 0;
+                building.height = Math.max(Math.min(building.height, room - 6), 3);
+                if (building.tiers > 1 && building.height < 70) building.tiers = 1;
+            }
+            return true;
+        });
+        if (layout.landmark) {
+            const room = fits(layout.landmark.footprint, layout.landmark.height);
+            if (room === null || layout.landmark.height + layout.landmark.domeRadius * 2 > room) layout.landmark = null;
+        }
+        const covered = (p) => domeOver(p, 2) !== null;
+        layout.trees = layout.trees.filter((tree) => covered(tree.position));
+        layout.greens = layout.greens.filter((g) => covered(centroidOf(g)));
+        layout.gardens = layout.gardens.filter((g) => covered(centroidOf(g)));
+        layout.plazas = layout.plazas.filter((p) => covered(centroidOf(p)));
+        layout.monuments = layout.monuments.filter((m) => covered(m.position));
+        layout.blocks = layout.blocks.filter((b) => covered(centroidOf(b)));
+        // Streets under the domes stay; out in the open only the main roads between them, under glass
+        layout.roads = layout.roads.filter((road) => {
+            const middle = scale(add(road.a, road.b), 0.5);
+            if (covered(middle)) return true;
+            if (road.kind !== 'avenue' || !(covered(road.a) || covered(road.b) || length(middle) < radius)) return false;
+            road.covered = true;
+            return true;
+        });
+    }
+
+    // The farms: glass bubbles round about, each joined to the town by a covered road
+    const count = { capital: 14, city: 10, town: 6 }[kind] ?? 3;
+    const [smallest, largest] = kind === 'village' ? [30, 55] : [50, 110];
+    const occupied = [...layout.domes];
+    const townEdge = sealed ? radius : Math.max(radius, ...layout.domes.map((d) => length(d.centre) + d.radius));
+    for (let attempt = 0; attempt < count * 12 && layout.farmDomes.length < count; attempt++) {
+        const farmRadius = random.float(smallest, largest);
+        const angle = random.float(0, 2 * Math.PI);
+        const reach = townEdge + farmRadius + random.float(15, Math.max(townEdge * 0.7, 120));
+        const centre = [Math.cos(angle) * reach, Math.sin(angle) * reach];
+        if (terrain?.isOpenWater?.(centre)) continue;
+        if (occupied.some((d) => distance(d.centre, centre) < d.radius + farmRadius + 12)) continue;
+        if (sealed && !(length(centre) > extent(centre) + farmRadius + 10)) continue;
+        const farm = { centre, radius: farmRadius, rowAngle: random.float(0, Math.PI) };
+        layout.farmDomes.push(farm);
+        occupied.push(farm);
+        // A covered road in to the edge of the town
+        const inward = normalize(scale(centre, -1));
+        const start = add(centre, scale(inward, farmRadius - 2));
+        const end = scale(normalize(centre), sealed ? Math.min(extent(centre), length(centre)) : Math.max(townEdge - 30, 0));
+        if (length(start) > length(end) + 5) layout.roads.push({ a: start, b: end, width: 7, kind: 'street', covered: true });
+    }
 }
 
 /** A polygon of `sides` round a circle */

@@ -22,6 +22,8 @@ import { techEraNames } from './worldText.js';
 import { cityGeometry, cityObject, topDownHalfExtent } from '../scene/cityScene.js';
 
 const fieldOfView = 50;
+/** How a town on an airless world keeps its air */
+const enclosureNames = { domes: 'Under domes', sealed: 'Pressurized buildings' };
 const exportLayoutWidth = 1600;
 
 /**
@@ -72,12 +74,14 @@ export function showCityMap(place, world, groundColor, { loadGlobe = null, world
         requestAnimationFrame(frame);
     };
     const resetCamera = () => {
-        Object.assign(camera, { azimuth: 35, elevation: 38, distance: (layout?.radius ?? 400) * 1.5 });
+        // Outside any dome, so the town is seen through clear glass rather than from just inside it
+        const domes = Math.max(0, ...(layout?.domes ?? []).map((d) => Math.hypot(...d.centre) + d.radius));
+        Object.assign(camera, { azimuth: 35, elevation: 38, distance: Math.max((layout?.radius ?? 400) * 1.5, domes * 2.2) });
         camera.target.set(0, layout?.terrain?.height([0, 0]) ?? 0, 0);
         updateCamera();
     };
     const setDistance = (value) => {
-        camera.distance = Math.min(Math.max(value, 25), (layout?.radius ?? 400) * 4);
+        camera.distance = Math.min(Math.max(value, 25), Math.max((layout?.radius ?? 400) * 4, layout ? topDownHalfExtent(layout) * 3 : 0));
         updateCamera();
     };
 
@@ -177,7 +181,7 @@ export function showCityMap(place, world, groundColor, { loadGlobe = null, world
         try {
             layout = generateCity(parameters);
             styleFacts.textContent = [architectureNames[layout.architecture], streetLayoutNames[layout.streetLayout],
-                harmonyNames[layout.harmony]].map((name) => t(name)).join(' · ');
+                harmonyNames[layout.harmony], enclosureNames[layout.enclosure]].filter(Boolean).map((name) => t(name)).join(' · ');
             city = cityObject(cityGeometry(layout), layout, groundColor);
             scene.add(city);
             // No air, or only a trace: a black sky; hazy, sulfurous and carbon dioxide skies: a hazy ochre
@@ -186,8 +190,8 @@ export function showCityMap(place, world, groundColor, { loadGlobe = null, world
                 : atmosphere === 'nitrogen' || atmosphere === 'nitrogenOxygen' ? [0.56, 0.72, 0.90] : [0.74, 0.62, 0.44];
             scene.background = new THREE.Color(...sky);
             const shadow = sun.shadow.camera;
-            const reach = layout.radius * 1.4;
-            Object.assign(shadow, { left: -reach, right: reach, top: reach, bottom: -reach, near: 1, far: layout.radius * 6 });
+            const reach = Math.max(layout.radius * 1.4, topDownHalfExtent(layout) * 1.1);
+            Object.assign(shadow, { left: -reach, right: reach, top: reach, bottom: -reach, near: 1, far: reach * 4.5 });
             shadow.updateProjectionMatrix();
             sun.position.set(0.45, 1, 0.3).multiplyScalar(layout.radius * 2.5);
             sun.shadow.mapSize.set(4096, 4096);

@@ -30,7 +30,7 @@ import * as SurfaceMap from '../surface/surfaceMap.js';
 import { globeMesh, waterTest, reliefTest } from '../surface/voronoiSurface.js';
 import { hasHabitableWorld, hasPlanets, hasAsteroidBelt, hasGasGiant } from '../model/planetarySystem.js';
 import { sectorsWithin, sectorKey, distanceToSector, originSector } from '../gen/sectors.js';
-import { settlementKinds } from '../gen/cityGenerator.js';
+import { settlementKinds, isAirless } from '../gen/cityGenerator.js';
 import { planRouteInWorker, drawCityGround, weatherInWorker, terrainInWorker, globeMeshInWorker } from '../model/dataStore.js';
 import { seedFor as cityLightSeed } from './cityLightPattern.js';
 import * as WorldTraffic from './worldTraffic.js';
@@ -2003,10 +2003,16 @@ export class StarMap extends EventTarget {
             })() ?? 'information';
             const settlements = places.filter((place) => settlementKinds.has(place.kind));
             if (!settlements.length) continue;
-            // The globe's own water and relief once it's drawn, or the sea its noise puts there until then
-            const { isWater, relief } = this.globeTests(body.name);
+            // The globe's own water and relief once it's drawn, or the sea its noise puts there until then; on a minor
+            // planet, its dents too, so its towns lie on its surface rather than over the sphere it was drawn on
+            const { isWater, relief: groundRelief } = this.globeTests(body.name);
+            const shape = body.userData.shape;
+            const relief = shape
+                ? (x, y, z) => (1 + (groundRelief ? groundRelief(x, y, z) : 0)) * PS.dentFactor(shape, x, y, z) - 1
+                : groundRelief;
             const surfaceWorld = this.surfaceWorld(body.name);
             const style = surfaceWorld ? SurfaceMap.styleFor(surfaceWorld) : null;
+            const airless = isAirless(surfaceWorld?.environment);
             const radius = shade.userData.worldRadius;
             for (const place of settlements) {
                 const light = NightShade.cityLight({
@@ -2017,7 +2023,7 @@ export class StarMap extends EventTarget {
                 light.visible = this.showNightSides;
                 body.add(light);
                 this.cityLights.push(light);
-                jobs.push({ body, place, era, radius, isWater, relief, style });
+                jobs.push({ body, place, era, radius, isWater, relief, style, airless });
             }
         }
         // Their streets and fields by day, laid out as their lights are and over the lie of the land, each put on its
@@ -2025,7 +2031,7 @@ export class StarMap extends EventTarget {
         (async () => {
             for (const job of jobs) {
                 const { place } = job;
-                const key = `${place.id}/${place.kind}/${job.era}/${place.latitude}/${place.longitude}`;
+                const key = `${place.id}/${place.kind}/${job.era}/${place.latitude}/${place.longitude}${job.airless ? '/airless' : ''}`;
                 let pixels = null;
                 if (!NightShade.hasCityGround(key)) {
                     try {
@@ -2033,6 +2039,7 @@ export class StarMap extends EventTarget {
                             seed: cityLightSeed(place.id).toString(), kind: place.kind, era: job.era,
                             isElectric: eraRank(job.era) >= eraRank('electrical'), latitude: place.latitude,
                             longitude: place.longitude, style: job.style && job.style.kind === 'rocky' ? job.style : null,
+                            airless: job.airless,
                         });
                     } catch (error) {
                         console.warn('City ground failed', error);

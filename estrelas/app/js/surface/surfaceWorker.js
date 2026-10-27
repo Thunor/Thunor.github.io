@@ -120,7 +120,10 @@ self.onmessage = async ({ data }) => {
                     const [px, py, pz] = point(x, y);
                     return (groundHeight(style, px, py, pz, sea, 0) - sea) / Math.max(1 - sea, 0.0001);
                 } : null;
-                result = dayPixels(BigInt(data.seed), data.kind, data.isElectric, fieldStyle(data.era, BigInt(data.seed)), landHeight);
+                // Glass bubbles, laid out as circles, on a world without air
+                const fields = fieldStyle(data.era, BigInt(data.seed));
+                result = dayPixels(BigInt(data.seed), data.kind, data.isElectric, data.airless && fields ? 'circles' : fields,
+                    landHeight, !!data.airless);
                 transfer = [result.color.buffer, result.opacity.buffer];
                 break;
             }

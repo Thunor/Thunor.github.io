@@ -231,8 +231,9 @@ export function daySize(kind) {
  * RGBA colour and opacity pixels of the settlement as seen from orbit by day, `daySize` square, over the same layout
  * as its lights: grey built-up ground, threads of road, and fields round it. `landHeight(x, y)` gives the land's height
  * above the sea (0 shore to 1 peaks) at a point of the pattern (−1…1 each way); no fields in the mountains or at sea.
+ * On an `airless` world the built-up ground lies under glass domes and the fields are rows of glass bubbles.
  */
-export function dayPixels(seed, kind, isElectric, fields, landHeight = null) {
+export function dayPixels(seed, kind, isElectric, fields, landHeight = null, airless = false) {
     const light = lightField(seed, kind, isElectric);
     const lightSize = size;
     const daySide = daySize(kind);
@@ -339,7 +340,20 @@ export function dayPixels(seed, kind, isElectric, fields, landHeight = null) {
                 const i = Math.floor(u), j = Math.floor(v);
                 const fu = u - i, fv = v - j;
                 const farmed = hash(i, j) < 0.95 * (1 - Math.pow(r / farmland, 2.5));
-                if (farmed) {
+                if (farmed && airless) {
+                    // A glass bubble with the crop inside, bare ground between
+                    const crop = crops[Math.trunc(hash(j, i) * crops.length) % crops.length];
+                    const d = Math.hypot(fu - 0.5, fv - 0.5);
+                    if (d < 0.3) {
+                        // Brighter toward the glass's highlight, up and to the left
+                        const shine = Math.max(0, 1 - Math.hypot(fu - 0.4, fv - 0.38) / 0.16) * 0.35;
+                        field = crop.map((c, k) => c * 0.9 + [0.06, 0.08, 0.11][k] + shine);
+                        fieldAlpha = 0.78;
+                    } else if (d < 0.36) {
+                        field = [0.8, 0.86, 0.92];
+                        fieldAlpha = 0.8;
+                    }
+                } else if (farmed) {
                     const crop = crops[Math.trunc(hash(j, i) * crops.length) % crops.length];
                     const dim = (k) => crop.map((c) => c * k);
                     if (hilly && terracing) {
@@ -371,7 +385,23 @@ export function dayPixels(seed, kind, isElectric, fields, landHeight = null) {
             const grain = 0.9 + 0.2 * hash(x, y, 7);
             const t = Math.min(Math.max((value - 0.8) / 1.2, 0), 1);
             const grey = [0.58 + (0.42 - 0.58) * t, 0.57 + (0.42 - 0.57) * t, 0.54 + (0.42 - 0.54) * t].map((c) => c * grain);
-            const builtAlpha = Math.max(Math.pow(built, 0.6) * 0.92, thread);
+            let builtAlpha = Math.max(Math.pow(built, 0.6) * 0.92, thread);
+            if (airless && builtAlpha > 0) {
+                // The built-up ground under glass domes, packed close, with glass-roofed roads between them
+                const cell = 0.11;
+                const gx = px / cell, gy = py / cell + (Math.floor(px / cell) % 2 ? 0.5 : 0);
+                const cx = gx - Math.floor(gx) - 0.5, cy = gy - Math.floor(gy) - 0.5;
+                const d = Math.hypot(cx, cy);
+                const size = 0.42 + 0.06 * hash(Math.floor(gx), Math.floor(gy), 13);
+                if (d < size) {
+                    const shine = Math.max(0, 1 - Math.hypot(cx + 0.12, cy + 0.14) / 0.2) * 0.4;
+                    for (let c = 0; c < 3; c++) grey[c] = grey[c] * 0.75 + [0.2, 0.22, 0.25][c] + shine;
+                    if (d > size - 0.05) for (let c = 0; c < 3; c++) grey[c] = Math.max(grey[c], 0.85);
+                    builtAlpha = Math.max(builtAlpha, Math.min(built * 3, 1) * 0.9);
+                } else {
+                    builtAlpha *= 0.35;
+                }
+            }
             const alpha = builtAlpha + fieldAlpha * (1 - builtAlpha);
             const tint = alpha > 0
                 ? grey.map((g, c) => (g * builtAlpha + field[c] * fieldAlpha * (1 - builtAlpha)) / alpha) : grey;

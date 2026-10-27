@@ -51,20 +51,23 @@ export function minorPlanetShape(world) {
     return { axes, dents };
 }
 
+/** How far a minor planet's dents press its surface in toward its centre in the direction (x, y, z): 0.5 to 1 */
+export function dentFactor(shape, x, y, z) {
+    const length = Math.hypot(x, y, z);
+    if (!(length > 0)) return 1;
+    let factor = 1;
+    for (const dent of shape.dents) {
+        const d = dent.direction;
+        const angle = Math.acos(Math.min(Math.max((x * d.x + y * d.y + z * d.z) / length, -1), 1)) / dent.width;
+        factor -= dent.depth * Math.exp(-angle * angle);
+    }
+    return Math.max(factor, 0.5);
+}
+
 /** Presses a minor planet's dents into its globe's vertex positions (flat x, y, z), in place */
 export function dentGlobe(positions, shape) {
-    const point = new THREE.Vector3();
     for (let i = 0; i < positions.length; i += 3) {
-        point.set(positions[i], positions[i + 1], positions[i + 2]);
-        const length = point.length();
-        if (!(length > 0)) continue;
-        point.divideScalar(length);
-        let factor = 1;
-        for (const dent of shape.dents) {
-            const angle = Math.acos(Math.min(Math.max(point.dot(dent.direction), -1), 1)) / dent.width;
-            factor -= dent.depth * Math.exp(-angle * angle);
-        }
-        const scale = Math.max(factor, 0.5);
+        const scale = dentFactor(shape, positions[i], positions[i + 1], positions[i + 2]);
         positions[i] *= scale;
         positions[i + 1] *= scale;
         positions[i + 2] *= scale;

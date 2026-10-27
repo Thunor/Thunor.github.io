@@ -5990,6 +5990,18 @@ const translations = {
         "es": "Planeta menor",
         "fr": "Planète mineure",
         "pt": "Planeta menor"
+    },
+    "Under domes": {
+        "de": "Unter Kuppeln",
+        "es": "Bajo cúpulas",
+        "fr": "Sous des dômes",
+        "pt": "Sob cúpulas"
+    },
+    "Pressurized buildings": {
+        "de": "Druckgebäude",
+        "es": "Edificios presurizados",
+        "fr": "Bâtiments pressurisés",
+        "pt": "Edifícios pressurizados"
     }
 };
 
