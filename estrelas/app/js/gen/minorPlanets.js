@@ -16,7 +16,7 @@ import { settleMinorPlanets } from './socialGenerator.js';
 import { PlanetPhysics, insolation, luminosityScale } from '../model/planetarySystem.js';
 
 /** Bumped when minor planets are drawn differently, so belts drawn before are drawn again */
-const minorPlanetsVersion = 2;
+const minorPlanetsVersion = 3;
 
 /** Whether a belt still has its minor planets to draw, or has ones drawn by an earlier version */
 const undrawn = (world) => world.type === 'asteroidBelt' && world.minorPlanetsDrawn !== minorPlanetsVersion;
@@ -87,6 +87,10 @@ function drawMinorPlanets(belt, age) {
             inHabitableZone: belt.inHabitableZone, environment: undefined, isPrincipal: false, resonance: undefined,
         };
         world.environment = physicalEnvironment(world.radiusKm, world.massEarths, insolation(world), age, beyondSnow);
+        // Far too small to hold on to any air: whatever gas they had escaped long ago
+        if (world.environment && world.environment.atmosphere !== 'none') {
+            world.environment = { ...world.environment, atmosphere: 'none', pressureBar: 0 };
+        }
         return world;
     });
 }

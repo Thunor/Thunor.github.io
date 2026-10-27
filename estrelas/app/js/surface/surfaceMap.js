@@ -763,7 +763,8 @@ export const moonCraterRadius = 1.5 * Math.PI / width;
  * a world has; carbon dioxide, methane and sulfuric atmospheres are hazy decks tinted by what they're made of.
  */
 export function cloudsFor(world) {
-    if (world.type !== 'terrestrial' || world.gasGiant || !world.environment) return undefined;
+    // Minor planets are far too small to hold on to air
+    if (world.type !== 'terrestrial' || world.gasGiant || !world.environment || world.minorPlanet) return undefined;
     const environment = world.environment;
     const seed = stableHash(world.designation) ^ 0xC10D5EED00000000n;
     const white = [0.97, 0.97, 0.98];
@@ -775,7 +776,9 @@ export function cloudsFor(world) {
     const make = (coverage, color, opacity, circulation = 0, storms = 0) =>
         ({ seed, coverage, color, opacity, circulation, hurricanes: storms });
     const pressure = environment.pressureBar;
-    if (!(pressure >= 0.01) || environment.atmosphere === 'none' || environment.atmosphere === 'trace') return undefined;
+    // No clouds or weather without air enough to carry them: under 0.05 bar a world counts as airless, as its towns do
+    // (cityGenerator.js isAirless)
+    if (!(pressure >= 0.05) || environment.atmosphere === 'none' || environment.atmosphere === 'trace') return undefined;
     switch (environment.atmosphere) {
         case 'sulfuric': return make(0.97, [0.93, 0.84, 0.58], 0.97);
         case 'carbonDioxide':
