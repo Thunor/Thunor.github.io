@@ -109,6 +109,7 @@ export const WorldText = {
     // MARK: physical
 
     typeName(world) {
+        if (world.minorPlanet) return t('Minor planet');
         switch (world.type) {
             case 'gasGiant': return world.gasGiant ? named(giantClassNames, world.gasGiant.giantClass) : t('Gas giant');
             case 'asteroidBelt': return t('Asteroid belt');

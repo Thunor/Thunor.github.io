@@ -74,6 +74,27 @@ export function generateSocial(systems, seed, givens = {}) {
     }
 }
 
+/**
+ * Societies for a belt's minor planets (see minorPlanets.js), drawn like any other secondary world's when the main world
+ * is spacefaring: mining outposts, research stations and the like. The largest is always settled, so a spacefaring
+ * system's belt has people in it. Uses the shared generator, reseeded by the caller.
+ */
+export function settleMinorPlanets(planetary, minorPlanets) {
+    const reference = principalReference(planetary.worlds ?? []);
+    if (!reference) return;
+    const main = bodyAt(planetary.worlds, reference).social;
+    if (!main || !(main.population >= 100000) || !main.techEra || !isSpacefaring(main.techEra)) return;
+    const generator = new SocialGenerator();
+    minorPlanets.forEach((world, index) => {
+        const body = { radiusKm: world.radiusKm, massEarths: world.massEarths, type: 'terrestrial', environment: world.environment,
+            isGiant: false, isBelt: true };
+        const conditions = generator.conditions(body, world.environment);
+        let social = generator.secondary(conditions, main);
+        for (let attempt = 0; !social && index === 0 && attempt < 50; attempt++) social = generator.secondary(conditions, main);
+        if (social) world.social = social;
+    });
+}
+
 /** Whether any system's principal world has no society yet */
 export function socialIsMissing(systems) {
     return systems.some((system) => {

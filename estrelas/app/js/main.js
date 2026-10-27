@@ -326,16 +326,18 @@ function renderAll() {
 
 /** Changes what's been added by hand to a system and saves it; the open panels and sheets show it straight away */
 /**
- * Settles a system's main world, once its surface is drawn, if nobody has yet: its capital, cities and towns placed
+ * Settles a system's main world (and any minor planet with people), once its surface is drawn, if nobody has yet: its capital, cities and towns placed
  * where its people would build them (settlementPlanner.js), as the surface map's places. Done once per world; after
  * that its places are the GM's to change. The same world always gets the same settlements.
  */
 function settleMainWorld(map, { systemID, designation, surface, isMainWorld }) {
-    if (!canEdit || !isMainWorld || map.planetary?.systemID !== systemID) return;
+    if (!canEdit || map.planetary?.systemID !== systemID) return;
+    const world = map.surfaceWorld(designation);
+    // The main world, and the people of a belt's minor planets
+    if (!isMainWorld && !world?.minorPlanet) return;
     const annotation = map.annotations[systemID]?.worlds?.[designation];
     const places = annotation?.places ?? [];
     if (annotation?.autoSettled || places.some((place) => settlementKinds.has(place.kind))) return;
-    const world = map.surfaceWorld(designation);
     const social = world ? applyingAnnotations(world, annotation)?.social : null;
     const style = world ? SurfaceMap.styleFor(world) : null;
     if (!(social?.population > 0) || !social.society || !style || style.kind === 'gasGiant') return;

@@ -25,6 +25,11 @@ const ringColor = new THREE.Color(0.4, 0.4, 0.4);
 const moonRingThickness = ringThickness * 0.4;
 const moonRingColor = new THREE.Color(0.28, 0.28, 0.28);
 const beltColor = new THREE.Color(0.6, 0.6, 0.6);
+/** A minor planet's orbit, fainter than a planet's */
+const minorRingColor = new THREE.Color(0.24, 0.24, 0.24);
+
+/** A minor planet's size on screen: well above the belt's largest rocks, below the smallest planets */
+const minorPlanetRadius = (radiusKm) => Math.fround(0.014 + 0.01 * Math.min(Math.max(radiusKm, 0) / 500, 1));
 
 /**
  * Maps distances in AU around one centre into scene units on a logarithmic scale, 1.3 log₂(1 + AU ÷ 0.25): about 3
@@ -333,7 +338,7 @@ export function addWorlds(worlds, parent, mapping) {
     const bands = worlds.map((world) => {
         const nearest = mapping.distance(world.au * (1 - world.eccentricity));
         const farthest = mapping.distance(world.au * (1 + world.eccentricity));
-        const spread = world.type === 'asteroidBelt' ? 1.05 : 1;
+        const spread = world.type === 'asteroidBelt' ? 1.12 : 1;
         return [nearest / spread, Math.max(farthest * spread, nearest / spread)];
     });
 
@@ -343,7 +348,7 @@ export function addWorlds(worlds, parent, mapping) {
         const band = bands[index];
         const innerEdges = [], outerEdges = [];
         worlds.forEach((other, j) => {
-            if (isTrojan(other) || j === index) return;
+            if (isTrojan(other) || other.minorPlanet || j === index) return;
             if (bands[j][1] <= band[0]) innerEdges.push(bands[j][1]);
             if (bands[j][0] >= band[1]) outerEdges.push(bands[j][0]);
         });
@@ -356,7 +361,7 @@ export function addWorlds(worlds, parent, mapping) {
     // a body far more crowded than the rest is squeezed further on its own
     let shrink = 1;
     worlds.forEach((world, index) => {
-        if (world.type === 'asteroidBelt') return;
+        if (world.type === 'asteroidBelt' || world.minorPlanet) return;
         shrink = Math.min(shrink, caps[index] / naturalRadius(world.radiusKm, world.gasGiant));
     });
     shrink = Math.max(shrink, 0.35);
@@ -371,11 +376,11 @@ export function addWorlds(worlds, parent, mapping) {
             }
             return;
         }
-        const ring = ringEntity(elements, ringColor);
+        const ring = ringEntity(elements, world.minorPlanet ? minorRingColor : ringColor);
         ring.name = `${world.designation}_orbit`;
         parent.add(ring);
 
-        const body = bodyEntity(world, caps[index], shrink);
+        const body = world.minorPlanet ? bodyEntity(world, minorPlanetRadius(world.radiusKm)) : bodyEntity(world, caps[index], shrink);
         // The planet turns on its tilted pole, carrying its surface, clouds and cities round. Its moons go in a frame
         // that turns back just as fast about that pole, so they circle in the planet's equatorial plane.
         const moonFrame = new THREE.Group();
@@ -483,14 +488,14 @@ function rockGeometry(shape, faces) {
 }
 
 /**
- * A belt of rocks that each orbit on their own, inner ones faster, as children of the returned group. Rocks travel in
- * circular lanes packed so they never pass through each other.
+ * A belt of rocks that each orbit on their own, inner ones faster, as children of the returned group. Most rocks are
+ * small and a few are large, as in a real belt; each has an orbit of its own, a little eccentric and tilted, crossing
+ * the others', and more of them lie near the belt's middle than at its edges.
  */
-export function beltRocks(elements, seed, rockCount = 160) {
+export function beltRocks(elements, seed, rockCount = 180) {
     const generator = new SplitMix64(seed);
     const semiMajor = Math.fround(elements.semiMajAxis);
     if (!(semiMajor > 0)) return null;
-    const spread = semiMajor * 0.05;
     const { vertices, faces } = rockSphere();
 
     const shapes = [];
@@ -498,60 +503,35 @@ export function beltRocks(elements, seed, rockCount = 160) {
         const shape = rockShape(vertices, generator);
         shapes.push({ geometry: rockGeometry(shape, faces), reach: Math.max(...shape.map((p) => p.length())) });
     }
-    const sizes = [0.006, 0.014];
-    const largestReach = Math.max(...shapes.map((s) => s.reach));
+    // Sizes from a steep power law: a sixfold range, most near the bottom of it
+    const [smallest, largest] = [0.0035, 0.022];
+    const sizeOf = () => smallest * Math.pow(largest / smallest, Math.pow(generator.float(0, 1), 2.6));
+    // Across the belt, crowded towards its middle: the sum of three draws is roughly normal
+    const across = () => (generator.float(-1, 1) + generator.float(-1, 1) + generator.float(-1, 1)) / 3;
 
-    const halfHeight = Math.max(spread * 0.3, sizes[1] * largestReach * 1.5);
-    const lanes = [];
-    for (let i = 0; i < 600; i++) {
-        const cap = generator.float(sizes[0] * largestReach, sizes[1] * largestReach);
-        const x = semiMajor + generator.float(-spread, spread);
-        const y = generator.float(-halfHeight, halfHeight);
-        if (lanes.every((lane) => Math.hypot(lane.x - x, lane.y - y) > lane.cap + cap)) lanes.push({ x, y, cap });
-    }
-    if (lanes.length === 0) return null;
-
-    const rocks = [];
-    for (let n = 0; n < rockCount; n++) {
-        for (let attempt = 0; attempt < 30; attempt++) {
-            const lane = generator.intBelow(0, lanes.length);
-            const shape = generator.intBelow(0, shapes.length);
-            const largest = Math.min(sizes[1], lanes[lane].cap / shapes[shape].reach);
-            const size = largest > sizes[0] ? generator.float(sizes[0], largest) : largest;
-            const angle = generator.floatBelow(0, 2 * Math.PI);
-            const radius = lanes[lane].x;
-            const clear = rocks.every((other) => {
-                if (other.lane !== lane) return true;
-                const chord = 2 * radius * Math.abs(Math.sin((angle - other.angle) / 2));
-                return chord > size * shapes[shape].reach + other.size * shapes[other.shape].reach;
-            });
-            if (clear) {
-                rocks.push({ lane, angle, size, shape });
-                break;
-            }
-        }
-    }
-
-    const a = offsetAtMeanAnomaly(elements, 0), b = offsetAtMeanAnomaly(elements, Math.PI / 2);
-    let normal = new THREE.Vector3().crossVectors(new THREE.Vector3(...a), new THREE.Vector3(...b));
-    normal = normal.length() > 0 ? normal.normalize() : new THREE.Vector3(0, 1, 0);
     const beltPeriod = elements.period ?? secondsPerYear;
     const material = new THREE.MeshStandardMaterial({ color: beltColor, roughness: 0.9, metalness: 0, flatShading: true });
-
     const belt = new THREE.Group();
-    for (const rock of rocks) {
-        const lane = lanes[rock.lane];
-        const orbitElements = { ...elements, eccentricity: 0, semiMajAxis: lane.x, argOfPeriapsis: 0,
-            trueAnomaly: rock.angle * 180 / Math.PI, period: beltPeriod * Math.pow(lane.x / semiMajor, 1.5) };
-        const entity = new THREE.Mesh(shapes[rock.shape].geometry, material);
-        const orbit = new Orbit(orbitElements, [normal.x * lane.y, normal.y * lane.y, normal.z * lane.y]);
+    for (let n = 0; n < rockCount; n++) {
+        const shape = generator.intBelow(0, shapes.length);
+        const size = sizeOf();
+        const semiMajAxis = semiMajor * (1 + 0.08 * across());
+        const orbitElements = {
+            ...elements, semiMajAxis,
+            eccentricity: 0.14 * Math.pow(generator.float(0, 1), 1.6),
+            inclination: (elements.inclination ?? 0) + 10 * Math.pow(generator.float(0, 1), 2) * (generator.float(0, 1) < 0.5 ? -1 : 1),
+            lngAscNode: generator.floatBelow(0, 360), argOfPeriapsis: generator.floatBelow(0, 360),
+            trueAnomaly: generator.floatBelow(0, 360), period: beltPeriod * Math.pow(semiMajAxis / semiMajor, 1.5),
+        };
+        const entity = new THREE.Mesh(shapes[shape].geometry, material);
+        const orbit = new Orbit(orbitElements);
         orbit.currentPosition(entity.position);
         const angle = generator.floatBelow(0, 2 * Math.PI);
         const axis = new THREE.Vector3(generator.float(-1, 1), generator.float(-1, 1), generator.float(-1, 1)).addScalar(0.0001).normalize();
         entity.quaternion.setFromAxisAngle(axis, angle);
-        entity.scale.setScalar(rock.size);
+        entity.scale.setScalar(size);
         entity.userData.orbit = orbit;
-        entity.userData.baseScale = rock.size;
+        entity.userData.baseScale = size;
         belt.add(entity);
     }
     return belt;

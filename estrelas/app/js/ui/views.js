@@ -509,9 +509,12 @@ export function planetListPanel({ map, planetary, annotations, onChangeAnnotatio
                 code: WorldText.tag({ radiusKm: shownWorld.radiusKm, gasGiant: shownWorld.gasGiant, environment: shownWorld.environment,
                     isBelt: shownWorld.type === 'asteroidBelt' }),
                 color: world.isPrincipal ? 'highlight' : world.type === 'gasGiant' ? 'accent' : 'control',
-                isSelected: selected === world.designation, canSelect: world.type !== 'asteroidBelt', height: 22, help: t('World data'),
+                isSelected: selected === world.designation, canSelect: world.type !== 'asteroidBelt', height: world.minorPlanet ? 18 : 22,
+                help: t('World data'),
                 onSelect: () => map.zoomToPlanet(world), onInfo: () => onShowInfo(world),
             }));
+            // A belt's minor planets are listed under it, like a planet's moons
+            if (world.minorPlanet) list.lastChild.classList.add('moon-row');
             for (const moon of world.moons) {
                 const shownMoon = applyingAnnotations(moon, annotations?.worlds?.[moon.designation]);
                 const moonRow = row({

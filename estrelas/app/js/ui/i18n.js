@@ -5984,6 +5984,12 @@ const translations = {
         "es": "Este dispositivo no tiene suficiente memoria para mundos en alta resolución, así que los mundos vuelven a 1×.",
         "fr": "Cet appareil n’a pas assez de mémoire pour les mondes en haute résolution ; les mondes reviennent donc à 1×.",
         "pt": "Este dispositivo não tem memória suficiente para mundos em alta resolução, por isso os mundos voltaram a 1×."
+    },
+    "Minor planet": {
+        "de": "Kleinplanet",
+        "es": "Planeta menor",
+        "fr": "Planète mineure",
+        "pt": "Planeta menor"
     }
 };
 

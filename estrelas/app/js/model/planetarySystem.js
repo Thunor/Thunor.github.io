@@ -106,10 +106,10 @@ export function hasHabitableWorld(system) {
         world.moons.some((moon) => isHabitableEnvironment(moon.environment)));
 }
 
-export const hasPlanets = (system) => system.worlds.some((w) => w.type !== 'asteroidBelt');
+export const hasPlanets = (system) => system.worlds.some((w) => w.type !== 'asteroidBelt' && !w.minorPlanet);
 export const hasAsteroidBelt = (system) => system.worlds.some((w) => w.type === 'asteroidBelt');
 export const hasGasGiant = (system) => system.worlds.some((w) => w.type === 'gasGiant');
-export const countOf = (system, type) => system.worlds.filter((w) => w.type === type).length;
+export const countOf = (system, type) => system.worlds.filter((w) => w.type === type && !w.minorPlanet).length;
 
 /** How well people could live on a world without help, 0 to 1 */
 export function habitabilityIndex(environment, gravity) {

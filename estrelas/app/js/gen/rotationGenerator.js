@@ -9,6 +9,7 @@
 
 import { roundSwift } from './random.js';
 import { PlanetPhysics } from '../model/planetarySystem.js';
+import { generateMinorPlanets, minorPlanetsAreMissing } from './minorPlanets.js';
 
 const MASK64 = (1n << 64n) - 1n;
 
@@ -53,6 +54,8 @@ class Roller {
  * left locked where the tides would lock them; at 1 (the default) rotation follows the tides alone.
  */
 export function generateRotations(systems, principalLockChance = 1) {
+    // Belts' minor planets first (after societies, as they may have people), so they're turned like any other world
+    generateMinorPlanets(systems);
     for (const system of systems) {
         const planetary = system.planetarySystem;
         if (!planetary) continue;
@@ -74,6 +77,7 @@ export function generateRotations(systems, principalLockChance = 1) {
 
 /** Whether any planet or moon has no rotation yet, as in star fields saved before it was rolled */
 export function rotationIsMissing(systems) {
+    if (minorPlanetsAreMissing(systems)) return true;
     return systems.some((system) => (system.planetarySystem?.worlds ?? []).some((world) =>
         (world.type !== 'asteroidBelt' && world.rotation == null) || (world.moons ?? []).some((m) => m.rotation == null)));
 }

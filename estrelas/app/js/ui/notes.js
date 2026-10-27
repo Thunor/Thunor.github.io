@@ -185,7 +185,8 @@ const worldNameIn = (annotations, designation) => annotations?.worlds?.[designat
 
 function worldSections(world, systemName, annotations) {
     const sections = [];
-    const kind = t({ terrestrial: 'Planet', gasGiant: 'Gas giant', asteroidBelt: 'Asteroid belt' }[world.type]);
+    const kind = world.minorPlanet ? t('Minor planet')
+        : t({ terrestrial: 'Planet', gasGiant: 'Gas giant', asteroidBelt: 'Asteroid belt' }[world.type]);
     const add = (designation, kindName, depth) => {
         const annotation = annotations?.worlds?.[designation];
         const name = worldNameIn(annotations, designation);
