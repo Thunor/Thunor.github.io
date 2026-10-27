@@ -42,6 +42,8 @@ const seed32 = (seed, salt) => Number(BigInt.asUintN(32, BigInt(seed) ^ (BigInt(
  * quiet one. `tidallyHeated` is for a moon kneaded by a gas giant, like Io.
  */
 export function volcanismFor(world, seed, tidallyHeated = false) {
+    // A minor planet is far too small to have kept any heat inside it
+    if (world.minorPlanet) return null;
     // Worlds share their noise by designation, so their size and orbit set them apart too
     const random = generator(seed32(seed, 0x701CA40 ^ Math.round((world.radiusKm ?? 0) * 7 + (world.au ?? 0) * 100003)));
     const radius = world.radiusKm ?? 6371;

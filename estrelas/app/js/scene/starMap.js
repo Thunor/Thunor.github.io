@@ -2777,6 +2777,8 @@ export class StarMap extends EventTarget {
         } else if (current.resolution !== resolution || current.coarse !== coarse) {
             return;
         }
+        // A minor planet's dents (its squashed shape is its body's scale)
+        if (body.userData.shape) PS.dentGlobe(mesh.positions, body.userData.shape);
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(mesh.positions, 3));
         geometry.setAttribute('normal', new THREE.BufferAttribute(mesh.normals, 3));

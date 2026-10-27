@@ -28,8 +28,48 @@ const beltColor = new THREE.Color(0.6, 0.6, 0.6);
 /** A minor planet's orbit, fainter than a planet's */
 const minorRingColor = new THREE.Color(0.24, 0.24, 0.24);
 
-/** A minor planet's size on screen: well above the belt's largest rocks, below the smallest planets */
-const minorPlanetRadius = (radiusKm) => Math.fround(0.014 + 0.01 * Math.min(Math.max(radiusKm, 0) / 500, 1));
+/** A minor planet's size on screen: about the size of the belt's largest rocks, well below the smallest planets */
+const minorPlanetRadius = (radiusKm) => Math.fround(0.009 + 0.006 * Math.min(Math.max(radiusKm, 0) / 300, 1));
+
+/**
+ * A minor planet's shape: too small for its gravity to pull it round, it's a lumpy potato, squashed along its axes
+ * and dented by old impacts; the largest are nearly round, like Ceres. The same world always has the same shape.
+ * `axes` scale its body (x, then its spin axis y, then z); `dents` press its surface in (see dentGlobe).
+ */
+export function minorPlanetShape(world) {
+    const generator = new SplitMix64(stableHash(`minor planet shape ${world.designation}`));
+    // 0 for an irregular body, 1 for one round under its own gravity, from about 150 to 350 km in radius
+    const round = Math.min(Math.max((world.radiusKm - 150) / 200, 0), 1);
+    const mix = (irregular, rounded) => irregular + (rounded - irregular) * round;
+    const axes = [1, mix(generator.float(0.45, 0.75), generator.float(0.92, 0.98)), mix(generator.float(0.6, 0.9), generator.float(0.95, 1))];
+    const dents = [];
+    const count = generator.int(4, 7);
+    for (let i = 0; i < count; i++) {
+        const direction = new THREE.Vector3(generator.float(-1, 1), generator.float(-1, 1), generator.float(-1, 1)).addScalar(0.0001).normalize();
+        dents.push({ direction, width: generator.float(0.3, 0.75), depth: mix(generator.float(0.12, 0.32), 0.015) });
+    }
+    return { axes, dents };
+}
+
+/** Presses a minor planet's dents into its globe's vertex positions (flat x, y, z), in place */
+export function dentGlobe(positions, shape) {
+    const point = new THREE.Vector3();
+    for (let i = 0; i < positions.length; i += 3) {
+        point.set(positions[i], positions[i + 1], positions[i + 2]);
+        const length = point.length();
+        if (!(length > 0)) continue;
+        point.divideScalar(length);
+        let factor = 1;
+        for (const dent of shape.dents) {
+            const angle = Math.acos(Math.min(Math.max(point.dot(dent.direction), -1), 1)) / dent.width;
+            factor -= dent.depth * Math.exp(-angle * angle);
+        }
+        const scale = Math.max(factor, 0.5);
+        positions[i] *= scale;
+        positions[i + 1] *= scale;
+        positions[i + 2] *= scale;
+    }
+}
 
 /**
  * Maps distances in AU around one centre into scene units on a logarithmic scale, 1.3 log₂(1 + AU ÷ 0.25): about 3
@@ -381,6 +421,12 @@ export function addWorlds(worlds, parent, mapping) {
         parent.add(ring);
 
         const body = world.minorPlanet ? bodyEntity(world, minorPlanetRadius(world.radiusKm)) : bodyEntity(world, caps[index], shrink);
+        if (world.minorPlanet) {
+            // Its night side, lights and markers are its children, so they take its shape too
+            const shape = minorPlanetShape(world);
+            body.scale.set(...shape.axes);
+            body.userData.shape = shape;
+        }
         // The planet turns on its tilted pole, carrying its surface, clouds and cities round. Its moons go in a frame
         // that turns back just as fast about that pole, so they circle in the planet's equatorial plane.
         const moonFrame = new THREE.Group();
@@ -504,7 +550,7 @@ export function beltRocks(elements, seed, rockCount = 180) {
         shapes.push({ geometry: rockGeometry(shape, faces), reach: Math.max(...shape.map((p) => p.length())) });
     }
     // Sizes from a steep power law: a sixfold range, most near the bottom of it
-    const [smallest, largest] = [0.0035, 0.022];
+    const [smallest, largest] = [0.003, 0.016];
     const sizeOf = () => smallest * Math.pow(largest / smallest, Math.pow(generator.float(0, 1), 2.6));
     // Across the belt, crowded towards its middle: the sum of three draws is roughly normal
     const across = () => (generator.float(-1, 1) + generator.float(-1, 1) + generator.float(-1, 1)) / 3;

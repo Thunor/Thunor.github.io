@@ -2,7 +2,7 @@
 //  minorPlanets.js
 //  Estrelas (web)
 //
-//  The minor planets of asteroid belts: a few of the belt's largest bodies, from about 150 km across to Ceres' size,
+//  The minor planets of asteroid belts: a few of the belt's largest bodies, from about 30 km across to a round 700 km,
 //  each on its own tilted, slightly eccentric orbit through the belt. They're worlds of their own, listed after their
 //  belt, with surfaces that can be mapped and, round a spacefaring main world, people living on them. Each belt's are
 //  drawn from its own reseeding of the shared generator (from its system's id and its designation), after everything
@@ -15,8 +15,11 @@ import { environment as physicalEnvironment, snowLine } from './planetarySystemG
 import { settleMinorPlanets } from './socialGenerator.js';
 import { PlanetPhysics, insolation, luminosityScale } from '../model/planetarySystem.js';
 
-/** Whether a belt still has its minor planets to draw */
-const undrawn = (world) => world.type === 'asteroidBelt' && !world.minorPlanetsDrawn;
+/** Bumped when minor planets are drawn differently, so belts drawn before are drawn again */
+const minorPlanetsVersion = 2;
+
+/** Whether a belt still has its minor planets to draw, or has ones drawn by an earlier version */
+const undrawn = (world) => world.type === 'asteroidBelt' && world.minorPlanetsDrawn !== minorPlanetsVersion;
 
 export const isMinorPlanet = (world) => !!world?.minorPlanet;
 
@@ -43,13 +46,16 @@ export function generateMinorPlanets(systems) {
         for (const system of systems) {
             const planetary = system.planetarySystem;
             if (!planetary?.worlds?.some(undrawn)) continue;
+            const redrawn = new Set(planetary.worlds.filter(undrawn).map((belt) => belt.designation));
             const worlds = [];
             for (const world of planetary.worlds) {
+                // Any an earlier version drew go, to be drawn again
+                if (world.minorPlanet && redrawn.has(world.belt)) continue;
                 worlds.push(world);
                 if (!undrawn(world)) continue;
                 rng.reseed(beltSeed(system.id ?? '', world.designation));
                 const minorPlanets = drawMinorPlanets(world, planetary.age ?? 4.5);
-                world.minorPlanetsDrawn = true;
+                world.minorPlanetsDrawn = minorPlanetsVersion;
                 worlds.push(...minorPlanets);
                 settleMinorPlanets({ ...planetary, worlds: planetary.worlds }, minorPlanets);
             }
@@ -61,10 +67,10 @@ export function generateMinorPlanets(systems) {
 }
 
 function drawMinorPlanets(belt, age) {
-    // Two to five, mostly a few hundred kilometres across; now and then one as large as Ceres
+    // Two to five, mostly some tens of kilometres across, a few over a hundred; now and then one large enough to be round
     const count = 2 + rng.int(0, 3);
     const radii = [];
-    for (let i = 0; i < count; i++) radii.push(Dice.logUniform(75, i === 0 && Dice.chance(0.4) ? 480 : 280));
+    for (let i = 0; i < count; i++) radii.push(Dice.logUniform(15, i === 0 && Dice.chance(0.3) ? 350 : 130));
     radii.sort((a, b) => b - a);
     const beyondSnow = belt.au >= snowLine * luminosityScale(belt);
     return radii.map((radiusKm, index) => {
