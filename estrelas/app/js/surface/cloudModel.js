@@ -10,7 +10,7 @@
 const f = Math.fround;
 
 export const period = 1024;
-export const rows = 90;
+export const rows = 180;
 export const rowHeight = f(Math.PI / rows);
 export const storms = 40;
 export const spirals = 4;

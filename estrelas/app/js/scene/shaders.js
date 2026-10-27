@@ -143,8 +143,8 @@ const cloudFragment = /* glsl */ `
     out vec4 fragColor;
 
     const float kPeriod = 1024.0;
-    const int kRows = 90;
-    const float kRowHeight = 3.14159265 / 90.0;
+    const int kRows = 180;
+    const float kRowHeight = 3.14159265 / 180.0;
     const int kStorms = 40;
     const int kSpirals = 4;
     const int kConvectiveStorms = 16;
