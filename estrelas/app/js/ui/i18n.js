@@ -6602,6 +6602,36 @@ const translations = {
         "es": "Mundo húmedo (36–45 %)",
         "fr": "Monde humide (36–45 %)",
         "pt": "Mundo úmido (36–45%)"
+    },
+    "Estrelas Data": {
+        "de": "Estrelas-Daten",
+        "es": "Datos de Estrelas",
+        "fr": "Données Estrelas",
+        "pt": "Dados do Estrelas"
+    },
+    "SRD Data": {
+        "de": "SRD-Daten",
+        "es": "Datos del SRD",
+        "fr": "Données SRD",
+        "pt": "Dados do SRD"
+    },
+    "Show Estrelas's own world data: physical figures, orbit, rotation and the almanac profile": {
+        "de": "Die eigenen Weltdaten von Estrelas zeigen: physikalische Werte, Umlaufbahn, Rotation und Almanachprofil",
+        "es": "Mostrar los datos propios de Estrelas: cifras físicas, órbita, rotación y perfil de almanaque",
+        "fr": "Afficher les données propres à Estrelas : valeurs physiques, orbite, rotation et profil d’almanach",
+        "pt": "Mostrar os dados próprios do Estrelas: valores físicos, órbita, rotação e perfil de almanaque"
+    },
+    "Show only the Traveller SRD's values: the Universal World Profile, trade codes, bases and travel zone": {
+        "de": "Nur die Werte des Traveller-SRD zeigen: Universal World Profile, Handelscodes, Basen und Reisezone",
+        "es": "Mostrar solo los valores del SRD de Traveller: Universal World Profile, códigos comerciales, bases y zona de viaje",
+        "fr": "N’afficher que les valeurs du SRD de Traveller : Universal World Profile, codes commerciaux, bases et zone de voyage",
+        "pt": "Mostrar só os valores do SRD de Traveller: Universal World Profile, códigos comerciais, bases e zona de viagem"
+    },
+    "Under 800 km": {
+        "de": "Unter 800 km",
+        "es": "Menos de 800 km",
+        "fr": "Moins de 800 km",
+        "pt": "Menos de 800 km"
     }
 };
 

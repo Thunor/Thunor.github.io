@@ -659,6 +659,18 @@ function closeButton(close, ...leading) {
     return h('div', { class: 'sheet-footer' }, ...leading, h('span', { class: 'spacer' }), button(t('Close'), { color: 'alert', onClick: close }));
 }
 
+/** Switches the data sheets between the Traveller SRD's values and Estrelas's own (the Settings option), and redraws */
+function dataSourceButton(redraw) {
+    const srd = SRD.isSRD();
+    return button(srd ? t('Estrelas Data') : t('SRD Data'), { color: srd ? 'highlight' : 'info',
+        title: srd ? t("Show Estrelas's own world data: physical figures, orbit, rotation and the almanac profile")
+            : t("Show only the Traveller SRD's values: the Universal World Profile, trade codes, bases and travel zone"),
+        onClick: () => {
+            Settings.set('srdCompatible', !srd);
+            redraw();
+        } });
+}
+
 /** A sheet whose content is drawn by `render(close)`, and drawn again whenever `refresh` is called */
 function liveSheet(render, options = {}) {
     let sheet;
@@ -1008,7 +1020,7 @@ export function showWorldDetail(world, { annotationsFor, onChangeAnnotations, sy
                 [t('Starlight'), t("%@ × Earth's", insolation(world).toFixed(2))]];
         if (!srd && shown.environment) environment.push(...environmentRows(shown.environment));
         const left = h('div', {}, sectionHeader(t('World data'), 'accent'), nameRow(name, annotation, 'world', changeThis),
-            ...rows(data), sectionHeader(t('Environment'), 'highlight'), ...rows(environment));
+            ...rows(data), ...(environment.length ? [sectionHeader(t('Environment'), 'highlight'), ...rows(environment)] : []));
         if (canEdit) {
             left.append(portEditor(annotation?.port, world.social, (port) => changeThis((w) => { w.port = port ?? undefined; })));
             if (world.type !== 'asteroidBelt' || world.social) {
@@ -1045,7 +1057,7 @@ export function showWorldDetail(world, { annotationsFor, onChangeAnnotations, sy
             onClick: () => showNotesReport(planetReport(world, systemName, annotations)) });
         const body = h('div', { class: 'sheet-scroll' }, h('div', { class: 'sheet-columns' }, left, right), social);
         return panel({ title: name, segments: ['accent', 'control', 'label', 'muted'] },
-            body, closeButton(close, copyButton(name, body), notes));
+            body, closeButton(close, copyButton(name, body), notes, dataSourceButton(redraw)));
     });
 }
 
@@ -1072,7 +1084,7 @@ export function showMoonDetail(generatedMoon, planet, { annotationsFor, onChange
             : [[t('Habitable zone'), planet.inHabitableZone ? t('Yes') : t('No'), planet.inHabitableZone ? 'highlight' : 'primary']];
         if (!srd && moon.environment) environment.push(...environmentRows(moon.environment));
         const left = h('div', {}, sectionHeader(t('Moon data'), 'accent'), nameRow(name, annotation, 'moon', changeThis),
-            ...rows(data), sectionHeader(t('Environment'), 'highlight'), ...rows(environment));
+            ...rows(data), ...(environment.length ? [sectionHeader(t('Environment'), 'highlight'), ...rows(environment)] : []));
         if (canEdit) {
             left.append(portEditor(annotation?.port, generatedMoon.social, (port) => changeThis((w) => { w.port = port ?? undefined; })),
                 worldDataEditor(annotation?.overrides, generatedMoon.radiusKm, generatedMoon.massEarths, generatedMoon.environment, generatedMoon.social,
@@ -1089,6 +1101,6 @@ export function showMoonDetail(generatedMoon, planet, { annotationsFor, onChange
         const body = h('div', { class: 'sheet-scroll' }, h('div', { class: 'sheet-columns' }, left, right),
             moon.social ? socialView(t('Society'), moon.social, moon, listing) : null);
         return panel({ title: name, segments: ['accent', 'control', 'label', 'muted'] },
-            body, closeButton(close, copyButton(name, body)));
+            body, closeButton(close, copyButton(name, body), dataSourceButton(redraw)));
     });
 }

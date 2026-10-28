@@ -232,7 +232,9 @@ export function physicalRows(body) {
     if (body.gasGiant || body.type === 'gasGiant') return [[t('Size'), t('Gas giant')]];
     const size = sizeCode(body);
     const [diameter, gravity] = sizes[size];
-    return [[t('Size'), size === 0 ? coded(0, t('Asteroid or planetoid belt')) : coded(size, t('%@ km', diameter.toLocaleString()))],
+    const belt = body.type === 'asteroidBelt' || body.isBelt;
+    return [[t('Size'), size === 0 ? coded(0, belt ? t('Asteroid or planetoid belt') : t('Under 800 km'))
+        : coded(size, t('%@ km', diameter.toLocaleString()))],
         [t('Surface gravity'), size === 0 ? t('Negligible') : `${gravity} g`]];
 }
 
