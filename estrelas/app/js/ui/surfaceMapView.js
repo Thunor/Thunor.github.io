@@ -402,8 +402,10 @@ export function showSurfaceMap(world, options) {
                 exporting(false);
             }
             if (format.id === 'pdf') {
-                // A colour map JPEG-encoded, which keeps the PDF a fraction of the size
-                const page = h('div', { class: 'print-map' }, h('img', { src: outline ? drawn.toDataURL('image/png')
+                // A colour map JPEG-encoded, which keeps the PDF a fraction of the size; an icosahedral net stays PNG, as
+                // JPEG has no transparency and would turn the clear space round its triangles black
+                const transparent = outline || projection !== 'equirectangular';
+                const page = h('div', { class: 'print-map' }, h('img', { src: transparent ? drawn.toDataURL('image/png')
                     : drawn.toDataURL('image/jpeg', 0.88), alt: worldName }));
                 if (Settings.get('surfaceMapExportIncludesWorldData')) {
                     const printed = applyingAnnotations(world, options.annotation);
