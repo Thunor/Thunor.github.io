@@ -34,6 +34,7 @@ import { settlementKinds } from '../gen/cityGenerator.js';
 import { placeName } from '../gen/placeNames.js';
 import { insolation, gravityOf } from '../model/planetarySystem.js';
 import { canEdit, canSee } from '../edition.js';
+import * as SRD from '../traveller/srd.js';
 import { randomUUID, SplitMix64 } from '../gen/random.js';
 
 const zoomRange = [1, 8];
@@ -406,7 +407,9 @@ export function showSurfaceMap(world, options) {
                     : drawn.toDataURL('image/jpeg', 0.88), alt: worldName }));
                 if (Settings.get('surfaceMapExportIncludesWorldData')) {
                     const printed = applyingAnnotations(world, options.annotation);
-                    page.append(printedWorldData(printed, options.planet, options.systemName ?? '', worldName));
+                    const unchanged = world.isPrincipal && !options.annotation?.overrides && !options.annotation?.port;
+                    page.append(printedWorldData(printed, options.planet, options.systemName ?? '', worldName,
+                        unchanged ? options.listingFor?.() ?? null : null));
                 }
                 printPage(page, fileName.trim(), { landscape: true });
             } else {
@@ -797,19 +800,22 @@ function drawIcosahedral(image, places, world, clear) {
 // MARK: printed world data
 
 /** A world's or moon's data laid out for print below an exported map: black on a clear page, in balanced columns */
-export function printedWorldData(world, planet, systemName, worldName) {
+export function printedWorldData(world, planet, systemName, worldName, listing = null) {
     const sections = [];
+    const srd = SRD.isSRD();
     const data = [[t('Designation'), world.designation],
         [t('Type'), planet ? t('Moon of %@', planet.designation) : WorldText.typeName(world)]];
-    if (world.type !== 'asteroidBelt') {
+    if (srd) {
+        data.push(...SRD.physicalRows(world));
+    } else if (world.type !== 'asteroidBelt') {
         data.push([t('Radius'), WorldText.radius(world.radiusKm)], [t('Mass'), WorldText.mass(world.massEarths)],
             [t('Gravity'), WorldText.gravity(gravityOf(world))]);
     }
     if (world.isPrincipal) data.push([t('Principal world'), t('Yes')]);
     sections.push({ title: planet ? t('Moon data') : t('World data'), rows: data });
-    const environment = [[t('Habitable zone'), world.inHabitableZone ? t('Yes') : t('No')]];
-    if (!planet) environment.push([t('Starlight'), t("%@ × Earth's", insolation(world).toFixed(2))]);
-    if (world.environment) environment.push(...environmentRows(world.environment).map(([label, value]) => [label, value]));
+    const environment = srd ? SRD.environmentRows(world) : [[t('Habitable zone'), world.inHabitableZone ? t('Yes') : t('No')]];
+    if (!srd && !planet) environment.push([t('Starlight'), t("%@ × Earth's", insolation(world).toFixed(2))]);
+    if (!srd && world.environment) environment.push(...environmentRows(world.environment).map(([label, value]) => [label, value]));
     sections.push({ title: t('Environment'), rows: environment });
     // A moon's map world carries its planet's orbit, so a moon shows the planet and its distance from the star(s)
     let orbit;
@@ -826,8 +832,10 @@ export function printedWorldData(world, planet, systemName, worldName) {
         if (world.anomaly) orbit.push([t('Anomaly'), WorldText.anomaly(world.anomaly)]);
         if (world.resonance) orbit.push([t('Resonance'), world.resonance]);
     }
+    // The SRD gives no orbital elements or rotation
+    if (srd) orbit.splice(planet ? 2 : 1);
     sections.push({ title: t('Orbit'), rows: orbit });
-    if (world.rotation) {
+    if (world.rotation && !srd) {
         sections.push({ title: t('Rotation'), rows: rotationRows(world.rotation, planet?.designation).map(([label, value]) => [label, value]) });
     }
     if (!planet && (world.rings > 0 || world.moons?.length)) {
@@ -838,7 +846,7 @@ export function printedWorldData(world, planet, systemName, worldName) {
         }
         sections.push({ title: `${t('Moons')}  ${world.moons.length}`, rows: moons });
     }
-    if (world.social) sections.push(...WorldText.socialSections(world.social, world));
+    if (world.social) sections.push(...(srd ? SRD.socialSections(world, listing) : WorldText.socialSections(world.social, world)));
     const visible = sections.filter((section) => section.rows.length);
     // Sections shared out over the columns in order, each column taking about the same number of lines
     const total = visible.reduce((sum, s) => sum + s.rows.length + 2, 0);

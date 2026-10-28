@@ -6002,6 +6002,606 @@ const translations = {
         "es": "Edificios presurizados",
         "fr": "Bâtiments pressurisés",
         "pt": "Edifícios pressurizados"
+    },
+    "A few small seas (16–25%)": {
+        "de": "Einige kleine Meere (16–25 %)",
+        "es": "Unos pocos mares pequeños (16–25 %)",
+        "fr": "Quelques petites mers (16–25 %)",
+        "pt": "Alguns mares pequenos (16–25%)"
+    },
+    "Agricultural": {
+        "de": "Agrarwelt",
+        "es": "Agrícola",
+        "fr": "Agricole",
+        "pt": "Agrícola"
+    },
+    "All bladed weapons, stunners": {
+        "de": "Alle Klingenwaffen, Betäuber",
+        "es": "Todas las armas blancas, aturdidores",
+        "fr": "Toutes les armes blanches, étourdisseurs",
+        "pt": "Todas as armas brancas, atordoadores"
+    },
+    "All firearms except shotguns and stunners": {
+        "de": "Alle Schusswaffen außer Schrotflinten und Betäubern",
+        "es": "Todas las armas de fuego salvo escopetas y aturdidores",
+        "fr": "Toutes les armes à feu sauf fusils de chasse et étourdisseurs",
+        "pt": "Todas as armas de fogo exceto espingardas e atordoadores"
+    },
+    "Almost entirely water (96–100%)": {
+        "de": "Fast nur Wasser (96–100 %)",
+        "es": "Casi todo agua (96–100 %)",
+        "fr": "Presque entièrement d’eau (96–100 %)",
+        "pt": "Quase só água (96–100%)"
+    },
+    "Any weapons": {
+        "de": "Jegliche Waffen",
+        "es": "Cualquier arma",
+        "fr": "Toutes armes",
+        "pt": "Quaisquer armas"
+    },
+    "Asteroid": {
+        "de": "Asteroid",
+        "es": "Asteroide",
+        "fr": "Astéroïde",
+        "pt": "Asteroide"
+    },
+    "Asteroid or planetoid belt": {
+        "de": "Asteroiden- oder Planetoidengürtel",
+        "es": "Cinturón de asteroides o planetoides",
+        "fr": "Ceinture d’astéroïdes ou de planétoïdes",
+        "pt": "Cinturão de asteroides ou planetoides"
+    },
+    "Atm %@": {
+        "de": "Atm %@",
+        "es": "Atm %@",
+        "fr": "Atm %@",
+        "pt": "Atm %@"
+    },
+    "Balkanisation": {
+        "de": "Balkanisierung",
+        "es": "Balcanización",
+        "fr": "Balkanisation",
+        "pt": "Balcanização"
+    },
+    "Barren": {
+        "de": "Unbewohnt",
+        "es": "Yermo",
+        "fr": "Stérile",
+        "pt": "Estéril"
+    },
+    "Billions": {
+        "de": "Milliarden",
+        "es": "Miles de millones",
+        "fr": "Milliards",
+        "pt": "Bilhões"
+    },
+    "Captive Government": {
+        "de": "Fremdregierung",
+        "es": "Gobierno cautivo",
+        "fr": "Gouvernement captif",
+        "pt": "Governo cativo"
+    },
+    "Charismatic Dictator": {
+        "de": "Charismatischer Diktator",
+        "es": "Dictador carismático",
+        "fr": "Dictateur charismatique",
+        "pt": "Ditador carismático"
+    },
+    "Charismatic Oligarchy": {
+        "de": "Charismatische Oligarchie",
+        "es": "Oligarquía carismática",
+        "fr": "Oligarchie charismatique",
+        "pt": "Oligarquia carismática"
+    },
+    "Civil Service Bureaucracy": {
+        "de": "Beamtenbürokratie",
+        "es": "Burocracia funcionarial",
+        "fr": "Bureaucratie de fonctionnaires",
+        "pt": "Burocracia de funcionários"
+    },
+    "Company/Corporation": {
+        "de": "Firma/Konzern",
+        "es": "Compañía/Corporación",
+        "fr": "Compagnie/Corporation",
+        "pt": "Companhia/Corporação"
+    },
+    "Corrosive": {
+        "de": "Ätzend",
+        "es": "Corrosiva",
+        "fr": "Corrosive",
+        "pt": "Corrosiva"
+    },
+    "Data sheets and printed world data show only what the Traveller System Reference Document defines: the Universal World Profile's codes, temperature, bases, trade codes and travel zones. Nothing from the World Builder's Handbook, and no physical figures, orbits, rotation or almanac profile. Worlds are generated as before.": {
+        "de": "Datenblätter und gedruckte Weltdaten zeigen nur, was das Traveller System Reference Document festlegt: die Codes des Universal World Profile, Temperatur, Basen, Handelscodes und Reisezonen. Nichts aus dem World Builder’s Handbook, keine physikalischen Werte, Umlaufbahnen, Rotation oder Almanachprofile. Welten werden wie bisher erzeugt.",
+        "es": "Las fichas de datos y los datos impresos del mundo muestran solo lo que define el Traveller System Reference Document: los códigos del Universal World Profile, la temperatura, las bases, los códigos comerciales y las zonas de viaje. Nada del World Builder’s Handbook, ni cifras físicas, órbitas, rotación o perfil de almanaque. Los mundos se generan como antes.",
+        "fr": "Les fiches et les données imprimées des mondes ne montrent que ce que définit le Traveller System Reference Document : les codes du Universal World Profile, la température, les bases, les codes commerciaux et les zones de voyage. Rien du World Builder’s Handbook, ni valeurs physiques, orbites, rotation ou profil d’almanach. Les mondes sont générés comme avant.",
+        "pt": "As fichas e os dados impressos dos mundos mostram só o que o Traveller System Reference Document define: os códigos do Universal World Profile, a temperatura, as bases, os códigos comerciais e as zonas de viagem. Nada do World Builder’s Handbook, nem valores físicos, órbitas, rotação ou perfil de almanaque. Os mundos são gerados como antes."
+    },
+    "Dense": {
+        "de": "Dicht",
+        "es": "Densa",
+        "fr": "Dense",
+        "pt": "Densa"
+    },
+    "Dense, tainted": {
+        "de": "Dicht, verunreinigt",
+        "es": "Densa, contaminada",
+        "fr": "Dense, viciée",
+        "pt": "Densa, contaminada"
+    },
+    "Desert world (0–5%)": {
+        "de": "Wüstenwelt (0–5 %)",
+        "es": "Mundo desértico (0–5 %)",
+        "fr": "Monde désertique (0–5 %)",
+        "pt": "Mundo desértico (0–5%)"
+    },
+    "Dry world (6–15%)": {
+        "de": "Trockene Welt (6–15 %)",
+        "es": "Mundo seco (6–15 %)",
+        "fr": "Monde sec (6–15 %)",
+        "pt": "Mundo seco (6–15%)"
+    },
+    "Earth-like world (66–75%)": {
+        "de": "Erdähnliche Welt (66–75 %)",
+        "es": "Mundo similar a la Tierra (66–75 %)",
+        "fr": "Monde semblable à la Terre (66–75 %)",
+        "pt": "Mundo semelhante à Terra (66–75%)"
+    },
+    "Excellent": {
+        "de": "Hervorragend",
+        "es": "Excelente",
+        "fr": "Excellent",
+        "pt": "Excelente"
+    },
+    "Exotic": {
+        "de": "Exotisch",
+        "es": "Exótica",
+        "fr": "Exotique",
+        "pt": "Exótica"
+    },
+    "Feudal Technocracy": {
+        "de": "Feudale Technokratie",
+        "es": "Tecnocracia feudal",
+        "fr": "Technocratie féodale",
+        "pt": "Tecnocracia feudal"
+    },
+    "Few": {
+        "de": "Wenige",
+        "es": "Unos pocos",
+        "fr": "Quelques-uns",
+        "pt": "Poucos"
+    },
+    "Fluid Oceans": {
+        "de": "Fremdflüssige Ozeane",
+        "es": "Océanos de fluidos",
+        "fr": "Océans de fluides",
+        "pt": "Oceanos de fluidos"
+    },
+    "Frontier": {
+        "de": "Grenzposten",
+        "es": "Fronterizo",
+        "fr": "Frontière",
+        "pt": "Fronteiriço"
+    },
+    "Garden": {
+        "de": "Gartenwelt",
+        "es": "Jardín",
+        "fr": "Jardin",
+        "pt": "Jardim"
+    },
+    "Good": {
+        "de": "Gut",
+        "es": "Bueno",
+        "fr": "Bon",
+        "pt": "Bom"
+    },
+    "Heavy weapons": {
+        "de": "Schwere Waffen",
+        "es": "Armas pesadas",
+        "fr": "Armes lourdes",
+        "pt": "Armas pesadas"
+    },
+    "High Population": {
+        "de": "Hohe Bevölkerung",
+        "es": "Población alta",
+        "fr": "Population élevée",
+        "pt": "População alta"
+    },
+    "High Tech": {
+        "de": "Hochtechnologie",
+        "es": "Alta tecnología",
+        "fr": "Haute technologie",
+        "pt": "Alta tecnologia"
+    },
+    "Hundreds": {
+        "de": "Hunderte",
+        "es": "Cientos",
+        "fr": "Centaines",
+        "pt": "Centenas"
+    },
+    "Hundreds of billions": {
+        "de": "Hunderte Milliarden",
+        "es": "Cientos de miles de millones",
+        "fr": "Centaines de milliards",
+        "pt": "Centenas de bilhões"
+    },
+    "Hundreds of millions": {
+        "de": "Hunderte Millionen",
+        "es": "Cientos de millones",
+        "fr": "Centaines de millions",
+        "pt": "Centenas de milhões"
+    },
+    "Hundreds of thousands": {
+        "de": "Hunderttausende",
+        "es": "Cientos de miles",
+        "fr": "Centaines de milliers",
+        "pt": "Centenas de milhares"
+    },
+    "Hyd %@": {
+        "de": "Hyd %@",
+        "es": "Hid %@",
+        "fr": "Hyd %@",
+        "pt": "Hid %@"
+    },
+    "Hydrographics": {
+        "de": "Hydrografie",
+        "es": "Hidrografía",
+        "fr": "Hydrographie",
+        "pt": "Hidrografia"
+    },
+    "Ice-Capped": {
+        "de": "Eiskappen",
+        "es": "Casquetes de hielo",
+        "fr": "Calottes glaciaires",
+        "pt": "Calotas de gelo"
+    },
+    "Imperial consulate": {
+        "de": "Imperiales Konsulat",
+        "es": "Consulado imperial",
+        "fr": "Consulat impérial",
+        "pt": "Consulado imperial"
+    },
+    "Impersonal Bureaucracy": {
+        "de": "Unpersönliche Bürokratie",
+        "es": "Burocracia impersonal",
+        "fr": "Bureaucratie impersonnelle",
+        "pt": "Burocracia impessoal"
+    },
+    "Insidious": {
+        "de": "Heimtückisch",
+        "es": "Insidiosa",
+        "fr": "Insidieuse",
+        "pt": "Insidiosa"
+    },
+    "Large oceans (46–55%)": {
+        "de": "Große Ozeane (46–55 %)",
+        "es": "Grandes océanos (46–55 %)",
+        "fr": "Grands océans (46–55 %)",
+        "pt": "Grandes oceanos (46–55%)"
+    },
+    "Large oceans (56–65%)": {
+        "de": "Große Ozeane (56–65 %)",
+        "es": "Grandes océanos (56–65 %)",
+        "fr": "Grands océans (56–65 %)",
+        "pt": "Grandes oceanos (56–65%)"
+    },
+    "Law level": {
+        "de": "Gesetzesstufe",
+        "es": "Nivel de ley",
+        "fr": "Niveau de loi",
+        "pt": "Nível de lei"
+    },
+    "Light assault weapons and submachine guns": {
+        "de": "Leichte Sturmwaffen und Maschinenpistolen",
+        "es": "Armas de asalto ligeras y subfusiles",
+        "fr": "Armes d’assaut légères et pistolets-mitrailleurs",
+        "pt": "Armas de assalto leves e submetralhadoras"
+    },
+    "Low": {
+        "de": "Niedrig",
+        "es": "Baja",
+        "fr": "Basse",
+        "pt": "Baixa"
+    },
+    "Low Population": {
+        "de": "Geringe Bevölkerung",
+        "es": "Población baja",
+        "fr": "Population faible",
+        "pt": "População baixa"
+    },
+    "Low Tech": {
+        "de": "Niedrige Technologie",
+        "es": "Baja tecnología",
+        "fr": "Basse technologie",
+        "pt": "Baixa tecnologia"
+    },
+    "Millions": {
+        "de": "Millionen",
+        "es": "Millones",
+        "fr": "Millions",
+        "pt": "Milhões"
+    },
+    "Naval base": {
+        "de": "Marinebasis",
+        "es": "Base naval",
+        "fr": "Base navale",
+        "pt": "Base naval"
+    },
+    "Negligible": {
+        "de": "Vernachlässigbar",
+        "es": "Insignificante",
+        "fr": "Négligeable",
+        "pt": "Desprezível"
+    },
+    "No starport": {
+        "de": "Kein Raumhafen",
+        "es": "Sin espaciopuerto",
+        "fr": "Pas de spatioport",
+        "pt": "Sem espaçoporto"
+    },
+    "Non-Agricultural": {
+        "de": "Nicht-agrarisch",
+        "es": "No agrícola",
+        "fr": "Non agricole",
+        "pt": "Não agrícola"
+    },
+    "Non-Charismatic Leader": {
+        "de": "Nicht-charismatischer Führer",
+        "es": "Líder no carismático",
+        "fr": "Dirigeant non charismatique",
+        "pt": "Líder não carismático"
+    },
+    "Non-Industrial": {
+        "de": "Nicht-industriell",
+        "es": "No industrial",
+        "fr": "Non industriel",
+        "pt": "Não industrial"
+    },
+    "Only a few small islands (86–95%)": {
+        "de": "Nur wenige kleine Inseln (86–95 %)",
+        "es": "Solo unas pocas islas pequeñas (86–95 %)",
+        "fr": "Seulement quelques petites îles (86–95 %)",
+        "pt": "Só algumas ilhas pequenas (86–95%)"
+    },
+    "Participating Democracy": {
+        "de": "Direkte Demokratie",
+        "es": "Democracia participativa",
+        "fr": "Démocratie participative",
+        "pt": "Democracia participativa"
+    },
+    "Personal concealable weapons": {
+        "de": "Verdeckt tragbare Waffen",
+        "es": "Armas personales ocultables",
+        "fr": "Armes personnelles dissimulables",
+        "pt": "Armas pessoais ocultáveis"
+    },
+    "Pirate base": {
+        "de": "Piratenbasis",
+        "es": "Base pirata",
+        "fr": "Base pirate",
+        "pt": "Base pirata"
+    },
+    "Poison gas, explosives, undetectable weapons, weapons of mass destruction": {
+        "de": "Giftgas, Sprengstoff, nicht aufspürbare Waffen, Massenvernichtungswaffen",
+        "es": "Gas venenoso, explosivos, armas indetectables, armas de destrucción masiva",
+        "fr": "Gaz toxiques, explosifs, armes indétectables, armes de destruction massive",
+        "pt": "Gás venenoso, explosivos, armas indetectáveis, armas de destruição em massa"
+    },
+    "Poor": {
+        "de": "Arm",
+        "es": "Pobre",
+        "fr": "Pauvre",
+        "pt": "Pobre"
+    },
+    "Portable energy weapons": {
+        "de": "Tragbare Energiewaffen",
+        "es": "Armas de energía portátiles",
+        "fr": "Armes à énergie portatives",
+        "pt": "Armas de energia portáteis"
+    },
+    "Religious Dictatorship": {
+        "de": "Religiöse Diktatur",
+        "es": "Dictadura religiosa",
+        "fr": "Dictature religieuse",
+        "pt": "Ditadura religiosa"
+    },
+    "Representative Democracy": {
+        "de": "Repräsentative Demokratie",
+        "es": "Democracia representativa",
+        "fr": "Démocratie représentative",
+        "pt": "Democracia representativa"
+    },
+    "Research base": {
+        "de": "Forschungsbasis",
+        "es": "Base de investigación",
+        "fr": "Base de recherche",
+        "pt": "Base de pesquisa"
+    },
+    "Rich": {
+        "de": "Reich",
+        "es": "Rico",
+        "fr": "Riche",
+        "pt": "Rico"
+    },
+    "Roasting": {
+        "de": "Glühend heiß",
+        "es": "Abrasador",
+        "fr": "Brûlant",
+        "pt": "Escaldante"
+    },
+    "Routine": {
+        "de": "Gewöhnlich",
+        "es": "Rutinario",
+        "fr": "Ordinaire",
+        "pt": "Rotineiro"
+    },
+    "Scout base": {
+        "de": "Scoutbasis",
+        "es": "Base de exploradores",
+        "fr": "Base d’éclaireurs",
+        "pt": "Base de exploradores"
+    },
+    "Self-Perpetuating Oligarchy": {
+        "de": "Selbsterhaltende Oligarchie",
+        "es": "Oligarquía autoperpetuada",
+        "fr": "Oligarchie auto-perpétuée",
+        "pt": "Oligarquia autoperpetuada"
+    },
+    "Shotguns": {
+        "de": "Schrotflinten",
+        "es": "Escopetas",
+        "fr": "Fusils de chasse",
+        "pt": "Espingardas"
+    },
+    "Size %@": {
+        "de": "Größe %@",
+        "es": "Tamaño %@",
+        "fr": "Taille %@",
+        "pt": "Tamanho %@"
+    },
+    "Small seas and oceans (26–35%)": {
+        "de": "Kleine Meere und Ozeane (26–35 %)",
+        "es": "Mares y océanos pequeños (26–35 %)",
+        "fr": "Petites mers et océans (26–35 %)",
+        "pt": "Mares e oceanos pequenos (26–35%)"
+    },
+    "Standard, tainted": {
+        "de": "Normal, verunreinigt",
+        "es": "Estándar, contaminada",
+        "fr": "Standard, viciée",
+        "pt": "Padrão, contaminada"
+    },
+    "Surface gravity": {
+        "de": "Oberflächenschwerkraft",
+        "es": "Gravedad superficial",
+        "fr": "Gravité de surface",
+        "pt": "Gravidade à superfície"
+    },
+    "TAS hostel": {
+        "de": "TAS-Herberge",
+        "es": "Albergue de la TAS",
+        "fr": "Auberge TAS",
+        "pt": "Albergue da TAS"
+    },
+    "Tens of billions": {
+        "de": "Zehn Milliarden und mehr",
+        "es": "Decenas de miles de millones",
+        "fr": "Dizaines de milliards",
+        "pt": "Dezenas de bilhões"
+    },
+    "Tens of millions": {
+        "de": "Zehnmillionen",
+        "es": "Decenas de millones",
+        "fr": "Dizaines de millions",
+        "pt": "Dezenas de milhões"
+    },
+    "Tens of thousands": {
+        "de": "Zehntausende",
+        "es": "Decenas de miles",
+        "fr": "Dizaines de milliers",
+        "pt": "Dezenas de milhares"
+    },
+    "Thin": {
+        "de": "Dünn",
+        "es": "Tenue",
+        "fr": "Ténue",
+        "pt": "Rarefeita"
+    },
+    "Thin, tainted": {
+        "de": "Dünn, verunreinigt",
+        "es": "Tenue, contaminada",
+        "fr": "Ténue, viciée",
+        "pt": "Rarefeita, contaminada"
+    },
+    "Thousands": {
+        "de": "Tausende",
+        "es": "Miles",
+        "fr": "Milliers",
+        "pt": "Milhares"
+    },
+    "Trade codes": {
+        "de": "Handelscodes",
+        "es": "Códigos comerciales",
+        "fr": "Codes commerciaux",
+        "pt": "Códigos comerciais"
+    },
+    "Travel zone": {
+        "de": "Reisezone",
+        "es": "Zona de viaje",
+        "fr": "Zone de voyage",
+        "pt": "Zona de viagem"
+    },
+    "Traveller SRD compatible world data": {
+        "de": "Traveller-SRD-kompatible Weltdaten",
+        "es": "Datos de mundos compatibles con el SRD de Traveller",
+        "fr": "Données de mondes compatibles avec le SRD de Traveller",
+        "pt": "Dados de mundos compatíveis com o SRD de Traveller"
+    },
+    "Trillions": {
+        "de": "Billionen",
+        "es": "Billones",
+        "fr": "Billions",
+        "pt": "Trilhões"
+    },
+    "UWP": {
+        "de": "UWP",
+        "es": "UWP",
+        "fr": "UWP",
+        "pt": "UWP"
+    },
+    "Universal World Profile": {
+        "de": "Universal World Profile",
+        "es": "Universal World Profile",
+        "fr": "Universal World Profile",
+        "pt": "Universal World Profile"
+    },
+    "Unusual": {
+        "de": "Ungewöhnlich",
+        "es": "Inusual",
+        "fr": "Inhabituelle",
+        "pt": "Incomum"
+    },
+    "Vacuum": {
+        "de": "Vakuum",
+        "es": "Vacío",
+        "fr": "Vide",
+        "pt": "Vácuo"
+    },
+    "Very dense": {
+        "de": "Sehr dicht",
+        "es": "Muy densa",
+        "fr": "Très dense",
+        "pt": "Muito densa"
+    },
+    "Very thin": {
+        "de": "Sehr dünn",
+        "es": "Muy tenue",
+        "fr": "Très ténue",
+        "pt": "Muito rarefeita"
+    },
+    "Very thin, tainted": {
+        "de": "Sehr dünn, verunreinigt",
+        "es": "Muy tenue, contaminada",
+        "fr": "Très ténue, viciée",
+        "pt": "Muito rarefeita, contaminada"
+    },
+    "Water World": {
+        "de": "Wasserwelt",
+        "es": "Mundo acuático",
+        "fr": "Monde aquatique",
+        "pt": "Mundo aquático"
+    },
+    "Water world (76–85%)": {
+        "de": "Wasserwelt (76–85 %)",
+        "es": "Mundo acuático (76–85 %)",
+        "fr": "Monde aquatique (76–85 %)",
+        "pt": "Mundo aquático (76–85%)"
+    },
+    "Wet world (36–45%)": {
+        "de": "Feuchte Welt (36–45 %)",
+        "es": "Mundo húmedo (36–45 %)",
+        "fr": "Monde humide (36–45 %)",
+        "pt": "Mundo úmido (36–45%)"
     }
 };
 

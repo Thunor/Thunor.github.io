@@ -11,6 +11,7 @@ import { t, locale } from './i18n.js';
 import { PlanetPhysics, environmentTemperature, hasBreathableAir } from '../model/planetarySystem.js';
 import { terrainNames } from '../surface/surfaceTerrain.js';
 import { factbookSections } from './factbook.js';
+import * as SRD from '../traveller/srd.js';
 
 /** C's %.<n>e, e.g. "1.23e-04" */
 export function exponential(value, digits) {
@@ -111,7 +112,7 @@ export const WorldText = {
     typeName(world) {
         if (world.minorPlanet) return t('Minor planet');
         switch (world.type) {
-            case 'gasGiant': return world.gasGiant ? named(giantClassNames, world.gasGiant.giantClass) : t('Gas giant');
+            case 'gasGiant': return world.gasGiant && !SRD.isSRD() ? named(giantClassNames, world.gasGiant.giantClass) : t('Gas giant');
             case 'asteroidBelt': return t('Asteroid belt');
             default: return t('Terrestrial planet');
         }
@@ -177,6 +178,7 @@ export const WorldText = {
 
     /** A one-line summary of a body, for lists: e.g. "1.00 R⊕ · Nitrogen–oxygen · 71% ocean" */
     summary({ radiusKm, gasGiant, environment, isBelt = false }) {
+        if (SRD.isSRD()) return SRD.summary({ radiusKm, gasGiant, environment, isBelt });
         if (gasGiant) return `${WorldText.giantClass(gasGiant.giantClass)} · ${gasGiant.radiusEarths.toFixed(1)} R⊕`;
         if (isBelt) return t('Asteroid belt');
         const parts = [radiusKm >= 1000 ? `${(radiusKm / PlanetPhysics.earthRadiusKm).toFixed(2)} R⊕` : t('%@ km', String(Math.round(radiusKm)))];
@@ -189,6 +191,7 @@ export const WorldText = {
 
     /** A short tag for narrow lists: the radius and, if known, the temperature band */
     tag({ radiusKm, gasGiant, environment, isBelt = false }) {
+        if (SRD.isSRD()) return SRD.tag({ radiusKm, gasGiant, environment, isBelt });
         if (gasGiant) return `${gasGiant.radiusEarths.toFixed(1)} R⊕`;
         if (isBelt) return t('Belt');
         const size = radiusKm >= 1000 ? `${(radiusKm / PlanetPhysics.earthRadiusKm).toFixed(2)} R⊕` : `${Math.round(radiusKm)} km`;

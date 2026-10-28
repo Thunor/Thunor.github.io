@@ -32,6 +32,7 @@ const defaults = {
     surfaceMapExportOutline: false,
     globeExportResolution: 1,
     globeExportMount: 'none',
+    srdCompatible: false,
 };
 
 /** How many star systems the star field may draw at once */
