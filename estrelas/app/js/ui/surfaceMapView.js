@@ -804,7 +804,7 @@ function drawIcosahedral(image, places, world, clear) {
 /** A world's or moon's data laid out for print below an exported map: black on a clear page, in balanced columns */
 export function printedWorldData(world, planet, systemName, worldName, listing = null) {
     const sections = [];
-    const srd = SRD.isSRD();
+    const srd = SRD.isSRD(), both = SRD.isBoth();
     const data = [[t('Designation'), world.designation],
         [t('Type'), planet ? t('Moon of %@', planet.designation) : WorldText.typeName(world)]];
     if (srd) {
@@ -819,6 +819,7 @@ export function printedWorldData(world, planet, systemName, worldName, listing =
     if (!srd && !planet) environment.push([t('Starlight'), t("%@ × Earth's", insolation(world).toFixed(2))]);
     if (!srd && world.environment) environment.push(...environmentRows(world.environment).map(([label, value]) => [label, value]));
     sections.push({ title: t('Environment'), rows: environment });
+    if (both) sections.push({ title: t('Traveller SRD'), rows: [...SRD.physicalRows(world), ...SRD.environmentRows(world)] });
     // A moon's map world carries its planet's orbit, so a moon shows the planet and its distance from the star(s)
     let orbit;
     if (planet) {
@@ -848,7 +849,10 @@ export function printedWorldData(world, planet, systemName, worldName, listing =
         }
         sections.push({ title: `${t('Moons')}  ${world.moons.length}`, rows: moons });
     }
-    if (world.social) sections.push(...(srd ? SRD.socialSections(world, listing) : WorldText.socialSections(world.social, world)));
+    if (world.social) {
+        if (srd || both) sections.push(...SRD.socialSections(world, listing));
+        if (!srd) sections.push(...WorldText.socialSections(world.social, world));
+    }
     const visible = sections.filter((section) => section.rows.length);
     // Sections shared out over the columns in order, each column taking about the same number of lines
     const total = visible.reduce((sum, s) => sum + s.rows.length + 2, 0);

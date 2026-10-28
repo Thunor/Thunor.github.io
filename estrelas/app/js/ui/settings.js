@@ -32,7 +32,8 @@ const defaults = {
     surfaceMapExportOutline: false,
     globeExportResolution: 1,
     globeExportMount: 'none',
-    srdCompatible: false,
+    worldDataHexMap: 'srd',
+    worldDataStarField: 'estrelas',
 };
 
 /** How many star systems the star field may draw at once */

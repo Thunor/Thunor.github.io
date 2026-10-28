@@ -15,8 +15,31 @@ import { t } from '../ui/i18n.js';
 import * as Settings from '../ui/settings.js';
 import { parseUWP, uwpDigits } from './travellerData.js';
 
+/** The world data the sheets show: Estrelas's own, the SRD's only, or both */
+export const modes = ['estrelas', 'srd', 'both'];
+
+/** The setting for each kind of map: Traveller hex maps default to the SRD's values, star fields to Estrelas's */
+export const settingKey = (kind) => (kind === 'travellerHexMap' ? 'worldDataHexMap' : 'worldDataStarField');
+
+let mapKind = null;
+/** The kind of map open, whose setting the sheets follow */
+export function setMapKind(kind) {
+    mapKind = kind;
+}
+
+export function mode() {
+    const value = Settings.get(settingKey(mapKind));
+    return modes.includes(value) ? value : (mapKind === 'travellerHexMap' ? 'srd' : 'estrelas');
+}
+
+export function setMode(value) {
+    Settings.set(settingKey(mapKind), value);
+}
+
 /** Whether data sheets show SRD-compatible values only */
-export const isSRD = () => Settings.get('srdCompatible') === true;
+export const isSRD = () => mode() === 'srd';
+/** Whether they show the SRD's values alongside Estrelas's */
+export const isBoth = () => mode() === 'both';
 
 const digit = (value) => uwpDigits[Math.min(Math.max(Math.trunc(value), 0), uwpDigits.length - 1)];
 const clamp = (value, lower, upper) => Math.min(Math.max(value, lower), upper);

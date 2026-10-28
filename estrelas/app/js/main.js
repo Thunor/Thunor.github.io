@@ -19,8 +19,9 @@ import * as Settings from './ui/settings.js';
 import * as SurfaceMap from './surface/surfaceMap.js';
 import {
     stellarCartographyPanel, planetListPanel, routePanel, updateCameraReadout, timeControl, showStarDetail, showWorldDetail,
-    showMoonDetail, showSheet, resolutionTitle, globeResolutionTitle,
+    showMoonDetail, showSheet, resolutionTitle, globeResolutionTitle, worldDataChoices,
 } from './ui/views.js';
+import * as SRD from './traveller/srd.js';
 import { showSurfaceMap } from './ui/surfaceMapView.js';
 import { worldAnnotationsAreEmpty, applyingAnnotations } from './model/savedData.js';
 import { planSettlements, settlementTerrain } from './gen/settlementPlanner.js';
@@ -134,7 +135,7 @@ function settingChanged(key) {
         case 'moonsLikePlanets': SurfaceMap.setMoonsLikePlanets(Settings.get(key)); break;
         case 'showNebulae': map?.setShowNebulae(Settings.get(key)); renderSide(); break;
         case 'showTravelAdvisories': map?.setShowTravelAdvisories(Settings.get(key)); renderSide(); break;
-        case 'srdCompatible': renderSide(); break;
+        case 'worldDataHexMap': case 'worldDataStarField': renderSide(); break;
         case 'filtersExpanded': renderSide(); break;
         case 'mapResolution': map?.setMapResolution(Settings.mapResolution()); break;
         case 'globeResolution': map?.setGlobeResolution(Settings.globeResolution()); renderSide(); break;
@@ -220,6 +221,8 @@ function hideChooser() {
 }
 
 async function openUniverse(universe) {
+    // Data sheets follow the world data setting for this kind of map
+    SRD.setMapKind(universe.kind);
     state.openID = universe.id;
     state.openRevision = library.revision;
     state.map?.dispose();
@@ -878,8 +881,11 @@ async function showSettings() {
         h('p', { class: 'footnote' }, t("Climate & biomes gives worlds with seas oceans, lakes, rivers and biomes from their temperature and moisture. Polygon map builds them after Amit Patel's polygonal map generation: land rising from the coast to the mountains, rivers running down to the sea, and biomes from height, latitude and nearness to fresh water. Applies to planetary systems opened afterwards.")),
         checkbox('showTravelAdvisories', t('Show travel advisories')),
         h('p', { class: 'footnote' }, t("The Essential travel only and No travel filters and their rings, the Advisory buttons in the side panel, and the advisory a world's conditions suggest. Turn off for campaigns that don't use them; advisories already set are kept.")),
-        checkbox('srdCompatible', t('Traveller SRD compatible world data')),
-        h('p', { class: 'footnote' }, t("Data sheets and printed world data show only what the Traveller System Reference Document defines: the Universal World Profile's codes, temperature, bases, trade codes and travel zones. Nothing from the World Builder's Handbook, and no physical figures, orbits, rotation or almanac profile. Worlds are generated as before.")),
+        h('label', { class: 'field' }, h('span', {}, t('World data on Traveller hex maps')),
+            select('worldDataHexMap', worldDataChoices().map(([value, title]) => [value, title]))),
+        h('label', { class: 'field' }, h('span', {}, t('World data on 3D star fields')),
+            select('worldDataStarField', worldDataChoices().map(([value, title]) => [value, title]))),
+        h('p', { class: 'footnote' }, t("SRD Data shows only what the Traveller System Reference Document defines: the Universal World Profile's codes, temperature, bases, trade codes and travel zones. Nothing from the World Builder's Handbook, and no physical figures, orbits, rotation or almanac profile. Both shows the SRD's values alongside Estrelas's. Worlds are generated the same either way. Also on each world's data sheet.")),
         h('hr'),
         checkbox('moonsLikePlanets', t('Draw moons like planets')),
         h('p', { class: 'footnote' }, t("Gives every rocky and icy moon a surface generated the way a planet's is, with its own globe, clouds, weather and surface map, rather than one of a few shared moon textures. Gas giants' large moons are always drawn this way. Small moons get a coarser globe until you zoom to them. Applies to planetary systems opened afterwards.")),

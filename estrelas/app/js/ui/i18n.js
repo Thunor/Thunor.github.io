@@ -6632,6 +6632,54 @@ const translations = {
         "es": "Menos de 800 km",
         "fr": "Moins de 800 km",
         "pt": "Menos de 800 km"
+    },
+    "Both": {
+        "de": "Beides",
+        "es": "Ambos",
+        "fr": "Les deux",
+        "pt": "Ambos"
+    },
+    "Traveller SRD": {
+        "de": "Traveller-SRD",
+        "es": "SRD de Traveller",
+        "fr": "SRD de Traveller",
+        "pt": "SRD de Traveller"
+    },
+    "World data on Traveller hex maps": {
+        "de": "Weltdaten auf Traveller-Hexkarten",
+        "es": "Datos de mundos en mapas hexagonales de Traveller",
+        "fr": "Données des mondes sur les cartes hexagonales Traveller",
+        "pt": "Dados de mundos nos mapas hexagonais de Traveller"
+    },
+    "World data on 3D star fields": {
+        "de": "Weltdaten auf 3D-Sternfeldern",
+        "es": "Datos de mundos en campos estelares 3D",
+        "fr": "Données des mondes sur les champs d’étoiles 3D",
+        "pt": "Dados de mundos nos campos estelares 3D"
+    },
+    "Estrelas's own world data: physical figures, orbit, rotation and the almanac profile": {
+        "de": "Die eigenen Weltdaten von Estrelas: physikalische Werte, Umlaufbahn, Rotation und Almanachprofil",
+        "es": "Los datos propios de Estrelas: cifras físicas, órbita, rotación y perfil de almanaque",
+        "fr": "Les données propres à Estrelas : valeurs physiques, orbite, rotation et profil d’almanach",
+        "pt": "Os dados próprios do Estrelas: valores físicos, órbita, rotação e perfil de almanaque"
+    },
+    "Only the Traveller SRD's values: the Universal World Profile, trade codes, bases and travel zone": {
+        "de": "Nur die Werte des Traveller-SRD: Universal World Profile, Handelscodes, Basen und Reisezone",
+        "es": "Solo los valores del SRD de Traveller: Universal World Profile, códigos comerciales, bases y zona de viaje",
+        "fr": "Uniquement les valeurs du SRD de Traveller : Universal World Profile, codes commerciaux, bases et zone de voyage",
+        "pt": "Só os valores do SRD de Traveller: Universal World Profile, códigos comerciais, bases e zona de viagem"
+    },
+    "Estrelas's world data with the Traveller SRD's values alongside": {
+        "de": "Die Weltdaten von Estrelas mit den Werten des Traveller-SRD daneben",
+        "es": "Los datos de Estrelas junto a los valores del SRD de Traveller",
+        "fr": "Les données d’Estrelas accompagnées des valeurs du SRD de Traveller",
+        "pt": "Os dados do Estrelas acompanhados dos valores do SRD de Traveller"
+    },
+    "SRD Data shows only what the Traveller System Reference Document defines: the Universal World Profile's codes, temperature, bases, trade codes and travel zones. Nothing from the World Builder's Handbook, and no physical figures, orbits, rotation or almanac profile. Both shows the SRD's values alongside Estrelas's. Worlds are generated the same either way. Also on each world's data sheet.": {
+        "de": "SRD-Daten zeigen nur, was das Traveller System Reference Document festlegt: die Codes des Universal World Profile, Temperatur, Basen, Handelscodes und Reisezonen. Nichts aus dem World Builder’s Handbook, keine physikalischen Werte, Umlaufbahnen, Rotation oder Almanachprofile. Beides zeigt die SRD-Werte neben denen von Estrelas. Welten werden in jedem Fall gleich erzeugt. Auch im Datenblatt jeder Welt.",
+        "es": "Datos del SRD muestra solo lo que define el Traveller System Reference Document: los códigos del Universal World Profile, la temperatura, las bases, los códigos comerciales y las zonas de viaje. Nada del World Builder’s Handbook, ni cifras físicas, órbitas, rotación o perfil de almanaque. Ambos muestra los valores del SRD junto a los de Estrelas. Los mundos se generan igual en todos los casos. También en la ficha de cada mundo.",
+        "fr": "Données SRD n’affiche que ce que définit le Traveller System Reference Document : les codes du Universal World Profile, la température, les bases, les codes commerciaux et les zones de voyage. Rien du World Builder’s Handbook, ni valeurs physiques, orbites, rotation ou profil d’almanach. Les deux affiche les valeurs du SRD à côté de celles d’Estrelas. Les mondes sont générés de la même façon dans tous les cas. Aussi sur la fiche de chaque monde.",
+        "pt": "Dados do SRD mostra só o que o Traveller System Reference Document define: os códigos do Universal World Profile, a temperatura, as bases, os códigos comerciais e as zonas de viagem. Nada do World Builder’s Handbook, nem valores físicos, órbitas, rotação ou perfil de almanaque. Ambos mostra os valores do SRD ao lado dos do Estrelas. Os mundos são gerados da mesma forma em qualquer caso. Também na ficha de cada mundo."
     }
 };
 
