@@ -132,7 +132,7 @@ const cloudVertex = /* glsl */ `
     }
 `;
 
-const cloudFragment = /* glsl */ `
+export const cloudFragment = /* glsl */ `
     precision highp float;
     precision highp int;
     uniform vec4 uSettings;
@@ -186,37 +186,67 @@ const cloudFragment = /* glsl */ `
     float rhythm(float days) {
         return kTau * max(round(kPeriod / days), 1.0) / kPeriod;
     }
-    int rowCells(int row) {
-        float latitude = -kPi / 2.0 + (float(row) + 0.5) * kRowHeight;
-        return max(3, int(round(2.0 * float(kRows) * cos(latitude))));
+    // The cloud field, drawn the way the Gaia Engine draws clouds: value noise warped by value noise, in two layers
+    // carried by the winds and crossfaded every kLayerDays (cloudModel.js cloudField)
+    const float kLayerDays = 2.0;
+    const float kFieldMean = 0.484;
+    const float kQuantiles[33] = float[33](0.00000, 0.28752, 0.31972, 0.34176, 0.35915, 0.37375, 0.38697, 0.39895, 0.40997, 0.42038, 0.43045, 0.44009, 0.44934, 0.45836, 0.46722, 0.47603, 0.48462, 0.49332, 0.50200, 0.51080, 0.51986, 0.52908, 0.53846, 0.54844, 0.55864, 0.56973, 0.58169, 0.59464, 0.60964, 0.62692, 0.64880, 0.68126, 1.00000);
+    float lattice(ivec3 c, uint seed) {
+        uint h = (uint(c.x) * 0x8DA6B343u) ^ (uint(c.y) * 0xD8163841u) ^ (uint(c.z) * 0xCB1AB31Fu) ^ seed;
+        h = (h ^ (h >> 16u)) * 0x7FEB352Du;
+        h = (h ^ (h >> 15u)) * 0x846CA68Bu;
+        h = h ^ (h >> 16u);
+        return float(h) * (1.0 / 4294967295.0);
     }
-    struct Cell { vec3 centre; float latitude; int row; int index; };
-    Cell nearestCell(vec3 dir, float time, float circulation, bool locked, uint seed) {
-        float latitude = asin(clamp(dir.y, -1.0, 1.0));
-        float longitude = atan(-dir.z, dir.x) / kTau;
-        int home = clamp(int(floor((latitude + kPi / 2.0) / kRowHeight)), 0, kRows - 1);
-        Cell best = Cell(vec3(0.0, 1.0, 0.0), 0.0, home, 0);
-        float nearest = -2.0;
-        for (int row = max(home - 1, 0); row <= min(home + 1, kRows - 1); row++) {
-            float rowLatitude = -kPi / 2.0 + (float(row) + 0.5) * kRowHeight;
-            int count = rowCells(row);
-            float speed = round(wind(rowLatitude, circulation, locked) * kPeriod) / kPeriod;
-            float shift = fract(speed * time);
-            int middle = int(floor((longitude - shift) * float(count)));
-            for (int step = -2; step <= 2; step++) {
-                int index = (middle + step) - count * int(floor(float(middle + step) / float(count)));
-                vec3 jitter = random3(row, index, seed ^ 0x27D4EB2Fu) - 0.5;
-                float cellLatitude = rowLatitude + 0.8 * jitter.y * kRowHeight;
-                float cellLongitude = (float(index) + 0.5 + 0.8 * jitter.x) / float(count) + shift;
-                vec3 centre = spherePoint(cellLatitude, cellLongitude);
-                float closeness = dot(dir, centre);
-                if (closeness > nearest) {
-                    nearest = closeness;
-                    best = Cell(centre, cellLatitude, row, index);
-                }
+    float valueNoise(vec3 p, uint seed) {
+        vec3 cell = floor(p);
+        vec3 t = p - cell;
+        t = t * t * (3.0 - 2.0 * t);
+        ivec3 i = ivec3(cell);
+        return mix(mix(mix(lattice(i, seed), lattice(i + ivec3(1, 0, 0), seed), t.x),
+                       mix(lattice(i + ivec3(0, 1, 0), seed), lattice(i + ivec3(1, 1, 0), seed), t.x), t.y),
+                   mix(mix(lattice(i + ivec3(0, 0, 1), seed), lattice(i + ivec3(1, 0, 1), seed), t.x),
+                       mix(lattice(i + ivec3(0, 1, 1), seed), lattice(i + ivec3(1, 1, 1), seed), t.x), t.y), t.z);
+    }
+    float fbm(vec3 p, uint seed) {
+        float value = 0.0, amplitude = 0.5;
+        for (int octave = 0; octave < 5; octave++) {
+            value += amplitude * valueNoise(p, seed);
+            p = p * 2.03 + vec3(1.7, 9.2, 3.1);
+            amplitude *= 0.5;
+        }
+        return value;
+    }
+    vec2 cloudField(float latitude, float longitude, float time, float circulation, bool locked, uint seed) {
+        float speed = wind(latitude, circulation, locked);
+        float layerCycles = kPeriod / kLayerDays;
+        vec2 sum = vec2(0.0);
+        float weights = 0.0;
+        for (int layer = 0; layer < 2; layer++) {
+            float phase = time / kLayerDays + 0.5 * float(layer);
+            float whole = floor(phase);
+            float age = phase - whole;
+            float cycle = whole - floor(whole / layerCycles) * layerCycles;
+            float days = age * kLayerDays;
+            float weight = 1.0 - abs(2.0 * age - 1.0);
+            vec3 p = spherePoint(latitude, longitude - speed * days);
+            vec3 offset = random3(int(cycle), 64 + layer, seed ^ 0x51ED270Bu);
+            vec3 q = p * 2.3 + offset * 61.0 + days * vec3(0.03, 0.01, 0.02);
+            float w = fbm(q * 1.6, seed);
+            float c = fbm(q * 2.6 + vec3(w * 1.9), seed ^ 0x2C1B3C6Du);
+            sum += weight * (vec2(c, w) - kFieldMean);
+            weights += weight * weight;
+        }
+        return kFieldMean + sum / sqrt(max(weights, 1e-6));
+    }
+    float uniformField(float value) {
+        if (value <= kQuantiles[0]) { return 0.0; }
+        for (int i = 1; i < 33; i++) {
+            if (value < kQuantiles[i]) {
+                return (float(i - 1) + (value - kQuantiles[i - 1]) / max(kQuantiles[i] - kQuantiles[i - 1], 1e-6)) / 32.0;
             }
         }
-        return best;
+        return 1.0;
     }
     struct Life { float age; int cycle; float days; };
     Life life(float time, float days, float offset) {
@@ -235,21 +265,21 @@ const cloudFragment = /* glsl */ `
         float angle = atan(offset.y, offset.x);
         float lobes = 1.0 + 0.3 * sin(3.0 * angle + kTau * b.z) + 0.2 * sin(5.0 * angle + kTau * a.y * 3.0);
         float distance = length(offset) / max(radius * lobes, 1e-4);
-        float member = smoothstep(0.0, 0.12, 1.0 - distance + 0.5 * (own.z - 0.5));
-        float thickness = 0.6 + 0.3 * own.y + (distance < 0.5 ? 0.1 : 0.0);
+        float member = smoothstep(0.0, 0.12, 1.0 - distance + 1.2 * (own.z - 0.5));
+        float thickness = 0.5 + 0.4 * own.y + (distance < 0.5 ? 0.1 : 0.0);
         return member * thickness * min(strength * 3.0, 1.0);
     }
-    float lockedCloud(Cell cell, vec3 own, float swing, float time, float coverage, float circulation, uint seed) {
-        float around = atan(cell.centre.z, cell.centre.y);
+    float lockedCloud(vec3 point, vec3 own, float swing, float time, float coverage, float circulation, uint seed) {
+        float around = atan(point.z, point.y);
         vec3 shape = random3(-3, -3, seed ^ 0x3C6EF372u);
         float lobes = 0.12 * sin(3.0 * around + kTau * shape.x + rhythm(37.0) * time)
                     + 0.08 * sin(5.0 * around + kTau * shape.y - rhythm(23.0) * time);
-        float facing = dot(cell.centre, kSubstellar) + lobes + 0.1 * (own.x - 0.5);
+        float facing = dot(point, kSubstellar) + lobes + 0.1 * (own.x - 0.5);
         float edge = 1.0 - 1.6 * coverage;
         float mass = smoothstep(edge - 0.3, edge + 0.3, facing);
         float fringe = exp(-pow((facing - edge + 0.35) / 0.18, 2.0));
         float threshold = 1.0 - (0.97 * mass + 0.25 * coverage * fringe);
-        float cloud = smoothstep(threshold, threshold + 0.08, swing) * (0.35 + 0.25 * own.y + 0.15 * mass);
+        float cloud = smoothstep(threshold - 0.15, threshold + 0.15, swing) * (0.35 + 0.25 * own.y + 0.15 * mass);
         float reach = max(edge, 0.2);
         for (int storm = 0; storm < kConvectiveStorms; storm++) {
             vec3 slot = random3(storm, -2, seed ^ 0x2545F491u);
@@ -264,8 +294,8 @@ const cloudFragment = /* glsl */ `
             float turn = kTau * b.y;
             vec3 centre = kSubstellar * cosine + sine * (cos(turn) * vec3(0.0, 1.0, 0.0) + sin(turn) * vec3(0.0, 0.0, 1.0));
             float radius = (0.1 + 0.12 * b.z) * (0.6 + 0.4 * strength);
-            if (dot(cell.centre, centre) < cos(min(radius * 1.6, 1.5))) { continue; }
-            cloud = max(cloud, cluster(cell.centre, centre, radius, 1.0, a, b, own, strength));
+            if (dot(point, centre) < cos(min(radius * 1.6, 1.5))) { continue; }
+            cloud = max(cloud, cluster(point, centre, radius, 1.0, a, b, own, strength));
         }
         return cloud;
     }
@@ -278,12 +308,14 @@ const cloudFragment = /* glsl */ `
         bool locked = mod(floor(packed / 4.0), 2.0) > 0.5;
         uint seed = uint(floor(packed / 8.0)) * 2654435761u;
         vec3 dir = normalize(vModelPosition);
-        Cell cell = nearestCell(dir, time, circulation, locked, seed);
-        vec3 own = random3(cell.row, cell.index, seed ^ 0x165667B1u);
+        float latitude = asin(clamp(dir.y, -1.0, 1.0));
+        vec2 field = cloudField(latitude, atan(-dir.z, dir.x) / kTau, time, circulation, locked, seed);
+        float grain = clamp((field.y - 0.25) / 0.5, 0.0, 1.0);
+        float swing = uniformField(field.x);
+        vec3 own = vec3(1.0 - grain, grain, swing);
         float share = coverage * (1.0 - 0.8 * circulation);
-        float swing = 1.0 - abs(2.0 * fract(rhythm(3.0 + 6.0 * own.x) * time / kTau + own.z) - 1.0);
-        float threshold = 1.0 - share - circulation * climate(cell.latitude);
-        float cloud = smoothstep(threshold, threshold + 0.08, swing) * (0.45 + 0.35 * own.y);
+        float threshold = 1.0 - share - circulation * climate(latitude);
+        float cloud = smoothstep(threshold - 0.15, threshold + 0.15, swing) * (0.45 + 0.35 * own.y);
         float spread = sqrt(max(coverage - share, 0.0) / 0.2);
         int stormCount = locked ? 0 : kStorms;
         for (int storm = 0; storm < kStorms; storm++) {
@@ -300,11 +332,11 @@ const cloudFragment = /* glsl */ `
             float latitude = (a.z < 0.5 ? -1.0 : 1.0) * degrees / 57.29578;
             vec3 centre = spherePoint(latitude, b.z + wind(latitude, circulation, false) * now.days);
             float radius = (0.12 + 0.18 * fract(b.y * 13.0 + b.z)) * spread * (0.6 + 0.4 * strength);
-            if (dot(cell.centre, centre) < cos(min(radius * 1.6, 1.5))) { continue; }
-            cloud = max(cloud, cluster(cell.centre, centre, radius, 0.65, a, b, own, strength));
+            if (dot(dir, centre) < cos(min(radius * 1.6, 1.5))) { continue; }
+            cloud = max(cloud, cluster(dir, centre, radius, 0.65, a, b, own, strength));
         }
         if (locked) {
-            cloud = lockedCloud(cell, own, swing, time, coverage, circulation, seed);
+            cloud = lockedCloud(dir, own, swing, time, coverage, circulation, seed);
         }
         int spiralCount = locked ? 0 : kSpirals;
         for (int spiral = 0; spiral < kSpirals; spiral++) {
@@ -322,8 +354,8 @@ const cloudFragment = /* glsl */ `
             float latitude = hemisphere * degrees / 57.29578;
             vec3 centre = spherePoint(latitude, b.z + wind(latitude, circulation, false) * now.days);
             float radius = (tropical ? 0.26 + 0.06 * b.y : 0.3 + 0.1 * b.y) * (0.6 + 0.4 * strength);
-            if (dot(cell.centre, centre) < cos(radius)) { continue; }
-            vec2 offset = offsetFrom(centre, cell.centre);
+            if (dot(dir, centre) < cos(radius)) { continue; }
+            vec2 offset = offsetFrom(centre, dir);
             float distance = length(offset) / radius;
             float angle = atan(offset.y, offset.x);
             float winding = hemisphere * (tropical ? 2.2 : 2.0);
