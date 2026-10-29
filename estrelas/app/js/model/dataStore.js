@@ -64,6 +64,13 @@ export function drawCityGround(parameters) {
 }
 
 /** What the ground is and how high it stands at a point on a world: { terrain, height } */
+/** Where a world's ores, gemstones and crystals are (geology.js), worked out in a worker */
+export function geologyInWorker(world, style) {
+    const slim = { designation: world.designation, radiusKm: world.radiusKm, environment: world.environment,
+        social: world.social ? { resources: world.social.resources } : undefined };
+    return draw({ op: 'geology', world: slim, style });
+}
+
 export function terrainInWorker(point, style, detailOctaves = 0) {
     return draw({ op: 'terrain', point, style, detailOctaves });
 }

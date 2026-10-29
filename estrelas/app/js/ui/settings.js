@@ -34,6 +34,8 @@ const defaults = {
     globeExportMount: 'none',
     worldDataHexMap: 'srd',
     worldDataStarField: 'estrelas',
+    showResources: false,
+    hiddenResourceKinds: [],
 };
 
 /** How many star systems the star field may draw at once */

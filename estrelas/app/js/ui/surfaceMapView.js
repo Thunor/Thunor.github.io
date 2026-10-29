@@ -22,7 +22,7 @@ import { rotationRows, environmentRows, StarText, resolutionPicker, resolutionTi
 import { WorldText } from './worldText.js';
 import { showCityMap } from './cityMapView.js';
 import { showWeather, hasWeather } from './weatherView.js';
-import { terrainInWorker } from '../model/dataStore.js';
+import { terrainInWorker, geologyInWorker } from '../model/dataStore.js';
 import { styleFor, detailedOctaves, spherePoint } from '../surface/surfaceMap.js';
 import { formatCoordinates, pinDuration } from '../scene/starMap.js';
 import { faces as netFaces, layoutSize, layoutPoint, renderNet } from '../surface/icosahedralMap.js';
@@ -46,6 +46,9 @@ export const placeSymbols = { capital: '★', city: '▣', town: '⌂', village:
     outpost: '▲', landmark: '◆' };
 const placeColors = { capital: 'highlight', city: 'primary', town: 'primary', village: 'primary', spaceport: 'info',
     landingPad: 'info', base: 'alert', outpost: 'accent', landmark: 'accent' };
+
+/** Each world's ores, gemstones and crystals, once worked out, by designation and surface seed */
+const surveyCache = new Map();
 
 /** A generator of fresh randomness, for made-up names */
 const freshGenerator = () => new SplitMix64(crypto.getRandomValues(new BigUint64Array(1))[0]);
@@ -281,7 +284,7 @@ export function showSurfaceMap(world, options) {
         renderFooter();
     });
     surface.addEventListener('click', (event) => {
-        if (!image || event.target.closest('.place-button')) return;
+        if (!image || event.target.closest('.place-button, .deposit-marker')) return;
         const coordinate = coordinateAt(event);
         if (placing) {
             const place = { id: randomUUID(), name: t('New place'), kind: 'city', latitude: coordinate.latitude, longitude: coordinate.longitude };
@@ -422,6 +425,109 @@ export function showSurfaceMap(world, options) {
         }
     };
 
+    // MARK: ores, gemstones and crystals
+
+    // Worked out once a world, the first time they're shown
+    const depositLayer = h('div', { class: 'map-deposits' });
+    surface.insertBefore(depositLayer, markers);
+    let geology = null;
+    let showDeposits = !!Settings.get('showResources');
+    const hiddenKinds = new Set(Settings.get('hiddenResourceKinds') ?? []);
+    const sizeNames = () => [t('Small'), t('Medium'), t('Large'), t('World-class')];
+    const categoryNames = () => ({ ore: t('Ores'), gem: t('Gemstones'), crystal: t('Crystals') });
+    const kindName = (kind) => (kind.category === 'crystal' ? kind.name : t(kind.name));
+    const depositInfo = (anchor, deposit, kind) => {
+        const body = h('div', { class: 'deposit-info' },
+            h('div', { class: 'title-row' }, h('span', { class: 'deposit-symbol', style: { color: kind.color } }, kind.symbol),
+                h('strong', {}, kindName(kind))),
+            h('div', { class: 'footnote' }, `${categoryNames()[kind.category]} · ${sizeNames()[deposit.size]}`),
+            h('p', {}, kind.category === 'crystal'
+                ? t('A crystal found only on this world. It %@, and %@.', t(kind.setting), t(kind.property))
+                : t(kind.setting)),
+            h('div', { class: 'numeric footnote' }, formatCoordinates(deposit.latitude, deposit.longitude)));
+        popover(anchor, body, { className: 'deposit-popover' });
+    };
+    const renderDeposits = () => {
+        depositLayer.hidden = !showDeposits || !geology;
+        resourcesButton?.classList.toggle('on', showDeposits);
+        if (!geology || !showDeposits) return;
+        const kinds = new Map(geology.kinds.map((kind) => [kind.id, kind]));
+        depositLayer.replaceChildren(...geology.deposits.filter((d) => !hiddenKinds.has(d.kind)).map((deposit) => {
+            const kind = kinds.get(deposit.kind);
+            const marker = h('button', { type: 'button', class: `deposit-marker size-${deposit.size} ${kind.category}`,
+                title: `${kindName(kind)} · ${sizeNames()[deposit.size]}`,
+                style: { left: `${deposit.longitude / 360 * 100}%`, top: `${(90 - deposit.latitude) / 180 * 100}%`, color: kind.color },
+                onclick: (event) => {
+                    event.stopPropagation();
+                    depositInfo(marker, deposit, kind);
+                } }, kind.symbol);
+            return marker;
+        }));
+    };
+    const survey = async () => {
+        if (geology) return geology;
+        const style = styleFor(world);
+        if (!style) return null;
+        const key = `${world.designation}|${style.seed}`;
+        geology = surveyCache.get(key) ?? null;
+        if (!geology) {
+            resourcesButton.disabled = true;
+            try {
+                geology = await geologyInWorker(world, style);
+                surveyCache.set(key, geology);
+            } finally {
+                resourcesButton.disabled = false;
+            }
+        }
+        return geology;
+    };
+    /** The legend: each kind on the world, with how many, to show or hide; and the overlay itself on or off */
+    const showLegend = () => {
+        const list = h('div', { class: 'deposit-legend' });
+        const toggleAll = h('input', { type: 'checkbox', checked: showDeposits });
+        toggleAll.addEventListener('change', () => {
+            showDeposits = toggleAll.checked;
+            Settings.set('showResources', showDeposits);
+            renderDeposits();
+        });
+        list.append(h('label', { class: 'row' }, toggleAll, h('strong', {}, t('Show ores, gemstones and crystals'))));
+        const counts = new Map();
+        for (const deposit of geology.deposits) counts.set(deposit.kind, (counts.get(deposit.kind) ?? 0) + 1);
+        for (const category of ['ore', 'gem', 'crystal']) {
+            const kinds = geology.kinds.filter((kind) => kind.category === category && counts.get(kind.id));
+            if (!kinds.length) continue;
+            list.append(h('div', { class: 'heading' }, categoryNames()[category]));
+            for (const kind of kinds) {
+                const box = h('input', { type: 'checkbox', checked: !hiddenKinds.has(kind.id) });
+                box.addEventListener('change', () => {
+                    if (box.checked) hiddenKinds.delete(kind.id);
+                    else hiddenKinds.add(kind.id);
+                    Settings.set('hiddenResourceKinds', [...hiddenKinds].filter((id) => !id.startsWith('crystal')));
+                    renderDeposits();
+                });
+                list.append(h('label', { class: 'row', title: kind.category === 'crystal' ? t(kind.property) : t(kind.setting) }, box,
+                    h('span', { class: 'deposit-symbol', style: { color: kind.color } }, kind.symbol),
+                    h('span', {}, kindName(kind)), h('span', { class: 'spacer' }), h('span', { class: 'footnote' }, String(counts.get(kind.id)))));
+            }
+        }
+        if (!geology.deposits.length) list.append(h('p', { class: 'footnote' }, t('No deposits found on this world.')));
+        popover(resourcesButton, list, { className: 'deposit-legend-popover' });
+    };
+    // Solid worlds only
+    const resourcesButton = styleFor(world) && styleFor(world).kind !== 'gasGiant' ? button([icon('sparkles'), t('Resources')], {
+        color: 'accent', pill: false, title: t('Where the ores, gemstones and crystals are on this world, as its geology places them'),
+        onClick: async () => {
+            if (!(await survey())) return;
+            if (!showDeposits) {
+                showDeposits = true;
+                Settings.set('showResources', true);
+                renderDeposits();
+            }
+            showLegend();
+        },
+    }) : null;
+    if (showDeposits && resourcesButton) survey().then(renderDeposits).catch(() => {});
+
     // Worlds with an atmosphere have weather
     const weatherButton = hasWeather(world) ? button([icon('cloud'), t('Weather')], {
         color: 'info', pill: false, title: t('The weather all over this world now: precipitation radar and temperature maps, with its winds and storms'),
@@ -457,7 +563,7 @@ export function showSurfaceMap(world, options) {
     const header = h('div', { class: 'map-header' },
         h('span', { class: 'name', style: { color: world.isPrincipal ? 'var(--highlight)' : 'var(--primary)' } }, (world.isPrincipal ? '★ ' : '') + worldName),
         h('span', { class: 'sah summary' }, WorldText.summary({ radiusKm: world.radiusKm, gasGiant: world.gasGiant, environment: world.environment })),
-        h('span', { class: 'spacer' }), weatherButton, addPlaceButton, exportButton, zoomOut, zoomText, zoomIn,
+        h('span', { class: 'spacer' }), resourcesButton, weatherButton, addPlaceButton, exportButton, zoomOut, zoomText, zoomIn,
         button(t('Close'), { color: 'alert', onClick: () => sheet.close() }));
     const element = panel({ title: `${t('Surface map')}  ${worldName}`, color: 'info', segments: ['control', 'label', 'info'] }, header, viewport, footer);
     sheet = showSheet(element, { className: 'themed-sheet wide', onClose: () => { resizeObserver.disconnect(); clearTimeout(pinTimer); } });

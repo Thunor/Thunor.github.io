@@ -15,6 +15,7 @@ import { groundHeight } from './biomeSurface.js';
 import { seaLevelKept, terrainAt, landHeightAt, altitudeAt } from './surfaceTerrain.js';
 import { makeWeatherSnapshot } from './weatherMap.js';
 import { gridHeights } from './contourMap.js';
+import { geologyOf } from './geology.js';
 import { dayPixels, fieldStyle, patchPoint } from '../scene/cityLightPattern.js';
 import { generateStarField } from '../gen/systemStars.js';
 import { StarFieldWindow } from '../scene/starFieldWindow.js';
@@ -132,6 +133,11 @@ self.onmessage = async ({ data }) => {
                 result = { terrain: terrainAt(data.point, data.style, data.detailOctaves ?? 0),
                     height: landHeightAt(data.point, data.style, data.detailOctaves ?? 0),
                     altitude: altitudeAt(data.point, data.style, data.detailOctaves ?? 0) };
+                break;
+            }
+            case 'geology': {
+                // Where a world's ores, gemstones and crystals are
+                result = geologyOf(data.world, data.style);
                 break;
             }
             case 'contourHeights': {

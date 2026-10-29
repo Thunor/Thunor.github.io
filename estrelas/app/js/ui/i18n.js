@@ -6686,6 +6686,534 @@ const translations = {
         "es": "Compilación %@",
         "fr": "Build %@",
         "pt": "Build %@"
+    },
+    "A crystal found only on this world. It %@, and %@.": {
+        "de": "Ein Kristall, den es nur auf dieser Welt gibt. Er %@ und %@.",
+        "es": "Un cristal que solo existe en este mundo. %@, y %@.",
+        "fr": "Un cristal qu’on ne trouve que sur ce monde. Il %@, et %@.",
+        "pt": "Um cristal que só existe neste mundo. %@, e %@."
+    },
+    "Aluminium": {
+        "de": "Aluminium",
+        "es": "Aluminio",
+        "fr": "Aluminium",
+        "pt": "Alumínio"
+    },
+    "Amethyst and agate": {
+        "de": "Amethyst und Achat",
+        "es": "Amatista y ágata",
+        "fr": "Améthyste et agate",
+        "pt": "Ametista e ágata"
+    },
+    "Amethyst and agate geodes in the flood basalts of a volcanic plain": {
+        "de": "Amethyst- und Achatgeoden in den Flutbasalten einer Vulkanebene",
+        "es": "Geodas de amatista y ágata en los basaltos de una llanura volcánica",
+        "fr": "Géodes d’améthyste et d’agate dans les basaltes d’une plaine volcanique",
+        "pt": "Geodos de ametista e ágata nos basaltos de uma planície vulcânica"
+    },
+    "Banded iron formations in the ancient rock of a continental interior": {
+        "de": "Bändererze im uralten Gestein eines Kontinentinneren",
+        "es": "Formaciones de hierro bandeado en la roca antigua del interior de un continente",
+        "fr": "Formations de fer rubané dans la roche ancienne de l’intérieur d’un continent",
+        "pt": "Formações ferríferas bandadas na rocha antiga do interior de um continente"
+    },
+    "Bauxite, weathered out of the rock under hot, wet tropical forest": {
+        "de": "Bauxit, unter heißem, feuchtem Tropenwald aus dem Gestein verwittert",
+        "es": "Bauxita, formada por la meteorización de la roca bajo una selva tropical cálida y húmeda",
+        "fr": "Bauxite, née de l’altération de la roche sous une forêt tropicale chaude et humide",
+        "pt": "Bauxita, formada pela alteração da rocha sob floresta tropical quente e húmida"
+    },
+    "Coal": {
+        "de": "Kohle",
+        "es": "Carbón",
+        "fr": "Charbon",
+        "pt": "Carvão"
+    },
+    "Coal seams from swamp forests buried in a lowland basin": {
+        "de": "Kohleflöze aus Sumpfwäldern, begraben in einem Tieflandbecken",
+        "es": "Vetas de carbón de bosques pantanosos enterrados en una cuenca baja",
+        "fr": "Veines de charbon issues de forêts marécageuses enfouies dans un bassin de plaine",
+        "pt": "Camadas de carvão de florestas pantanosas soterradas numa bacia de planície"
+    },
+    "Copper": {
+        "de": "Kupfer",
+        "es": "Cobre",
+        "fr": "Cuivre",
+        "pt": "Cobre"
+    },
+    "Crystals": {
+        "de": "Kristalle",
+        "es": "Cristales",
+        "fr": "Cristaux",
+        "pt": "Cristais"
+    },
+    "Diamond": {
+        "de": "Diamant",
+        "es": "Diamante",
+        "fr": "Diamant",
+        "pt": "Diamante"
+    },
+    "Diamonds in kimberlite pipes, brought up from deep in the mantle through ancient continental rock": {
+        "de": "Diamanten in Kimberlitschloten, aus der Tiefe des Mantels durch uraltes Kontinentalgestein emporgebracht",
+        "es": "Diamantes en chimeneas de kimberlita, subidos desde lo profundo del manto a través de roca continental antigua",
+        "fr": "Diamants dans des cheminées de kimberlite, remontés des profondeurs du manteau à travers la roche continentale ancienne",
+        "pt": "Diamantes em chaminés de kimberlito, trazidos das profundezas do manto através de rocha continental antiga"
+    },
+    "Emerald": {
+        "de": "Smaragd",
+        "es": "Esmeralda",
+        "fr": "Émeraude",
+        "pt": "Esmeralda"
+    },
+    "Emeralds in schist and pegmatite veins high in a mountain range": {
+        "de": "Smaragde in Schiefer- und Pegmatitadern hoch in einem Gebirge",
+        "es": "Esmeraldas en vetas de esquisto y pegmatita en lo alto de una cordillera",
+        "fr": "Émeraudes dans des filons de schiste et de pegmatite en haute montagne",
+        "pt": "Esmeraldas em veios de xisto e pegmatito no alto de uma cordilheira"
+    },
+    "Garnet": {
+        "de": "Granat",
+        "es": "Granate",
+        "fr": "Grenat",
+        "pt": "Granada"
+    },
+    "Garnets in metamorphic rock through the roots of old mountains": {
+        "de": "Granate in metamorphem Gestein in den Wurzeln alter Gebirge",
+        "es": "Granates en roca metamórfica en las raíces de montañas antiguas",
+        "fr": "Grenats dans la roche métamorphique des racines de vieilles montagnes",
+        "pt": "Granadas em rocha metamórfica nas raízes de montanhas antigas"
+    },
+    "Gemstones": {
+        "de": "Edelsteine",
+        "es": "Piedras preciosas",
+        "fr": "Pierres précieuses",
+        "pt": "Pedras preciosas"
+    },
+    "Gold": {
+        "de": "Gold",
+        "es": "Oro",
+        "fr": "Or",
+        "pt": "Ouro"
+    },
+    "Gold in quartz veins through folded mountains, and epithermal veins round old volcanoes": {
+        "de": "Gold in Quarzgängen durch Faltengebirge und in epithermalen Gängen um alte Vulkane",
+        "es": "Oro en vetas de cuarzo de montañas plegadas y en vetas epitermales alrededor de volcanes antiguos",
+        "fr": "Or dans des filons de quartz des montagnes plissées, et dans des filons épithermaux autour de vieux volcans",
+        "pt": "Ouro em veios de quartzo de montanhas dobradas e em veios epitermais em torno de vulcões antigos"
+    },
+    "Iron": {
+        "de": "Eisen",
+        "es": "Hierro",
+        "fr": "Fer",
+        "pt": "Ferro"
+    },
+    "Jade": {
+        "de": "Jade",
+        "es": "Jade",
+        "fr": "Jade",
+        "pt": "Jade"
+    },
+    "Jade in a belt of sea-floor rock thrust up along a coastal mountain range": {
+        "de": "Jade in einem Gürtel aus emporgeschobenem Meeresbodengestein entlang eines Küstengebirges",
+        "es": "Jade en un cinturón de roca del fondo marino levantada a lo largo de una cordillera costera",
+        "fr": "Jade dans une ceinture de roche du plancher océanique soulevée le long d’une chaîne côtière",
+        "pt": "Jade numa faixa de rocha do fundo do mar erguida ao longo de uma cordilheira costeira"
+    },
+    "Large": {
+        "de": "Groß",
+        "es": "Grande",
+        "fr": "Grand",
+        "pt": "Grande"
+    },
+    "Lead and zinc": {
+        "de": "Blei und Zink",
+        "es": "Plomo y zinc",
+        "fr": "Plomb et zinc",
+        "pt": "Chumbo e zinco"
+    },
+    "Lead and zinc in the limestones of a sedimentary basin": {
+        "de": "Blei und Zink in den Kalksteinen eines Sedimentbeckens",
+        "es": "Plomo y zinc en las calizas de una cuenca sedimentaria",
+        "fr": "Plomb et zinc dans les calcaires d’un bassin sédimentaire",
+        "pt": "Chumbo e zinco nos calcários de uma bacia sedimentar"
+    },
+    "Lithium": {
+        "de": "Lithium",
+        "es": "Litio",
+        "fr": "Lithium",
+        "pt": "Lítio"
+    },
+    "Lithium brines beneath a salt flat on a high, dry plateau, and lithium pegmatites": {
+        "de": "Lithiumsolen unter einer Salzpfanne auf einem hohen, trockenen Plateau, und Lithiumpegmatite",
+        "es": "Salmueras de litio bajo un salar en una meseta alta y seca, y pegmatitas de litio",
+        "fr": "Saumures de lithium sous un salar d’un haut plateau aride, et pegmatites à lithium",
+        "pt": "Salmouras de lítio sob um salar num planalto alto e seco, e pegmatitos de lítio"
+    },
+    "Medium": {
+        "de": "Mittel",
+        "es": "Mediano",
+        "fr": "Moyen",
+        "pt": "Médio"
+    },
+    "Native sulphur crusting the vents of active volcanoes": {
+        "de": "Gediegener Schwefel als Kruste an den Schloten aktiver Vulkane",
+        "es": "Azufre nativo cubriendo las fumarolas de volcanes activos",
+        "fr": "Soufre natif encroûtant les évents des volcans actifs",
+        "pt": "Enxofre nativo a cobrir as fumarolas de vulcões ativos"
+    },
+    "Nickel": {
+        "de": "Nickel",
+        "es": "Níquel",
+        "fr": "Nickel",
+        "pt": "Níquel"
+    },
+    "Nickel sulphides in a mafic intrusion, and nickel laterites weathered out under tropical forest": {
+        "de": "Nickelsulfide in einer mafischen Intrusion und Nickellaterite unter Tropenwald",
+        "es": "Sulfuros de níquel en una intrusión máfica y lateritas de níquel bajo selva tropical",
+        "fr": "Sulfures de nickel dans une intrusion mafique, et latérites nickélifères sous la forêt tropicale",
+        "pt": "Sulfetos de níquel numa intrusão máfica e lateritas niquelíferas sob floresta tropical"
+    },
+    "Nickel-iron": {
+        "de": "Nickeleisen",
+        "es": "Ferroníquel",
+        "fr": "Ferronickel",
+        "pt": "Ferro-níquel"
+    },
+    "Nickel-iron from the core of a shattered body, in an impact basin": {
+        "de": "Nickeleisen aus dem Kern eines zerschmetterten Körpers in einem Einschlagbecken",
+        "es": "Ferroníquel del núcleo de un cuerpo destrozado, en una cuenca de impacto",
+        "fr": "Ferronickel issu du noyau d’un corps fracassé, dans un bassin d’impact",
+        "pt": "Ferro-níquel do núcleo de um corpo despedaçado, numa bacia de impacto"
+    },
+    "No deposits found on this world.": {
+        "de": "Auf dieser Welt wurden keine Lagerstätten gefunden.",
+        "es": "No se han encontrado yacimientos en este mundo.",
+        "fr": "Aucun gisement trouvé sur ce monde.",
+        "pt": "Nenhuma jazida encontrada neste mundo."
+    },
+    "Oil and gas": {
+        "de": "Öl und Gas",
+        "es": "Petróleo y gas",
+        "fr": "Pétrole et gaz",
+        "pt": "Petróleo e gás"
+    },
+    "Oil and gas trapped in the rocks of a sedimentary basin, on land and under the shallow sea": {
+        "de": "Öl und Gas in den Gesteinen eines Sedimentbeckens, an Land und unter dem flachen Meer",
+        "es": "Petróleo y gas atrapados en las rocas de una cuenca sedimentaria, en tierra y bajo el mar poco profundo",
+        "fr": "Pétrole et gaz piégés dans les roches d’un bassin sédimentaire, à terre et sous la mer peu profonde",
+        "pt": "Petróleo e gás retidos nas rochas de uma bacia sedimentar, em terra e sob o mar pouco profundo"
+    },
+    "Opal": {
+        "de": "Opal",
+        "es": "Ópalo",
+        "fr": "Opale",
+        "pt": "Opala"
+    },
+    "Opal filling cracks in the weathered rock of a dry basin": {
+        "de": "Opal in den Rissen verwitterten Gesteins eines trockenen Beckens",
+        "es": "Ópalo rellenando grietas en la roca meteorizada de una cuenca seca",
+        "fr": "Opale comblant les fissures de la roche altérée d’un bassin aride",
+        "pt": "Opala a preencher fendas na rocha alterada de uma bacia seca"
+    },
+    "Ores": {
+        "de": "Erze",
+        "es": "Minerales",
+        "fr": "Minerais",
+        "pt": "Minérios"
+    },
+    "Peridot": {
+        "de": "Peridot",
+        "es": "Peridoto",
+        "fr": "Péridot",
+        "pt": "Peridoto"
+    },
+    "Peridot in basalt flows, and in the shattered rock of an impact crater": {
+        "de": "Peridot in Basaltströmen und im zertrümmerten Gestein eines Einschlagkraters",
+        "es": "Peridoto en coladas de basalto y en la roca destrozada de un cráter de impacto",
+        "fr": "Péridot dans les coulées de basalte et dans la roche brisée d’un cratère d’impact",
+        "pt": "Peridoto em escoadas de basalto e na rocha despedaçada de uma cratera de impacto"
+    },
+    "Phosphate": {
+        "de": "Phosphat",
+        "es": "Fosfato",
+        "fr": "Phosphate",
+        "pt": "Fosfato"
+    },
+    "Phosphate rock laid down on an old continental shelf": {
+        "de": "Phosphatgestein, abgelagert auf einem alten Kontinentalschelf",
+        "es": "Roca fosfática depositada en una antigua plataforma continental",
+        "fr": "Roche phosphatée déposée sur un ancien plateau continental",
+        "pt": "Rocha fosfática depositada numa antiga plataforma continental"
+    },
+    "Platinum group": {
+        "de": "Platingruppe",
+        "es": "Grupo del platino",
+        "fr": "Groupe du platine",
+        "pt": "Grupo da platina"
+    },
+    "Platinum, palladium and chromite in a layered intrusion deep in a continent": {
+        "de": "Platin, Palladium und Chromit in einer geschichteten Intrusion tief in einem Kontinent",
+        "es": "Platino, paladio y cromita en una intrusión estratificada en el interior de un continente",
+        "fr": "Platine, palladium et chromite dans une intrusion litée au cœur d’un continent",
+        "pt": "Platina, paládio e cromite numa intrusão estratificada no interior de um continente"
+    },
+    "Porphyry copper, molybdenum and gold in a volcanic mountain belt": {
+        "de": "Porphyrisches Kupfer, Molybdän und Gold in einem vulkanischen Gebirgsgürtel",
+        "es": "Cobre porfídico, molibdeno y oro en un cinturón montañoso volcánico",
+        "fr": "Cuivre porphyrique, molybdène et or dans une chaîne de montagnes volcanique",
+        "pt": "Cobre pórfiro, molibdénio e ouro numa cordilheira vulcânica"
+    },
+    "Rare earth elements in a carbonatite intrusion along an old rift": {
+        "de": "Seltene Erden in einer Karbonatit-Intrusion entlang eines alten Grabenbruchs",
+        "es": "Tierras raras en una intrusión de carbonatita a lo largo de un antiguo rift",
+        "fr": "Terres rares dans une intrusion de carbonatite le long d’un ancien rift",
+        "pt": "Terras raras numa intrusão de carbonatito ao longo de um antigo rifte"
+    },
+    "Rare earths": {
+        "de": "Seltene Erden",
+        "es": "Tierras raras",
+        "fr": "Terres rares",
+        "pt": "Terras raras"
+    },
+    "Resources": {
+        "de": "Rohstoffe",
+        "es": "Recursos",
+        "fr": "Ressources",
+        "pt": "Recursos"
+    },
+    "Rubies and sapphires in marble, and washed down into the gravels below the mountains": {
+        "de": "Rubine und Saphire in Marmor und in den Schottern unterhalb der Berge",
+        "es": "Rubíes y zafiros en mármol, y arrastrados a las gravas al pie de las montañas",
+        "fr": "Rubis et saphirs dans le marbre, et charriés dans les graviers au pied des montagnes",
+        "pt": "Rubis e safiras em mármore, e arrastados para os cascalhos ao pé das montanhas"
+    },
+    "Ruby and sapphire": {
+        "de": "Rubin und Saphir",
+        "es": "Rubí y zafiro",
+        "fr": "Rubis et saphir",
+        "pt": "Rubi e safira"
+    },
+    "Salt and potash": {
+        "de": "Salz und Kali",
+        "es": "Sal y potasa",
+        "fr": "Sel et potasse",
+        "pt": "Sal e potassa"
+    },
+    "Salt and potash left by seas that dried away in a desert basin": {
+        "de": "Salz und Kali, zurückgelassen von ausgetrockneten Meeren in einem Wüstenbecken",
+        "es": "Sal y potasa dejadas por mares que se secaron en una cuenca desértica",
+        "fr": "Sel et potasse laissés par des mers asséchées dans un bassin désertique",
+        "pt": "Sal e potassa deixados por mares que secaram numa bacia desértica"
+    },
+    "Show ores, gemstones and crystals": {
+        "de": "Erze, Edelsteine und Kristalle zeigen",
+        "es": "Mostrar minerales, piedras preciosas y cristales",
+        "fr": "Afficher minerais, pierres précieuses et cristaux",
+        "pt": "Mostrar minérios, pedras preciosas e cristais"
+    },
+    "Silver": {
+        "de": "Silber",
+        "es": "Plata",
+        "fr": "Argent",
+        "pt": "Prata"
+    },
+    "Silver, with lead and zinc, in epithermal veins near volcanic centres": {
+        "de": "Silber mit Blei und Zink in epithermalen Gängen nahe vulkanischen Zentren",
+        "es": "Plata, con plomo y zinc, en vetas epitermales cerca de centros volcánicos",
+        "fr": "Argent, avec plomb et zinc, dans des filons épithermaux près de centres volcaniques",
+        "pt": "Prata, com chumbo e zinco, em veios epitermais perto de centros vulcânicos"
+    },
+    "Sulphur": {
+        "de": "Schwefel",
+        "es": "Azufre",
+        "fr": "Soufre",
+        "pt": "Enxofre"
+    },
+    "Tin and tungsten": {
+        "de": "Zinn und Wolfram",
+        "es": "Estaño y wolframio",
+        "fr": "Étain et tungstène",
+        "pt": "Estanho e tungsténio"
+    },
+    "Tin and tungsten in the granites at the heart of a mountain range": {
+        "de": "Zinn und Wolfram in den Graniten im Herzen eines Gebirges",
+        "es": "Estaño y wolframio en los granitos del corazón de una cordillera",
+        "fr": "Étain et tungstène dans les granites au cœur d’une chaîne de montagnes",
+        "pt": "Estanho e tungsténio nos granitos do coração de uma cordilheira"
+    },
+    "Topaz and tourmaline": {
+        "de": "Topas und Turmalin",
+        "es": "Topacio y turmalina",
+        "fr": "Topaze et tourmaline",
+        "pt": "Topázio e turmalina"
+    },
+    "Topaz and tourmaline in granite pegmatites": {
+        "de": "Topas und Turmalin in Granitpegmatiten",
+        "es": "Topacio y turmalina en pegmatitas graníticas",
+        "fr": "Topaze et tourmaline dans des pegmatites granitiques",
+        "pt": "Topázio e turmalina em pegmatitos graníticos"
+    },
+    "Turquoise": {
+        "de": "Türkis",
+        "es": "Turquesa",
+        "fr": "Turquoise",
+        "pt": "Turquesa"
+    },
+    "Turquoise where copper-bearing rock has weathered in a dry land": {
+        "de": "Türkis, wo kupferhaltiges Gestein in trockenem Land verwittert ist",
+        "es": "Turquesa donde la roca cuprífera se ha meteorizado en tierras secas",
+        "fr": "Turquoise là où la roche cuprifère s’est altérée en terre aride",
+        "pt": "Turquesa onde a rocha cuprífera se alterou em terra seca"
+    },
+    "Uranium": {
+        "de": "Uran",
+        "es": "Uranio",
+        "fr": "Uranium",
+        "pt": "Urânio"
+    },
+    "Uranium in the sandstones of an arid basin": {
+        "de": "Uran in den Sandsteinen eines trockenen Beckens",
+        "es": "Uranio en las areniscas de una cuenca árida",
+        "fr": "Uranium dans les grès d’un bassin aride",
+        "pt": "Urânio nos arenitos de uma bacia árida"
+    },
+    "Water ice": {
+        "de": "Wassereis",
+        "es": "Hielo de agua",
+        "fr": "Glace d’eau",
+        "pt": "Gelo de água"
+    },
+    "Water ice in a crater floor at the pole that the star never reaches": {
+        "de": "Wassereis im Boden eines Polkraters, den die Sonne nie erreicht",
+        "es": "Hielo de agua en el fondo de un cráter polar al que nunca llega la luz de la estrella",
+        "fr": "Glace d’eau au fond d’un cratère polaire que l’étoile n’atteint jamais",
+        "pt": "Gelo de água no fundo de uma cratera polar que a estrela nunca alcança"
+    },
+    "Where the ores, gemstones and crystals are on this world, as its geology places them": {
+        "de": "Wo die Erze, Edelsteine und Kristalle dieser Welt liegen, wie ihre Geologie sie verteilt",
+        "es": "Dónde están los minerales, piedras preciosas y cristales de este mundo, según su geología",
+        "fr": "Où se trouvent les minerais, pierres précieuses et cristaux de ce monde, selon sa géologie",
+        "pt": "Onde estão os minérios, pedras preciosas e cristais deste mundo, segundo a sua geologia"
+    },
+    "World-class": {
+        "de": "Weltklasse",
+        "es": "De clase mundial",
+        "fr": "De classe mondiale",
+        "pt": "De classe mundial"
+    },
+    "changes colour with the temperature": {
+        "de": "ändert seine Farbe mit der Temperatur",
+        "es": "cambia de color con la temperatura",
+        "fr": "change de couleur avec la température",
+        "pt": "muda de cor com a temperatura"
+    },
+    "crystallises in desert salt pans": {
+        "de": "kristallisiert in Salzpfannen der Wüste",
+        "es": "Cristaliza en las salinas del desierto",
+        "fr": "cristallise dans les cuvettes salées du désert",
+        "pt": "Cristaliza nas salinas do deserto"
+    },
+    "forms in the melt of impact craters": {
+        "de": "bildet sich in der Schmelze von Einschlagkratern",
+        "es": "Se forma en la roca fundida de los cráteres de impacto",
+        "fr": "se forme dans la roche fondue des cratères d’impact",
+        "pt": "Forma-se na rocha fundida das crateras de impacto"
+    },
+    "gives off a small electric charge when squeezed": {
+        "de": "gibt unter Druck eine kleine elektrische Ladung ab",
+        "es": "desprende una pequeña carga eléctrica al apretarlo",
+        "fr": "libère une petite charge électrique quand on le presse",
+        "pt": "liberta uma pequena carga elétrica quando apertado"
+    },
+    "glows faintly in the dark": {
+        "de": "leuchtet schwach im Dunkeln",
+        "es": "brilla débilmente en la oscuridad",
+        "fr": "luit faiblement dans le noir",
+        "pt": "brilha levemente no escuro"
+    },
+    "grows around vents on the sea floor": {
+        "de": "wächst um Quellen am Meeresboden",
+        "es": "Crece alrededor de fuentes hidrotermales del fondo marino",
+        "fr": "pousse autour des sources du plancher océanique",
+        "pt": "Cresce em torno de fontes no fundo do mar"
+    },
+    "grows in slow spirals": {
+        "de": "wächst in langsamen Spiralen",
+        "es": "crece en lentas espirales",
+        "fr": "pousse en lentes spirales",
+        "pt": "cresce em espirais lentas"
+    },
+    "grows in the ice of the polar wastes": {
+        "de": "wächst im Eis der Polarwüsten",
+        "es": "Crece en el hielo de los desiertos polares",
+        "fr": "pousse dans la glace des déserts polaires",
+        "pt": "Cresce no gelo dos desertos polares"
+    },
+    "grows in the vents of volcanoes": {
+        "de": "wächst in den Schloten von Vulkanen",
+        "es": "Crece en las chimeneas de los volcanes",
+        "fr": "pousse dans les évents des volcans",
+        "pt": "Cresce nas chaminés dos vulcões"
+    },
+    "hums faintly near magnetic fields": {
+        "de": "summt leise in der Nähe von Magnetfeldern",
+        "es": "zumba levemente cerca de campos magnéticos",
+        "fr": "bourdonne faiblement près des champs magnétiques",
+        "pt": "zumbe levemente perto de campos magnéticos"
+    },
+    "is found only on the highest peaks": {
+        "de": "findet sich nur auf den höchsten Gipfeln",
+        "es": "Solo se encuentra en las cumbres más altas",
+        "fr": "ne se trouve que sur les plus hauts sommets",
+        "pt": "Só se encontra nos picos mais altos"
+    },
+    "is harder than diamond": {
+        "de": "ist härter als Diamant",
+        "es": "es más duro que el diamante",
+        "fr": "est plus dur que le diamant",
+        "pt": "é mais duro do que o diamante"
+    },
+    "is lighter than water": {
+        "de": "ist leichter als Wasser",
+        "es": "es más ligero que el agua",
+        "fr": "est plus léger que l’eau",
+        "pt": "é mais leve do que a água"
+    },
+    "is warm to the touch": {
+        "de": "fühlt sich warm an",
+        "es": "es cálido al tacto",
+        "fr": "est chaud au toucher",
+        "pt": "é quente ao toque"
+    },
+    "lines caverns deep beneath lowland plains": {
+        "de": "kleidet Höhlen tief unter den Ebenen aus",
+        "es": "Recubre cavernas en lo profundo bajo las llanuras",
+        "fr": "tapisse des cavernes profondes sous les plaines",
+        "pt": "Reveste cavernas profundas sob as planícies"
+    },
+    "rings like a bell when struck": {
+        "de": "klingt angeschlagen wie eine Glocke",
+        "es": "suena como una campana al golpearlo",
+        "fr": "sonne comme une cloche quand on le frappe",
+        "pt": "soa como um sino quando batido"
+    },
+    "slowly regrows when broken": {
+        "de": "wächst langsam nach, wenn er bricht",
+        "es": "vuelve a crecer lentamente si se rompe",
+        "fr": "repousse lentement quand on le brise",
+        "pt": "volta a crescer lentamente quando partido"
+    },
+    "splits light into vivid bands": {
+        "de": "zerlegt Licht in leuchtende Bänder",
+        "es": "descompone la luz en bandas vivas",
+        "fr": "décompose la lumière en bandes vives",
+        "pt": "decompõe a luz em faixas vivas"
+    },
+    "stores light and gives it back at night": {
+        "de": "speichert Licht und gibt es nachts wieder ab",
+        "es": "almacena la luz y la devuelve de noche",
+        "fr": "emmagasine la lumière et la rend la nuit",
+        "pt": "armazena a luz e devolve-a à noite"
     }
 };
 

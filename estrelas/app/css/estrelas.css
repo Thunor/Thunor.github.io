@@ -2876,3 +2876,91 @@ dialog.world-map .sheet-body {
         zoom: 0.85;
     }
 }
+
+/* Ores, gemstones and crystals on the surface map */
+.map-deposits {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.deposit-marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background: rgb(0 0 0 / 0.55);
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0 3px;
+    min-width: 14px;
+    font: 700 8px/12px var(--system-font);
+    text-align: center;
+    cursor: pointer;
+    pointer-events: auto;
+    white-space: nowrap;
+}
+
+.deposit-marker.gem,
+.deposit-marker.crystal {
+    border: none;
+    background: none;
+    font-size: 12px;
+    text-shadow: 0 0 2px #000, 0 0 4px #000;
+}
+
+.deposit-marker.crystal {
+    font-size: 14px;
+    filter: drop-shadow(0 0 3px currentColor);
+}
+
+.deposit-marker.size-0 { opacity: 0.75; transform: translate(-50%, -50%) scale(0.85); }
+.deposit-marker.size-2 { transform: translate(-50%, -50%) scale(1.2); }
+.deposit-marker.size-3 { transform: translate(-50%, -50%) scale(1.45); box-shadow: 0 0 6px currentColor; }
+
+.deposit-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 240px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.deposit-legend .heading {
+    margin-top: 6px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.8;
+}
+
+.deposit-legend .row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.deposit-legend .spacer {
+    flex: 1;
+}
+
+.deposit-symbol {
+    display: inline-block;
+    min-width: 30px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.deposit-info {
+    max-width: 280px;
+}
+
+.deposit-info .title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.deposit-info p {
+    margin: 6px 0;
+}
