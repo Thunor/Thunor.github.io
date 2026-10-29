@@ -6,4 +6,4 @@
 //  (node tools/bump-build.mjs).
 //
 
-export const buildNumber = 1000;
+export const buildNumber = 1001;
