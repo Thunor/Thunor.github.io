@@ -126,8 +126,10 @@ export const shaderClock = { time: 0 };
 
 const cloudVertex = /* glsl */ `
     out vec3 vModelPosition;
+    out vec3 vWorldDir;
     void main() {
         vModelPosition = position;
+        vWorldDir = normalize(mat3(modelMatrix) * position);
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
 `;
@@ -139,7 +141,10 @@ export const cloudFragment = /* glsl */ `
     uniform vec3 uColor;
     uniform float uOpacity;
     uniform float uTime;
+    uniform vec3 uSun;
+    uniform float uLighting;
     in vec3 vModelPosition;
+    in vec3 vWorldDir;
     out vec4 fragColor;
 
     const float kPeriod = 1024.0;
@@ -186,11 +191,9 @@ export const cloudFragment = /* glsl */ `
     float rhythm(float days) {
         return kTau * max(round(kPeriod / days), 1.0) / kPeriod;
     }
-    // The cloud field, drawn the way the Gaia Engine draws clouds: value noise warped by value noise, in two layers
-    // carried by the winds and crossfaded every kLayerDays (cloudModel.js cloudField)
-    const float kLayerDays = 2.0;
-    const float kFieldMean = 0.484;
-    const float kQuantiles[33] = float[33](0.00000, 0.28752, 0.31972, 0.34176, 0.35915, 0.37375, 0.38697, 0.39895, 0.40997, 0.42038, 0.43045, 0.44009, 0.44934, 0.45836, 0.46722, 0.47603, 0.48462, 0.49332, 0.50200, 0.51080, 0.51986, 0.52908, 0.53846, 0.54844, 0.55864, 0.56973, 0.58169, 0.59464, 0.60964, 0.62692, 0.64880, 0.68126, 1.00000);
+    // The cloud field, drawn the way the Gaia Engine draws clouds: one field of value noise warped by value noise,
+    // drifting round the world as a whole and slowly churning (cloudModel.js cloudField)
+    const float kQuantiles[33] = float[33](0.00000, 0.28717, 0.31907, 0.34118, 0.35836, 0.37313, 0.38635, 0.39830, 0.40941, 0.41988, 0.42983, 0.43932, 0.44861, 0.45780, 0.46677, 0.47553, 0.48435, 0.49322, 0.50218, 0.51117, 0.52030, 0.52958, 0.53917, 0.54922, 0.55960, 0.57062, 0.58255, 0.59563, 0.61034, 0.62756, 0.64923, 0.68154, 1.00000);
     float lattice(ivec3 c, uint seed) {
         uint h = (uint(c.x) * 0x8DA6B343u) ^ (uint(c.y) * 0xD8163841u) ^ (uint(c.z) * 0xCB1AB31Fu) ^ seed;
         h = (h ^ (h >> 16u)) * 0x7FEB352Du;
@@ -217,27 +220,17 @@ export const cloudFragment = /* glsl */ `
         }
         return value;
     }
+    float drift(float circulation, bool locked) {
+        return locked ? 0.0 : round(8.0 * (0.4 + 0.6 * circulation)) / kPeriod;
+    }
     vec2 cloudField(float latitude, float longitude, float time, float circulation, bool locked, uint seed) {
-        float speed = wind(latitude, circulation, locked);
-        float layerCycles = kPeriod / kLayerDays;
-        vec2 sum = vec2(0.0);
-        float weights = 0.0;
-        for (int layer = 0; layer < 2; layer++) {
-            float phase = time / kLayerDays + 0.5 * float(layer);
-            float whole = floor(phase);
-            float age = phase - whole;
-            float cycle = whole - floor(whole / layerCycles) * layerCycles;
-            float days = age * kLayerDays;
-            float weight = 1.0 - abs(2.0 * age - 1.0);
-            vec3 p = spherePoint(latitude, longitude - speed * days);
-            vec3 offset = random3(int(cycle), 64 + layer, seed ^ 0x51ED270Bu);
-            vec3 q = p * 2.3 + offset * 61.0 + days * vec3(0.03, 0.01, 0.02);
-            float w = fbm(q * 1.6, seed);
-            float c = fbm(q * 2.6 + vec3(w * 1.9), seed ^ 0x2C1B3C6Du);
-            sum += weight * (vec2(c, w) - kFieldMean);
-            weights += weight * weight;
-        }
-        return kFieldMean + sum / sqrt(max(weights, 1e-6));
+        vec3 p = spherePoint(latitude, longitude - drift(circulation, locked) * time);
+        float turn = kTau * time / kPeriod;
+        vec3 offset = random3(0, 64, seed ^ 0x51ED270Bu);
+        vec3 q = p * 2.3 + offset * 17.0 + vec3(13.0 * cos(turn), 6.0 * sin(2.0 * turn), 13.0 * sin(turn));
+        float w = fbm(q * 1.6, seed);
+        float c = fbm(q * 2.6 + vec3(w * 1.9), seed ^ 0x2C1B3C6Du);
+        return vec2(c, w);
     }
     float uniformField(float value) {
         if (value <= kQuantiles[0]) { return 0.0; }
@@ -265,8 +258,8 @@ export const cloudFragment = /* glsl */ `
         float angle = atan(offset.y, offset.x);
         float lobes = 1.0 + 0.3 * sin(3.0 * angle + kTau * b.z) + 0.2 * sin(5.0 * angle + kTau * a.y * 3.0);
         float distance = length(offset) / max(radius * lobes, 1e-4);
-        float member = smoothstep(0.0, 0.12, 1.0 - distance + 1.2 * (own.z - 0.5));
-        float thickness = 0.5 + 0.4 * own.y + (distance < 0.5 ? 0.1 : 0.0);
+        float member = smoothstep(-0.1, 0.1, 1.0 - distance + 0.8 * (own.z - 0.5));
+        float thickness = 0.9;
         return member * thickness * min(strength * 3.0, 1.0);
     }
     float lockedCloud(vec3 point, vec3 own, float swing, float time, float coverage, float circulation, uint seed) {
@@ -279,7 +272,7 @@ export const cloudFragment = /* glsl */ `
         float mass = smoothstep(edge - 0.3, edge + 0.3, facing);
         float fringe = exp(-pow((facing - edge + 0.35) / 0.18, 2.0));
         float threshold = 1.0 - (0.97 * mass + 0.25 * coverage * fringe);
-        float cloud = smoothstep(threshold - 0.15, threshold + 0.15, swing) * (0.35 + 0.25 * own.y + 0.15 * mass);
+        float cloud = smoothstep(threshold - 0.15, threshold + 0.15, swing) * (0.75 + 0.15 * mass);
         float reach = max(edge, 0.2);
         for (int storm = 0; storm < kConvectiveStorms; storm++) {
             vec3 slot = random3(storm, -2, seed ^ 0x2545F491u);
@@ -315,7 +308,7 @@ export const cloudFragment = /* glsl */ `
         vec3 own = vec3(1.0 - grain, grain, swing);
         float share = coverage * (1.0 - 0.8 * circulation);
         float threshold = 1.0 - share - circulation * climate(latitude);
-        float cloud = smoothstep(threshold - 0.15, threshold + 0.15, swing) * (0.45 + 0.35 * own.y);
+        float cloud = smoothstep(threshold - 0.15, threshold + 0.15, swing) * 0.9;
         float spread = sqrt(max(coverage - share, 0.0) / 0.2);
         int stormCount = locked ? 0 : kStorms;
         for (int storm = 0; storm < kStorms; storm++) {
@@ -364,15 +357,164 @@ export const cloudFragment = /* glsl */ `
             float core = tropical ? 1.2 : 0.9;
             float band = smoothstep(0.1, 0.5, arm + core * (1.0 - distance) - 0.35 + 0.4 * (own.x - 0.5));
             float eye = tropical ? smoothstep(0.08, 0.14, distance) : 1.0;
-            float thickness = band * eye * (0.7 + 0.3 * clamp(1.0 - distance, 0.0, 1.0));
+            float thickness = band * eye * 0.9;
             float hold = smoothstep(1.0, 0.75, distance) * min(strength * 2.5, 1.0);
             cloud = mix(cloud, thickness, hold);
         }
         float density = clamp(cloud, 0.0, 1.0) * clamp(uOpacity, 0.0, 1.0);
         vec3 color = uColor * (0.8 + 0.2 * pow(density, 0.6));
+        // Lit as the Gaia Engine lights its clouds: full by day, dimming through a soft terminator
+        if (uLighting > 0.5 && dot(uSun, uSun) > 0.25) {
+            color *= 0.04 + 0.98 * smoothstep(-0.18, 0.6, dot(normalize(vWorldDir), normalize(uSun)));
+        }
         fragColor = vec4(color, density);
     }
 `;
+
+// MARK: lighting
+
+/**
+ * Whether worlds are lit by their star as the Gaia Engine lights them (1), or drawn flat and fully lit (0); it follows
+ * Night Sides
+ */
+export const lighting = { value: 1 };
+
+/** A world's atmosphere as its sky glow shows it: { color, strength }, strength 0 for none (as Gaia reckons it) */
+export function atmosphereLook(environment, gasGiant = null) {
+    if (gasGiant) {
+        const icy = gasGiant.giantClass === 'subNeptune' || gasGiant.giantClass === 'iceGiant';
+        return { color: icy ? [0.45, 0.7, 1] : [0.85, 0.75, 0.6], strength: 0.9 };
+    }
+    if (!environment || environment.atmosphere === 'none') return { color: [0, 0, 0], strength: 0 };
+    const pressure = environment.pressureBar ?? 0;
+    const strength = Math.min(Math.max(Math.log10(pressure * 12 + 1) / Math.log10(13), 0), 1.6);
+    const colors = { nitrogenOxygen: [0.33, 0.58, 1], nitrogen: [0.4, 0.6, 0.95], carbonDioxide: [1, 0.66, 0.38],
+        sulfuric: [1, 0.82, 0.45], methane: [0.95, 0.68, 0.36], hydrogen: [0.55, 0.7, 1], trace: [0.6, 0.65, 0.75] };
+    return { color: colors[environment.atmosphere] ?? [0.5, 0.6, 0.8], strength };
+}
+
+const litVertex = /* glsl */ `
+    varying vec3 vNormal;
+    varying vec3 vSphere;
+    varying vec3 vWorld;
+    varying vec2 vUv;
+    varying vec3 vTint;
+    void main() {
+        vUv = uv;
+        #ifdef USE_COLOR
+            vTint = color;
+        #else
+            vTint = vec3(1.0);
+        #endif
+        vec4 world = modelMatrix * vec4(position, 1.0);
+        vWorld = world.xyz;
+        vNormal = normalize(mat3(modelMatrix) * normal);
+        vSphere = normalize(mat3(modelMatrix) * position);
+        gl_Position = projectionMatrix * viewMatrix * world;
+    }
+`;
+
+const litFragment = /* glsl */ `
+    uniform vec3 uColor;
+    uniform sampler2D uMap;
+    uniform float uHasMap;
+    uniform vec3 uSun;
+    uniform float uLighting;
+    uniform vec3 uAtmosphere;
+    uniform float uAtmosphereStrength;
+    uniform float uWater;
+    varying vec3 vNormal;
+    varying vec3 vSphere;
+    varying vec3 vWorld;
+    varying vec2 vUv;
+    varying vec3 vTint;
+    void main() {
+        vec3 color = uColor * vTint;
+        if (uHasMap > 0.5) { color *= texture2D(uMap, vUv).rgb; }
+        if (uLighting < 0.5 || dot(uSun, uSun) < 0.25) {
+            gl_FragColor = vec4(color, 1.0);
+            return;
+        }
+        vec3 N = normalize(vNormal);
+        vec3 S = normalize(vSphere);
+        vec3 L = normalize(uSun);
+        vec3 V = normalize(cameraPosition - vWorld);
+        // As the Gaia Engine lights its worlds: diffuse light on the relief, cut off through a soft terminator
+        float day = dot(S, L);
+        float diffuse = max(dot(N, L), 0.0) * smoothstep(-0.12, 0.12, day);
+        vec3 lit = color * (diffuse * 1.08 + 0.03);
+        // The star's glint on open water
+        if (uWater > 0.5) {
+            float sea = step(color.r + 0.06, color.b) * step(color.g, color.b + 0.02);
+            vec3 halfway = normalize(L + V);
+            lit += vec3(1.0, 0.9, 0.75) * pow(max(dot(S, halfway), 0.0), 80.0) * 0.65 * sea * smoothstep(0.0, 0.2, day);
+        }
+        // The air's glow round the limb, on the day side
+        float rim = pow(1.0 - max(dot(S, V), 0.0), 2.6);
+        lit += uAtmosphere * rim * uAtmosphereStrength * smoothstep(-0.25, 0.55, day) * 0.85;
+        gl_FragColor = vec4(lit, 1.0);
+    }
+`;
+
+/**
+ * A world's surface lit by its star (uSun, set each frame by nightShade.js): `color` and either vertex colours or a
+ * `map`; `water` for a glint off seas; `atmosphere` from atmosphereLook for the glow round its limb
+ */
+export function litMaterial({ color = 0xffffff, map = null, vertexColors = false, water = false, atmosphere = null } = {}) {
+    const look = atmosphere ?? { color: [0, 0, 0], strength: 0 };
+    return new THREE.ShaderMaterial({
+        uniforms: {
+            uColor: { value: new THREE.Color(color) },
+            uMap: { value: map },
+            uHasMap: { value: map ? 1 : 0 },
+            uSun: { value: new THREE.Vector3() },
+            uLighting: lighting,
+            uAtmosphere: { value: new THREE.Color(...look.color) },
+            uAtmosphereStrength: { value: look.strength },
+            uWater: { value: water ? 1 : 0 },
+        },
+        vertexColors,
+        vertexShader: litVertex,
+        fragmentShader: litFragment,
+    });
+}
+
+/** The halo of a world's air seen round its limb, as the Gaia Engine draws it: a glow just outside the world */
+export function atmosphereHalo(radius, look) {
+    const material = new THREE.ShaderMaterial({
+        side: THREE.BackSide,
+        blending: THREE.AdditiveBlending,
+        transparent: true,
+        depthWrite: false,
+        uniforms: { uSun: { value: new THREE.Vector3() }, uAtmosphere: { value: new THREE.Color(...look.color) },
+            uStrength: { value: look.strength }, uLighting: lighting },
+        vertexShader: /* glsl */ `
+            varying vec3 vViewNormal;
+            varying vec3 vWorldNormal;
+            void main() {
+                vViewNormal = normalize(normalMatrix * normal);
+                vWorldNormal = normalize(mat3(modelMatrix) * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }`,
+        fragmentShader: /* glsl */ `
+            uniform vec3 uSun;
+            uniform vec3 uAtmosphere;
+            uniform float uStrength;
+            uniform float uLighting;
+            varying vec3 vViewNormal;
+            varying vec3 vWorldNormal;
+            void main() {
+                float glow = pow(clamp(0.7 - dot(vViewNormal, vec3(0.0, 0.0, 1.0)), 0.0, 1.4), 3.4);
+                float day = uLighting > 0.5 && dot(uSun, uSun) > 0.25
+                    ? 0.12 + 0.88 * smoothstep(-0.4, 0.45, dot(normalize(vWorldNormal), normalize(uSun))) : 1.0;
+                gl_FragColor = vec4(uAtmosphere * glow * day * uStrength, 1.0);
+            }`,
+    });
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.11, 64, 32), material);
+    mesh.name = 'atmosphere_halo';
+    mesh.raycast = () => {};
+    return mesh;
+}
 
 /** The weather clock every cloud layer reads, in simulated days wrapped at the period (see cloudModel.js) */
 export const weatherTime = { value: 0 };
@@ -386,6 +528,8 @@ export function cloudMaterial(clouds, packed) {
             uColor: { value: new THREE.Color(...clouds.color) },
             uOpacity: { value: clouds.opacity },
             uTime: weatherTime,
+            uSun: { value: new THREE.Vector3() },
+            uLighting: lighting,
         },
         vertexShader: cloudVertex,
         fragmentShader: cloudFragment,

@@ -97,18 +97,11 @@ const length2 = (v) => Math.sqrt(v[0] * v[0] + v[1] * v[1]);
 
 // MARK: the cloud field, drawn the way the Gaia Engine draws its clouds
 
-/**
- * Days each layer of the cloud field lasts: the field is two layers, each carried by the winds for this long and
- * crossfaded into the next, so the winds' shear never stretches it into streaks. Divides the weather clock's period.
- */
-export const layerDays = 2;
-const layerCycles = period / layerDays;
-/** The blended field's mean, and its value at each 1/32 of the way through its distribution (see uniform) */
-export const fieldMean = 0.484;
+/** The cloud field's value at each 1/32 of the way through its distribution (see uniform) */
 export const fieldQuantiles = [
-    0.0, 0.28752, 0.31972, 0.34176, 0.35915, 0.37375, 0.38697, 0.39895, 0.40997, 0.42038, 0.43045,
-    0.44009, 0.44934, 0.45836, 0.46722, 0.47603, 0.48462, 0.49332, 0.502, 0.5108, 0.51986, 0.52908,
-    0.53846, 0.54844, 0.55864, 0.56973, 0.58169, 0.59464, 0.60964, 0.62692, 0.6488, 0.68126, 1.0];
+    0.0, 0.28717, 0.31907, 0.34118, 0.35836, 0.37313, 0.38635, 0.3983, 0.40941, 0.41988, 0.42983,
+    0.43932, 0.44861, 0.4578, 0.46677, 0.47553, 0.48435, 0.49322, 0.50218, 0.51117, 0.5203, 0.52958,
+    0.53917, 0.54922, 0.5596, 0.57062, 0.58255, 0.59563, 0.61034, 0.62756, 0.64923, 0.68154, 1.0];
 
 /** A lattice point's random value, 0–1: one integer hash, the same on the GPU */
 export function lattice(x, y, z, seed) {
@@ -141,33 +134,26 @@ export function fbm(px, py, pz, seed) {
     return value;
 }
 
+/** Turns a day the cloud field drifts east as a whole, a whole number of turns each period, as Gaia turns its cloud layer */
+export function drift(circulation, locked) {
+    return locked ? 0 : Math.round(8 * (0.4 + 0.6 * circulation)) / period;
+}
+
 /**
- * The cloud field at a point, as the Gaia Engine draws clouds: noise warped by noise, carried by the winds and
- * slowly churning. { field, warp }, each blended from the two layers so its spread stays the same as they crossfade.
+ * The cloud field at a point, as the Gaia Engine draws clouds: one field of noise warped by noise, the whole layer
+ * drifting round the world and slowly churning as it moves through the noise. { field, warp }
  */
 export function cloudField(latitude, longitude, time, circulation, locked, seed) {
-    const speed = wind(latitude, circulation, locked);
-    let field = 0, warp = 0, weights = 0;
-    for (let layer = 0; layer < 2; layer++) {
-        const phase = time / layerDays + 0.5 * layer;
-        const whole = Math.floor(phase);
-        const age = phase - whole;
-        const cycle = whole - Math.floor(whole / layerCycles) * layerCycles;
-        const days = age * layerDays;
-        const weight = 1 - Math.abs(2 * age - 1);
-        const p = spherePoint(latitude, longitude - speed * days);
-        const offset = random3(cycle, 64 + layer, (seed ^ 0x51ED270B) >>> 0);
-        const qx = p[0] * 2.3 + offset[0] * 61 + days * 0.03;
-        const qy = p[1] * 2.3 + offset[1] * 61 + days * 0.01;
-        const qz = p[2] * 2.3 + offset[2] * 61 + days * 0.02;
-        const w = fbm(qx * 1.6, qy * 1.6, qz * 1.6, seed);
-        const c = fbm(qx * 2.6 + w * 1.9, qy * 2.6 + w * 1.9, qz * 2.6 + w * 1.9, (seed ^ 0x2C1B3C6D) >>> 0);
-        field += weight * (c - fieldMean);
-        warp += weight * (w - fieldMean);
-        weights += weight * weight;
-    }
-    const spread = Math.sqrt(Math.max(weights, 1e-6));
-    return { field: fieldMean + field / spread, warp: fieldMean + warp / spread };
+    const p = spherePoint(latitude, longitude - drift(circulation, locked) * time);
+    // Through the noise on a great loop, once a period, so the weather never jumps when the clock wraps
+    const turn = tau * time / period;
+    const offset = random3(0, 64, (seed ^ 0x51ED270B) >>> 0);
+    const qx = p[0] * 2.3 + offset[0] * 17 + 13 * Math.cos(turn);
+    const qy = p[1] * 2.3 + offset[1] * 17 + 6 * Math.sin(2 * turn);
+    const qz = p[2] * 2.3 + offset[2] * 17 + 13 * Math.sin(turn);
+    const warp = fbm(qx * 1.6, qy * 1.6, qz * 1.6, seed);
+    const field = fbm(qx * 2.6 + warp * 1.9, qy * 2.6 + warp * 1.9, qz * 2.6 + warp * 1.9, (seed ^ 0x2C1B3C6D) >>> 0);
+    return { field, warp };
 }
 
 /** Where a field value falls in the field's distribution, 0–1, so a share of the world can be clouded by threshold */
@@ -212,8 +198,8 @@ export function cluster(point, centre, radius, stretch, a, b, own, strength) {
     const lobes = 1 + 0.3 * Math.sin(3 * angle + tau * b[2]) + 0.2 * Math.sin(5 * angle + tau * a[1] * 3);
     const distance = length2(offset) / Math.max(radius * lobes, 1e-4);
     // Its edge follows the cloud field's grain, so it frays the way the field's clouds do
-    const member = smoothstep(0, 0.12, 1 - distance + 1.2 * (own[2] - 0.5));
-    const thickness = 0.5 + 0.4 * own[1] + (distance < 0.5 ? 0.1 : 0);
+    const member = smoothstep(-0.1, 0.1, 1 - distance + 0.8 * (own[2] - 0.5));
+    const thickness = 0.9;
     return { value: member * thickness * Math.min(strength * 3, 1), member, distance };
 }
 
@@ -230,7 +216,7 @@ function lockedCloud(point, own, swing, time, settings, result) {
     const mass = smoothstep(edge - 0.3, edge + 0.3, facing);
     const fringe = Math.exp(-Math.pow((facing - edge + 0.35) / 0.18, 2));
     const threshold = 1 - (0.97 * mass + 0.25 * coverage * fringe);
-    let cloud = smoothstep(threshold - 0.15, threshold + 0.15, swing) * (0.35 + 0.25 * own[1] + 0.15 * mass);
+    let cloud = smoothstep(threshold - 0.15, threshold + 0.15, swing) * (0.75 + 0.15 * mass);
     const reach = Math.max(edge, 0.2);
     for (let storm = 0; storm < convectiveStorms; storm++) {
         const slot = random3(storm, -2, (seed ^ 0x2545F491) >>> 0);
@@ -272,7 +258,8 @@ export function sampleClouds(dir, time, settings) {
         return result;
     }
     const threshold = 1 - share - circulation * climate(latitude);
-    let cloud = smoothstep(threshold - 0.15, threshold + 0.15, swing) * (0.45 + 0.35 * own[1]);
+    // As Gaia draws them, clouds are one even white, thinning only at their edges
+    let cloud = smoothstep(threshold - 0.15, threshold + 0.15, swing) * 0.9;
     const spread = Math.sqrt(Math.max(coverage - share, 0) / 0.2);
     for (let storm = 0; storm < storms; storm++) {
         const slot = random3(storm, -1, (seed ^ 0x9E3779B9) >>> 0);
@@ -309,7 +296,7 @@ export function sampleClouds(dir, time, settings) {
         const core = tropical ? 1.2 : 0.9;
         const band = smoothstep(0.1, 0.5, arm + core * (1 - distance) - 0.35 + 0.4 * (own[0] - 0.5));
         const eye = tropical ? smoothstep(0.08, 0.14, distance) : 1;
-        const thickness = band * eye * (0.7 + 0.3 * saturate(1 - distance));
+        const thickness = band * eye * 0.9;
         const hold = smoothstep(1, 0.75, distance) * Math.min(spiral.strength * 2.5, 1);
         cloud = cloud + (thickness - cloud) * hold;
         if (hold > 0) {

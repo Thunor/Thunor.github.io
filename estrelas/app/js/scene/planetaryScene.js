@@ -8,7 +8,7 @@
 
 import * as THREE from '../../vendor/three.module.min.js';
 import { offsetAtMeanAnomaly, Orbit, Spin, secondsPerYear } from './orbit.js';
-import { zoomScaledMaterial } from './shaders.js';
+import { zoomScaledMaterial, litMaterial, atmosphereLook, atmosphereHalo } from './shaders.js';
 import { substellarPoint } from '../surface/surfaceMap.js';
 import { environmentTemperature, PlanetPhysics } from '../model/planetarySystem.js';
 import { habitableZone } from '../gen/planetarySystemGenerator.js';
@@ -287,6 +287,15 @@ function sphereMesh(radius, material, segments = 48) {
     return mesh;
 }
 
+/** A planet or moon lit by its star, with the glow of its air round it, if it has any */
+function litBody(radius, gasGiant, environment, segments) {
+    const atmosphere = atmosphereLook(environment, gasGiant);
+    const mesh = sphereMesh(radius, litMaterial({ color: colorFor(gasGiant, environment), atmosphere }), segments);
+    mesh.userData.atmosphere = atmosphere;
+    if (atmosphere.strength > 0.02) mesh.add(atmosphereHalo(radius, atmosphere));
+    return mesh;
+}
+
 export function colorFor(gasGiant, environment) {
     if (gasGiant) {
         switch (gasGiant.giantClass) {
@@ -312,7 +321,7 @@ export function colorFor(gasGiant, environment) {
 /** Not to scale: sizes only distinguish small worlds from large ones and gas giants */
 export function bodyEntity(world, maxRadius = Infinity, shrink = 1) {
     const radius = Math.min(naturalRadius(world.radiusKm, world.gasGiant) * shrink, maxRadius);
-    const body = sphereMesh(radius, new THREE.MeshBasicMaterial({ color: colorFor(world.gasGiant, world.environment) }));
+    const body = litBody(radius, world.gasGiant, world.environment);
     body.name = world.designation;
     body.userData.world = world;
     return body;
@@ -375,7 +384,7 @@ function addMoons(moons, world, frame, body, room) {
         const years = 2 / 365.25 * Math.pow(distance / inner, 1.5);
         const elements = { eccentricity: 0, semiMajAxis: distance, inclination: angles.node / 36 - 5,
             lngAscNode: angles.node, argOfPeriapsis: 0, trueAnomaly: angles.anomaly, period: simulatedPeriod(years) };
-        const entity = sphereMesh(radius, new THREE.MeshBasicMaterial({ color: colorFor(moon.gasGiant, moon.environment) }), 32);
+        const entity = litBody(radius, moon.gasGiant, moon.environment, 32);
         entity.name = moon.designation;
         entity.userData.moon = moon;
         const ring = ringEntity(elements, moonRingColor, tube);

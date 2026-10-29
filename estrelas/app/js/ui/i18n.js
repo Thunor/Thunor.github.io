@@ -6680,6 +6680,12 @@ const translations = {
         "es": "Datos del SRD muestra solo lo que define el Traveller System Reference Document: los códigos del Universal World Profile, la temperatura, las bases, los códigos comerciales y las zonas de viaje. Nada del World Builder’s Handbook, ni cifras físicas, órbitas, rotación o perfil de almanaque. Ambos muestra los valores del SRD junto a los de Estrelas. Los mundos se generan igual en todos los casos. También en la ficha de cada mundo.",
         "fr": "Données SRD n’affiche que ce que définit le Traveller System Reference Document : les codes du Universal World Profile, la température, les bases, les codes commerciaux et les zones de voyage. Rien du World Builder’s Handbook, ni valeurs physiques, orbites, rotation ou profil d’almanach. Les deux affiche les valeurs du SRD à côté de celles d’Estrelas. Les mondes sont générés de la même façon dans tous les cas. Aussi sur la fiche de chaque monde.",
         "pt": "Dados do SRD mostra só o que o Traveller System Reference Document define: os códigos do Universal World Profile, a temperatura, as bases, os códigos comerciais e as zonas de viagem. Nada do World Builder’s Handbook, nem valores físicos, órbitas, rotação ou perfil de almanaque. Ambos mostra os valores do SRD ao lado dos do Estrelas. Os mundos são gerados da mesma forma em qualquer caso. Também na ficha de cada mundo."
+    },
+    "Build %@": {
+        "de": "Build %@",
+        "es": "Compilación %@",
+        "fr": "Build %@",
+        "pt": "Build %@"
     }
 };
 

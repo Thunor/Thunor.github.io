@@ -12,7 +12,7 @@
 
 import * as THREE from '../../vendor/three.module.min.js';
 import { Orbit, SimulationClock } from './orbit.js';
-import { starMaterial, plasmaMaterial, shaderClock, cloudMaterial, weatherTime } from './shaders.js';
+import { starMaterial, plasmaMaterial, shaderClock, cloudMaterial, weatherTime, litMaterial, lighting } from './shaders.js';
 import * as NebulaScene from './nebulaScene.js';
 import { nebulaContains, floatDistance } from '../gen/nebulaGenerator.js';
 import { WeatherClock, packedSettings } from '../surface/cloudModel.js';
@@ -837,6 +837,8 @@ export class StarMap extends EventTarget {
 
     setShowNightSides(show) {
         this.showNightSides = show;
+        // Worlds are lit by their stars, or drawn flat and fully lit without night sides
+        lighting.value = show ? 1 : 0;
         this.nightShades.forEach((shade) => { shade.visible = show; });
         this.cityLights.forEach((light) => { light.visible = show; });
     }
@@ -2686,7 +2688,7 @@ export class StarMap extends EventTarget {
             body.geometry.dispose();
             body.geometry = mappedSphere(body.userData.radius);
             body.material.dispose();
-            body.material = unlit(0xffffff, { map: textureFromPixels(image) });
+            body.material = litMaterial({ map: textureFromPixels(image), atmosphere: body.userData.atmosphere });
         }).catch((error) => console.error('Texture failed', error));
     }
 
@@ -2840,7 +2842,7 @@ export class StarMap extends EventTarget {
         body.geometry.dispose();
         body.geometry = geometry;
         body.material.dispose();
-        body.material = new THREE.MeshBasicMaterial({ vertexColors: true });
+        body.material = litMaterial({ vertexColors: true, water: true, atmosphere: body.userData.atmosphere });
         if (preview) return;
         current.shown = true;
         if (current.pending === `${resolution}|${coarse}`) current.pending = null;
@@ -2909,7 +2911,8 @@ export class StarMap extends EventTarget {
                 entity.geometry.dispose();
                 entity.geometry = mappedSphere(entity.userData.radius, 48, 24);
                 entity.material.dispose();
-                entity.material = unlit(new THREE.Color(...appearance.tint), { map: texture });
+                entity.material = litMaterial({ color: new THREE.Color(...appearance.tint), map: texture,
+                    atmosphere: entity.userData.atmosphere });
             }).catch((error) => {
                 // Left unloaded when the planetary view closed first; it's loaded afresh next time
                 if (!error?.cleared) console.error('Moon texture failed', error);

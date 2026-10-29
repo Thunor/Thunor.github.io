@@ -22,6 +22,7 @@ import {
     showMoonDetail, showSheet, resolutionTitle, globeResolutionTitle, worldDataChoices,
 } from './ui/views.js';
 import * as SRD from './traveller/srd.js';
+import { buildNumber } from './build.js';
 import { showSurfaceMap } from './ui/surfaceMapView.js';
 import { worldAnnotationsAreEmpty, applyingAnnotations } from './model/savedData.js';
 import { planSettlements, settlementTerrain } from './gen/settlementPlanner.js';
@@ -212,7 +213,8 @@ function showChooser() {
             h('span', { class: 'count' }, t('%lld universes', count)));
     });
     chooser.replaceChildren(h('div', { class: 'chooser-body' }, h('h1', {}, t('Choose a map')), h('div', { class: 'cards' }, ...cards),
-        h('p', { class: 'footnote' }, t('File ▸ Switch Map Type… brings you back here.'))));
+        h('p', { class: 'footnote' }, t('File ▸ Switch Map Type… brings you back here.')),
+        h('p', { class: 'footnote build' }, t('Build %@', String(buildNumber)))));
     chooser.querySelector('.kind-card.last')?.focus();
 }
 
@@ -685,6 +687,7 @@ function plainSheet(className, ...content) {
 function showAbout() {
     let sheet;
     sheet = plainSheet('about', h('h2', {}, isGMEdition ? 'Estrelas' : 'Estrelas Player'),
+        h('p', { class: 'footnote' }, t('Build %@', String(buildNumber))),
         h('p', {}, copyrightNotice),
         h('p', { class: 'footnote' }, t('Free to use. You may share unmodified copies, but not sell or modify the app. Anything you make with it is yours.')),
         h('p', { class: 'footnote' }, t('Includes three.js, © three.js authors, under the MIT licence.')),

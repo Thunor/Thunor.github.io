@@ -33,7 +33,6 @@ const darkest = 0.9;
 export const renderOrder = { ground: 0, clouds: 1, weather: 1.5, shade: 2, lights: 3 };
 
 let shellGeometry = null;
-let shellMaterial = null;
 
 /** The night side shell's opacity at `u`, which runs from noon (0) to midnight (1); the terminator falls at 0.5 */
 export function nightDarkness(u) {
@@ -99,7 +98,8 @@ function eclipseGeometry(rings, segments) {
         }
         const count = points.length / 3;
         const night = new Float32Array(count);
-        for (let i = 0; i < count; i++) night[i] = nightDarkness((1 - points[i * 3]) / 2);
+        // The worlds are lit by their stars (shaders.js litMaterial), so the shell adds no night of its own
+        for (let i = 0; i < count; i++) night[i] = 0;
         eclipseGeometries.set(key, { points, indices, night });
     }
     return eclipseGeometries.get(key);
@@ -127,31 +127,8 @@ function eclipseShell(rings, segments) {
 /** Shows or restores a world's night side shell, left clear while its eclipse shell shades the whole world */
 function setNightShellClear(shell, clear) {
     clearMaterial ??= new THREE.MeshBasicMaterial({ visible: false });
-    shell.material = clear ? clearMaterial : material();
-}
-
-/** Black, clear over the day side (+x) and darkening across a soft terminator to nearly opaque at midnight (−x) */
-function material() {
-    shellMaterial ??= new THREE.ShaderMaterial({
-        transparent: true,
-        depthWrite: false,
-        uniforms: {},
-        vertexShader: `
-            varying float vNoon;
-            void main() {
-                vNoon = position.x;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }`,
-        fragmentShader: `
-            varying float vNoon;
-            void main() {
-                // u runs from noon (0) to midnight (1); the terminator falls at 0.5, twilight a little either side
-                float u = (1.0 - clamp(vNoon, -1.0, 1.0)) / 2.0;
-                float t = clamp((u - 0.46) / 0.12, 0.0, 1.0);
-                gl_FragColor = vec4(0.0, 0.0, 0.0, ${darkest.toFixed(2)} * t * t * (3.0 - 2.0 * t));
-            }`,
-    });
-    return shellMaterial;
+    // The world beneath is lit by its star, so its night side needs no shade: the shell only carries the eclipses
+    shell.material = clearMaterial;
 }
 
 /**
@@ -160,7 +137,9 @@ function material() {
  */
 export function shell(radius, stars, planetShade = null) {
     shellGeometry ??= new THREE.SphereGeometry(1, 64, 32);
-    const mesh = new THREE.Mesh(shellGeometry, material());
+    clearMaterial ??= new THREE.MeshBasicMaterial({ visible: false });
+    // Clear: the world beneath is lit by its star (shaders.js litMaterial); the shell carries its eclipse shell
+    const mesh = new THREE.Mesh(shellGeometry, clearMaterial);
     mesh.name = name;
     mesh.scale.setScalar(radius * (1 + altitude));
     mesh.renderOrder = renderOrder.shade;
@@ -192,6 +171,17 @@ function nearestStar(stars, here, target) {
     return best < Infinity && best > 1e-12;
 }
 
+/** Points a world's lighting, its clouds' and its air's at its star (a world-space direction) */
+function lightBody(body, direction) {
+    const sun = body.material?.uniforms?.uSun;
+    if (sun) sun.value.copy(direction);
+    for (const child of body.children) {
+        const childSun = child.material?.uniforms?.uSun;
+        // A moon is lit by its own shell's star
+        if (childSun && !child.children.some((c) => c.name === name)) childSun.value.copy(direction);
+    }
+}
+
 /** Turns each shell so its clear side faces the nearest star, casts shadows, and brings up city lights at night */
 export function updateNightShades(shades, lights) {
     const nearest = new THREE.Vector3();
@@ -201,6 +191,7 @@ export function updateNightShades(shades, lights) {
         shade.getWorldPosition(scratch.here);
         if (!nearestStar(shade.userData.nightShade.stars, scratch.here, nearest)) continue;
         scratch.direction.subVectors(nearest, scratch.here).normalize();
+        lightBody(shade.parent, scratch.direction);
         scratch.target.setFromUnitVectors(xAxis, scratch.direction);
         shade.parent.getWorldQuaternion(scratch.parent);
         shade.quaternion.copy(scratch.parent.invert().multiply(scratch.target));
