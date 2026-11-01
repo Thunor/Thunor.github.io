@@ -18,6 +18,7 @@ import { gridHeights } from './contourMap.js';
 import { geologyOf } from './geology.js';
 import { dayPixels, fieldStyle, patchPoint } from '../scene/cityLightPattern.js';
 import { generateStarField } from '../gen/systemStars.js';
+import { setPlanetFormation } from '../gen/planetarySystemGenerator.js';
 import { StarFieldWindow } from '../scene/starFieldWindow.js';
 import { planRoute } from '../scene/starRoute.js';
 import { encodeJSON } from '../model/savedData.js';
@@ -152,7 +153,9 @@ self.onmessage = async ({ data }) => {
                 break;
             }
             case 'sector': {
-                // A sector of star field, generated off the main thread from its own seed
+                // A sector of star field, generated off the main thread from its own seed, its planets formed the way
+                // Settings asks
+                setPlanetFormation(data.planetFormation);
                 result = generateStarField(data.seed, data.sector, data.reservedNames ?? []);
                 break;
             }

@@ -7,6 +7,8 @@
 //  occurrence rates, sizes from mass–radius relations with orbits spaced in a rough geometric progression and at
 //  least ten mutual Hill radii apart, and surfaces from starlight and escape velocity. A line-for-line port of
 //  PlanetarySystemGenerator.swift: every draw is made in the same order, so the same seed gives the same systems.
+//  With Accretion chosen in Settings (planetFormation), Dole's accretion simulation forms the planets' orbits and
+//  masses in each star's stable zones instead of the survey statistics (see accretionGenerator.js).
 //
 
 import { rng, roundSwift } from './random.js';
@@ -18,6 +20,21 @@ import {
     PlanetPhysics, giantClassForMass, isIcyGiant, insolation as insolationOf, luminosityScale, gravityOf,
     habitabilityIndex,
 } from '../model/planetarySystem.js';
+import { AccretionGenerator, rockyRadiusKm } from './accretionGenerator.js';
+
+/**
+ * How planets are formed (PlanetFormation.swift): 'statistical', from exoplanet survey statistics, or 'accretion',
+ * by Dole's simulation. Set from Settings, and passed to the workers that generate star fields, which can't read it.
+ */
+let planetFormation = 'statistical';
+
+export function setPlanetFormation(value) {
+    planetFormation = value === 'accretion' ? 'accretion' : 'statistical';
+}
+
+export function getPlanetFormation() {
+    return planetFormation;
+}
 
 const minimumSTypeSeparation = 10.0;
 const commonSTypeSeparation = 50.0;
@@ -39,6 +56,8 @@ const evaporationLimit = 0.015;
 export const habitableZone = [0.95, 1.7];
 export const snowLine = 2.7;
 const outerPlanetLimit = 300.0;
+/** Earth radii of the smallest accreted giant: sub-Neptunes lie beyond the radius gap at about 1.8 (Fulton et al. 2017) */
+const smallestGiantRadius = 1.8;
 const earthMassesPerSolarMass = PlanetPhysics.earthMassesPerSolarMass;
 
 const contains = (range, value) => range[0] <= value && value <= range[1];
@@ -96,31 +115,40 @@ export class PlanetarySystemGenerator {
 
         const system = { age, stars: this.starInfo(nodes, groups), worlds: [] };
 
-        const metallicity = Dice.normal(-0.05, 0.2, [-1, 0.5]);
-        let slots = [];
+        const accretion = planetFormation === 'accretion';
+        // Stellar metallicity, [Fe/H], as among nearby stars; metal-rich stars build more giant planets. Drawn first, so
+        // the statistical model's draws stay in the order they always were.
+        const metallicity = accretion ? 0 : Dice.normal(-0.05, 0.2, [-1, 0.5]);
         // What the primary can hold on to: a supernova destroys or flings away almost every planet, leaving a rare few
         // small worlds round a pulsar; a brown dwarf's light disc makes a few small worlds
         const primaryClass = stars[primaryIndex].spectralClass ?? SpectralClass.M;
         const keepsPlanets = !isCompactRemnant(primaryClass) || Dice.chance(0.12);
-        groups.forEach((group, index) => {
-            if (group.ranges.length === 0 || !keepsPlanets) return;
-            let kinds = this.bodyKinds(group, nodes, stars, metallicity);
-            if (isCompactRemnant(primaryClass) || isBrownDwarf(primaryClass)) {
-                kinds = kinds.filter((k) => k === 'rocky' || k === 'belt').slice(0, isBrownDwarf(primaryClass) ? 4 : 3);
-            }
-            if (kinds.length === 0) return;
-            const giants = kinds.filter((k) => k === 'gasGiant' || k === 'iceGiant').length;
-            const groupSlots = this.placeSlots(group, index, kinds.length, giants);
-            slots = slots.concat(this.fill(groupSlots, kinds, group.luminosity));
-        });
+        let bodies;
+        if (accretion) {
+            bodies = keepsPlanets ? this.accretedBodies(groups, nodes, stars, age) : [];
+        } else {
+            let slots = [];
+            groups.forEach((group, index) => {
+                if (group.ranges.length === 0 || !keepsPlanets) return;
+                let kinds = this.bodyKinds(group, nodes, stars, metallicity);
+                if (isCompactRemnant(primaryClass) || isBrownDwarf(primaryClass)) {
+                    kinds = kinds.filter((k) => k === 'rocky' || k === 'belt').slice(0, isBrownDwarf(primaryClass) ? 4 : 3);
+                }
+                if (kinds.length === 0) return;
+                const giants = kinds.filter((k) => k === 'gasGiant' || k === 'iceGiant').length;
+                const groupSlots = this.placeSlots(group, index, kinds.length, giants);
+                slots = slots.concat(this.fill(groupSlots, kinds, group.luminosity));
+            });
 
-        // A resonance only means something if there's a world in the next orbit in
-        for (const slot of slots) {
-            if (slot.resonance == null) continue;
-            if (!slots.some((other) => other.group === slot.group && other.au < slot.au)) slot.resonance = undefined;
+            // A resonance only means something if there's a world in the next orbit in
+            for (const slot of slots) {
+                if (slot.resonance == null) continue;
+                if (!slots.some((other) => other.group === slot.group && other.au < slot.au)) slot.resonance = undefined;
+            }
+            bodies = this.stabilize(this.makeBodies(slots, groups, nodes, age), groups);
         }
 
-        const worlds = this.makeWorlds(slots, groups, nodes, age);
+        const worlds = this.makeWorlds(bodies, groups, nodes, age);
         this.addTrojans(worlds, age);
         if (requirements) {
             // Worlds the known ones need that nothing generated can stand in for go round the primary
@@ -598,7 +626,19 @@ export class PlanetarySystemGenerator {
 
     // MARK: worlds
 
-    makeWorlds(slots, groups, nodes, age) {
+    /**
+     * Close-in planets are tidally circularised over a billion years or so, and a circumbinary planet's closest
+     * approach must stay well outside the stars it circles
+     */
+    limitEccentricity(eccentricity, slot, luminosity, age, groups) {
+        if (slot.au < 0.05 * Math.sqrt(luminosity) && age > 1) eccentricity *= 0.1;
+        const reach = this.interiorReach(slot.au, slot.group, groups);
+        if (reach > 0) eccentricity = Math.min(eccentricity, Math.max(1 - 2 * reach / slot.au, 0));
+        return eccentricity;
+    }
+
+    /** Bodies for the slots of the statistical model, sized from survey distributions */
+    makeBodies(slots, groups, nodes, age) {
         const typicalRadius = groups.map(() => Dice.normal(Math.log(1.1), 0.45, [Math.log(0.3), Math.log(1.8)]));
 
         const bodies = [];
@@ -613,10 +653,8 @@ export class PlanetarySystemGenerator {
             if (kind !== 'belt') {
                 const sigma = slot.anomaly === 'eccentric' ? 0.35 : 0.05;
                 const u = Math.max(Dice.uniform(0, 1), 1e-9);
-                eccentricity = Math.min(sigma * Math.sqrt(-2 * Math.log(u)), 0.9);
-                if (slot.au < 0.05 * Math.sqrt(lum) && age > 1) eccentricity *= 0.1;
-                const reach = this.interiorReach(slot.au, slot.group, groups);
-                if (reach > 0) eccentricity = Math.min(eccentricity, Math.max(1 - 2 * reach / slot.au, 0));
+                eccentricity = this.limitEccentricity(Math.min(sigma * Math.sqrt(-2 * Math.log(u)), 0.9), slot, lum, age,
+                    groups);
             }
 
             let inclination = 0.0;
@@ -647,8 +685,59 @@ export class PlanetarySystemGenerator {
                         eccentricity: 0, inclination: 0 });
             }
         }
+        return bodies;
+    }
 
-        return this.stabilize(bodies, groups).map((body) => {
+    /** Bodies formed by Dole's accretion in each star group's disc (see accretionGenerator.js) */
+    accretedBodies(groups, nodes, stars, age) {
+        const bodies = [];
+        groups.forEach((group, groupIndex) => {
+            if (group.ranges.length === 0) return;
+            let ranges = group.ranges;
+            if (group.nodes.some((n) => nodes[n].properties.isPostStellar)) {
+                // A white dwarf swallowed its inner planets as a giant; a neutron star only rebuilds a few small
+                // worlds from its supernova's fallback disc, within about an AU
+                const compact = group.nodes.some((n) => isCompactRemnant(stars[nodes[n].starIndex].spectralClass));
+                const survivable = compact ? [0.1, 1.0] : [3.0, outerPlanetLimit];
+                ranges = ranges.filter((r) => overlaps(r, survivable))
+                    .map((r) => [Math.min(Math.max(r[0], survivable[0]), survivable[1]),
+                        Math.min(Math.max(r[1], survivable[0]), survivable[1])]);
+            }
+
+            const accreted = new AccretionGenerator(group.mass, group.luminosity).generate(ranges);
+            for (const planet of accreted) {
+                const slot = { group: groupIndex, au: planet.au, anomaly: undefined, resonance: undefined };
+                const orbited = this.orbitedNodes(groupIndex, planet.au, groups);
+                const lum = this.luminosityOf(orbited, nodes);
+                if (planet.beltRange) {
+                    bodies.push({ slot, type: 'asteroidBelt', radiusKm: 0, massEarths: planet.massEarths,
+                        gasGiant: undefined, eccentricity: 0, inclination: 0 });
+                    continue;
+                }
+                const eccentricity = this.limitEccentricity(planet.eccentricity, slot, lum, age, groups);
+                const inclination = Math.abs(Dice.normal(0, 1.5));
+                if (planet.isGasGiant) {
+                    // Accretion makes giants of bodies of only a few Earth masses that caught some gas; even a thin
+                    // hydrogen envelope puffs a world up to the far side of the radius gap, about 1.8 Earth radii
+                    let radius = Math.max(PlanetPhysics.giantRadius(planet.massEarths), smallestGiantRadius);
+                    // Hot Jupiters are puffed up by their star's heat
+                    if (lum / (planet.au * planet.au) > 150 && planet.massEarths > 50) radius *= 1.2;
+                    const info = { giantClass: giantClassForMass(planet.massEarths), radiusEarths: rounded(radius),
+                        massEarths: rounded(planet.massEarths) };
+                    bodies.push({ slot, type: 'gasGiant', radiusKm: radius * PlanetPhysics.earthRadiusKm,
+                        massEarths: planet.massEarths, gasGiant: info, eccentricity, inclination });
+                } else {
+                    const radiusKm = rockyRadiusKm(planet.massEarths, planet.au, group.luminosity);
+                    bodies.push({ slot, type: 'terrestrial', radiusKm, massEarths: planet.massEarths,
+                        gasGiant: undefined, eccentricity, inclination });
+                }
+            }
+        });
+        return bodies;
+    }
+
+    makeWorlds(bodies, groups, nodes, age) {
+        return bodies.map((body) => {
             const slot = body.slot;
             const group = groups[slot.group];
             const orbited = this.orbitedNodes(slot.group, slot.au, groups);

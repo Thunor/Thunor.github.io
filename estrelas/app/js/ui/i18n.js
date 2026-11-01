@@ -15,6 +15,12 @@ const translations = {
         "fr": "%.1f×",
         "pt": "%.1f×"
     },
+    "Accretion": {
+        "de": "Akkretion",
+        "es": "Acreción",
+        "fr": "Accrétion",
+        "pt": "Acreção"
+    },
     "Add Sample Sector": {
         "de": "Beispielsektor hinzufügen",
         "es": "Añadir sector de ejemplo",
@@ -177,6 +183,18 @@ const translations = {
         "fr": "Él %.1f",
         "pt": "El %.1f"
     },
+    "Exoplanet statistics": {
+        "de": "Exoplaneten-Statistik",
+        "es": "Estadísticas de exoplanetas",
+        "fr": "Statistiques d’exoplanètes",
+        "pt": "Estatísticas de exoplanetas"
+    },
+    "Exoplanet statistics draws each system's planets from what surveys have found round real stars. Accretion forms them as Stephen Dole's simulation did: protoplanets sweeping up a disc of dust and gas until none is left, the larger ones pulling in gas to become giants. Applies to star systems generated afterwards.": {
+        "de": "„Exoplaneten-Statistik“ wählt die Planeten jedes Systems nach dem, was Durchmusterungen um echte Sterne gefunden haben. „Akkretion“ lässt sie entstehen wie in Stephen Doles Simulation: Protoplaneten fegen eine Scheibe aus Staub und Gas leer, bis nichts mehr übrig ist, und die größeren ziehen Gas an und werden zu Riesen. Gilt für danach erzeugte Sternsysteme.",
+        "es": "Estadísticas de exoplanetas toma los planetas de cada sistema de lo que los sondeos han encontrado alrededor de estrellas reales. Acreción los forma como lo hacía la simulación de Stephen Dole: protoplanetas que barren un disco de polvo y gas hasta que no queda nada, y los mayores atraen gas y se convierten en gigantes. Se aplica a los sistemas estelares generados después.",
+        "fr": "Statistiques d’exoplanètes tire les planètes de chaque système de ce que les relevés ont trouvé autour des étoiles réelles. Accrétion les forme comme le faisait la simulation de Stephen Dole : des protoplanètes balaient un disque de poussière et de gaz jusqu’à ce qu’il n’en reste rien, les plus grosses attirant du gaz pour devenir des géantes. S’applique aux systèmes stellaires générés ensuite.",
+        "pt": "Estatísticas de exoplanetas tira os planetas de cada sistema do que os levantamentos encontraram em torno de estrelas reais. Acreção os forma como a simulação de Stephen Dole: protoplanetas varrendo um disco de poeira e gás até não sobrar nada, os maiores atraindo gás e virando gigantes. Aplica-se aos sistemas estelares gerados depois."
+    },
     "File": {
         "de": "Ablage",
         "es": "Archivo",
@@ -332,6 +350,12 @@ const translations = {
         "es": "Pellizca o usa los botones para hacer zoom; desplázate para mover la vista",
         "fr": "Pincez ou utilisez les boutons pour zoomer ; faites défiler pour vous déplacer.",
         "pt": "Use o gesto de pinça ou os botões para aplicar zoom; role para mover"
+    },
+    "Planet formation": {
+        "de": "Planetenentstehung",
+        "es": "Formación de planetas",
+        "fr": "Formation des planètes",
+        "pt": "Formação de planetas"
     },
     "Random seed": {
         "de": "Zufälligen Startwert wählen",

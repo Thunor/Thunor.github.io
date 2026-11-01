@@ -15,6 +15,7 @@ import {
     needsNebulae,
 } from './savedData.js';
 import { generateStarField, halfLength } from '../gen/systemStars.js';
+import { getPlanetFormation } from '../gen/planetarySystemGenerator.js';
 import { nebulaVersion, nebulaeForSavedSector } from '../gen/nebulaGenerator.js';
 import { decodeTemplates } from '../surface/surfaceTemplate.js';
 import { randomSeed } from '../gen/random.js';
@@ -353,7 +354,7 @@ export class UniverseStore {
             }
             const seed = sectorSeed(sector, universeSeed);
             const generated = await this.generatingSystems((reserved) =>
-                draw({ op: 'sector', seed, sector, reservedNames: [...reserved] }));
+                draw({ op: 'sector', seed, sector, reservedNames: [...reserved], planetFormation: getPlanetFormation() }));
             const document = starFieldDocument(generated.systems, seed, halfLength, { x: sector.x, y: sector.y, z: sector.z },
                 'parsec', generated.nebulae, nebulaVersion);
             // Only into a universe that's still there

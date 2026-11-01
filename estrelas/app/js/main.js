@@ -17,6 +17,7 @@ import { h, icon, button } from './ui/components.js';
 import { t, languages, locale } from './ui/i18n.js';
 import * as Settings from './ui/settings.js';
 import * as SurfaceMap from './surface/surfaceMap.js';
+import { setPlanetFormation } from './gen/planetarySystemGenerator.js';
 import {
     stellarCartographyPanel, planetListPanel, routePanel, updateCameraReadout, timeControl, showStarDetail, showWorldDetail,
     showMoonDetail, showSheet, resolutionTitle, globeResolutionTitle, worldDataChoices,
@@ -71,6 +72,7 @@ async function start() {
     translateStatic();
     buildMenus();
     SurfaceMap.setSurfaceGenerator(Settings.get('surfaceGenerator'));
+    setPlanetFormation(Settings.get('planetFormation'));
     SurfaceMap.setMoonsLikePlanets(Settings.get('moonsLikePlanets'));
     if (!document.createElement('canvas').getContext('webgl2')) {
         setStatus(t("This browser doesn't support WebGL 2, which the star map needs."));
@@ -133,6 +135,7 @@ function settingChanged(key) {
         case 'showStarOrbitRings': map?.setShowStarOrbitRings(Settings.get(key)); renderSide(); break;
         case 'starSystemLimit': map?.setStarSystemLimit(Settings.get(key)); break;
         case 'surfaceGenerator': SurfaceMap.setSurfaceGenerator(Settings.get(key)); break;
+        case 'planetFormation': setPlanetFormation(Settings.get(key)); break;
         case 'moonsLikePlanets': SurfaceMap.setMoonsLikePlanets(Settings.get(key)); break;
         case 'showNebulae': map?.setShowNebulae(Settings.get(key)); renderSide(); break;
         case 'showTravelAdvisories': map?.setShowTravelAdvisories(Settings.get(key)); renderSide(); break;
@@ -879,6 +882,9 @@ async function showSettings() {
             select('starSystemLimit', Settings.starSystemLimits.map((limit) => [limit, limit.toLocaleString(locale())]))),
         h('p', { class: 'footnote' }, t('The star field draws this many systems nearest the view, and brings in others as you fly with W and S. Fewer is faster.')),
         h('hr'),
+        h('label', { class: 'field' }, h('span', {}, t('Planet formation')),
+            select('planetFormation', [['statistical', t('Exoplanet statistics')], ['accretion', t('Accretion')]])),
+        h('p', { class: 'footnote' }, t("Exoplanet statistics draws each system's planets from what surveys have found round real stars. Accretion forms them as Stephen Dole's simulation did: protoplanets sweeping up a disc of dust and gas until none is left, the larger ones pulling in gas to become giants. Applies to star systems generated afterwards.")),
         h('label', { class: 'field' }, h('span', {}, t('Planet surfaces')),
             select('surfaceGenerator', [['classic', t('Classic')], ['biomes', t('Climate & biomes')], ['polygons', t('Polygon map')]])),
         h('p', { class: 'footnote' }, t("Climate & biomes gives worlds with seas oceans, lakes, rivers and biomes from their temperature and moisture. Polygon map builds them after Amit Patel's polygonal map generation: land rising from the coast to the mountains, rivers running down to the sea, and biomes from height, latitude and nearness to fresh water. Applies to planetary systems opened afterwards.")),

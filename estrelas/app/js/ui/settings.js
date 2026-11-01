@@ -18,6 +18,7 @@ const defaults = {
     showStarOrbitRings: true,
     starSystemLimit: 1000,
     surfaceGenerator: 'biomes',
+    planetFormation: 'statistical',
     mapResolution: 1,
     globeResolution: 1,
     routeRange: 2,
