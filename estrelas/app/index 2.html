@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Estrelas © 2026 Eric Freitas. All rights reserved. Free to use under the licence in LICENSE.txt. -->
+    <meta name="author" content="Eric Freitas">
+    <meta name="copyright" content="© 2026 Eric Freitas. All rights reserved.">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Estrelas</title>
+    <meta name="description" content="A 3D star map of procedurally generated universes, sharing universe folders with the Estrelas macOS app.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffc74d' d='M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="css/estrelas.css">
+</head>
+<body data-style="estrela">
+    <svg class="defs" aria-hidden="true">
+        <defs>
+            <linearGradient id="estrela-glass" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="rgb(23 36 56)" stop-opacity="0.85" />
+                <stop offset="1" stop-color="rgb(10 18 31)" stop-opacity="0.85" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <canvas id="scene" aria-label="Star map"></canvas>
+
+    <nav id="menubar" aria-label="Menu"></nav>
+    <aside id="side"></aside>
+    <div id="route"></div>
+    <div id="time"></div>
+    <div id="status" role="status"></div>
+
+    <!-- Without folder pickers, Open Universe… asks whether to open a folder or a zip -->
+    <dialog id="open-choice" class="plain-sheet">
+        <form method="dialog">
+            <h2 data-i18n="Open Universe…">Open Universe…</h2>
+            <p data-i18n="Choose a universe folder (one containing starfield.json), or a .zip of one.">Choose a universe folder (one containing starfield.json), or a .zip of one.</p>
+            <div class="actions">
+                <button value="cancel" data-i18n="Cancel">Cancel</button>
+                <button value="zip" data-i18n="Open a .zip…">Open a .zip…</button>
+                <button value="folder" class="default" data-i18n="Open a folder…">Open a folder…</button>
+            </div>
+        </form>
+    </dialog>
+
+    <noscript>Estrelas needs JavaScript.</noscript>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

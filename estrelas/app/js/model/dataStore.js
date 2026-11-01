@@ -535,13 +535,15 @@ export class UniverseStore {
             const saved = await this.readDocument(path, Format.globe);
             // Climate and biome globes need their relief and edge rivers; ones saved before they had them are redrawn,
             // as are those of worlds locked to their star saved before their ice went to the night side, those drawn as
-            // another kind of world, and those whose ice over water was coloured by an earlier version of the sea ice
+            // another kind of world, and those whose ice over water was coloured by an earlier version of the sea ice; and
+            // those whose relief came from an earlier version of it, which cut mountains off flat at the tallest relief
             if (saved && saved.subdivisions === subdivisions && saved.sites?.length === saved.cellCount * 3 &&
                 sameVector(saved.style?.substellarPoint, style.substellarPoint) &&
                 SurfaceMap.recordMatches(saved.style, SurfaceMap.styleRecord(style)) &&
                 saved.colors?.length === saved.cellCount * 3 &&
                 (!style.biomes || (saved.heights?.length === saved.cellCount && saved.riverHalfWidths != null &&
-                    saved.riverCorners?.length === (saved.riverHalfWidths?.length ?? 0) * 2))) {
+                    saved.riverCorners?.length === (saved.riverHalfWidths?.length ?? 0) * 2 &&
+                    saved.reliefVersion === SurfaceMap.reliefVersion))) {
                 const topology = icosphere(subdivisions);
                 if (topology.count === saved.cellCount) {
                     const colors = Float64Array.from(saved.colors, (c) => (c + 0.5) / 255);
@@ -559,6 +561,7 @@ export class UniverseStore {
                 cellCount: surface.sites.length / 3, sites: Float32Array.from(surface.sites),
                 colors: Uint8Array.from(surface.colors, (c) => Math.trunc(Math.min(Math.max(c, 0), 1) * 255)),
                 topology: topologyPath(subdivisions), heights: surface.heights ?? undefined,
+                reliefVersion: style.biomes ? SurfaceMap.reliefVersion : undefined,
                 riverCorners: style.biomes ? Int32Array.from(surface.rivers.flatMap((r) => [r.from, r.to])) : undefined,
                 riverHalfWidths: style.biomes ? Float32Array.from(surface.rivers.map((r) => r.halfWidth)) : undefined,
             }, { inWorker: true });

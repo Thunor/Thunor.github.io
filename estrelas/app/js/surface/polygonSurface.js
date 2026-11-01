@@ -15,7 +15,7 @@ import {
     seaIce, snow, color as surfaceColor,
 } from './surfaceMap.js';
 import { cells, icosphere, NearestSite } from './voronoiSurface.js';
-import { MinHeap, CornerGraph, maximumRelief } from './biomeSurface.js';
+import { MinHeap, CornerGraph, relief } from './biomeSurface.js';
 import { out, addSmall } from './u64.js';
 
 const MASK64 = (1n << 64n) - 1n;
@@ -395,7 +395,7 @@ export class PolygonMap {
             const inland = biomePalette[this.biome[polygon] === PolygonBiome.marsh ? PolygonBiome.marsh : PolygonBiome.lake];
             return [[inland[0] + grain, inland[1] + grain, inland[2] + grain], 0, true];
         }
-        const height = Math.min(f32(f32(Math.pow(this.elevation[polygon], 1.5)) * f32(0.045)), maximumRelief);
+        const height = relief(this.elevation[polygon]);
         if (frozen) {
             const g = grain * 0.8;
             return [[snow[0] + g, snow[1] + g, snow[2] + g], height, false];

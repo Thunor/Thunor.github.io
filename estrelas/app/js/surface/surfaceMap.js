@@ -33,6 +33,12 @@ export const climateSubdivisions = 6;
 export const cloudWidth = 2048;
 export const cloudHeight = 1024;
 export const cloudAltitude = Math.fround(0.025);
+/**
+ * The version of climate and biome globes' relief (biomeSurface.js's relief), bumped whenever its shape changes, so
+ * globes saved with the old heights are drawn again. 2: peaks eased toward the tallest relief rather than cut off flat
+ * at it.
+ */
+export const reliefVersion = 2;
 /** Bumped whenever the way clouds are drawn changes, so cloud maps saved by an earlier version are drawn again */
 export const cloudVersion = 2;
 

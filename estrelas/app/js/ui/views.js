@@ -94,9 +94,11 @@ export const StarText = {
             default: return t('Stellar remnant');
         }
     },
+    /** A number to `digits` places with its unit after it, the unit's word translated (symbols such as ° stay as they are) */
     number(value, digits = 3, unit = '') {
         if (value === undefined || value === null) return '—';
-        return Number(value).toFixed(digits) + unit;
+        const word = unit.trim();
+        return Number(value).toFixed(digits) + (word ? unit.replace(word, t(word)) : unit);
     },
 };
 

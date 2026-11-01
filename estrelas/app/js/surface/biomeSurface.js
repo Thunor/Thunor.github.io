@@ -219,9 +219,23 @@ export function reliefHeights(style, sites, sea) {
     for (let i = 0; i < count; i++) {
         const elevation = terrainHeight(style, sites[i * 3], sites[i * 3 + 1], sites[i * 3 + 2], sea, 0);
         if (!(elevation > sea)) continue;
-        heights[i] = Math.min(f32(f32(Math.pow(landHeight(elevation, sea), 1.5)) * f32(0.045)), maximumRelief);
+        // Not clamped at 1: the mountain ranges stand above the height noise's own range, and their peaks must keep
+        // rising above their shoulders
+        heights[i] = relief((elevation - sea) / Math.max(1 - sea, 0.0001));
     }
     return heights;
+}
+
+/**
+ * The globe's height for land a fraction `height` of the way from the shore to the land's highest, as a fraction of
+ * the planet's radius. Raised to the power 1.5 so lowlands stay low and mountains stand out, then eased toward the
+ * tallest relief rather than cut off at it: cutting off flattened every range's peaks to the same height, so
+ * mountains stood as flat-topped mesas. Eased, lowlands keep almost all their height and peaks still rise above their
+ * flanks, however high, without ever reaching the clouds.
+ */
+export function relief(height) {
+    const raised = Math.pow(Math.max(height, 0), 1.5) * 0.045;
+    return f32(maximumRelief * (1 - Math.exp(-raised / maximumRelief)));
 }
 
 // MARK: biomes
