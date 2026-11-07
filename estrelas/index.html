@@ -53,11 +53,7 @@
   }
   nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.04em; color: var(--text); text-decoration: none; }
-  .brand-mark {
-    width: 26px; height: 26px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #fff6d8, #ffb347 45%, #b3541e 100%);
-    box-shadow: 0 0 18px rgba(255, 179, 71, 0.65);
-  }
+  .brand-mark { width: 28px; height: 28px; border-radius: 7px; }
   nav ul { list-style: none; display: flex; gap: 26px; margin: 0; padding: 0; }
   nav ul a { color: var(--muted); text-decoration: none; font-size: 15px; }
   nav ul a:hover, nav ul a:focus-visible { color: var(--text); }
@@ -161,7 +157,7 @@
 
 <nav aria-label="Main">
   <div class="wrap">
-    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span>ESTRELAS</a>
+    <a class="brand" href="#top"><img class="brand-mark" src="images/icon.png" alt="" width="28" height="28">ESTRELAS</a>
     <ul>
       <li><a href="#features">Features</a></li>
       <li><a href="#worlds">Worlds</a></li>

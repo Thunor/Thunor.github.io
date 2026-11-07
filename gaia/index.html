@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gaia Engine — Grow a living world, from first cell to starship</title>
+<meta name="description" content="Gaia Engine is a free planet simulator that runs in your browser. Shape the land, steer the climate and nurse life from single cells to a civilization that leaves for the stars, on a world with real plate tectonics, rivers, biomes and weather.">
+<meta name="theme-color" content="#050a10">
+<meta name="author" content="Eric Freitas">
+<meta property="og:title" content="Gaia Engine — Grow a living world, from first cell to starship">
+<meta property="og:description" content="A free planet simulator in your browser: tectonic plates, climate, rivers and biomes, eleven kinds of life, and civilizations that rise from the Stone Age to the stars.">
+<meta property="og:image" content="https://thunor.github.io/gaia/images/icon.png">
+<meta property="og:url" content="https://thunor.github.io/gaia/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="images/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="images/icon.png">
+<style>
+  :root {
+    --bg: #050a10;
+    --panel: rgba(12, 22, 30, 0.72);
+    --panel-edge: rgba(111, 217, 196, 0.18);
+    --text: #e6eef0;
+    --muted: #93a7ad;
+    --accent: #6fd9c4;
+    --amber: #ffbf5e;
+    --blue: #6fb4ff;
+    --violet: #b48cff;
+    --coral: #ff7a66;
+    --radius: 18px;
+    --max: 1120px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  #sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; }
+
+  a { color: var(--accent); }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+  /* Navigation */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    background: rgba(5, 10, 16, 0.6);
+    border-bottom: 1px solid var(--panel-edge);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.14em; color: var(--text); text-decoration: none; white-space: nowrap; }
+  .brand img { width: 28px; height: 28px; border-radius: 7px; }
+  nav ul { list-style: none; display: flex; gap: 26px; margin: 0; padding: 0; }
+  nav ul a { color: var(--muted); text-decoration: none; font-size: 15px; }
+  nav ul a:hover, nav ul a:focus-visible { color: var(--text); }
+  @media (max-width: 760px) { nav ul { display: none; } }
+
+  /* Buttons */
+  .button {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 24px; border-radius: 999px;
+    font-weight: 600; font-size: 16px; text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .button:hover { transform: translateY(-1px); }
+  .button.primary { background: var(--accent); color: #03201a; box-shadow: 0 8px 30px rgba(111, 217, 196, 0.32); }
+  .button.secondary { color: var(--text); border: 1px solid var(--panel-edge); background: rgba(255, 255, 255, 0.04); }
+  .button:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+  .button.small { padding: 8px 18px; font-size: 14px; }
+
+  /* Hero */
+  header.hero { padding: 104px 0 80px; text-align: center; }
+  .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: 0.22em; font-size: 13px; font-weight: 600; }
+  h1 { font-size: clamp(40px, 7vw, 76px); line-height: 1.05; margin: 18px 0 22px; letter-spacing: -0.02em; }
+  h1 .glow { background: linear-gradient(90deg, #fff, var(--accent) 45%, var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { max-width: 690px; margin: 0 auto 36px; color: var(--muted); font-size: 20px; }
+  .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .platform { margin-top: 18px; color: var(--muted); font-size: 14px; }
+
+  /* Screenshots; each links to the full-size image */
+  .showcase { margin: 70px auto 0; max-width: 1040px; }
+  .shot {
+    display: block; margin: 0;
+    border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--panel-edge);
+    background: #000;
+    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  a.shot:hover { transform: translateY(-2px); box-shadow: 0 46px 130px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(111, 217, 196, 0.28) inset; }
+  a.shot:focus-visible { outline: 3px solid var(--amber); outline-offset: 4px; }
+  .shot img { display: block; width: 100%; height: auto; }
+  .caption { margin-top: 14px; color: var(--muted); font-size: 14px; text-align: center; }
+
+  /* Sections */
+  section { padding: 90px 0; }
+  h2 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.12; margin: 0 0 16px; letter-spacing: -0.015em; }
+  .section-lede { color: var(--muted); max-width: 690px; font-size: 19px; margin: 0 0 48px; }
+  .center { text-align: center; }
+  .center .section-lede { margin-left: auto; margin-right: auto; }
+
+  .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .card {
+    background: var(--panel); border: 1px solid var(--panel-edge); border-radius: var(--radius);
+    padding: 28px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .card h3 { margin: 14px 0 8px; font-size: 20px; }
+  .card p { margin: 0; color: var(--muted); }
+  .icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 22px; background: rgba(111, 217, 196, 0.13); }
+  .icon.amber { background: rgba(255, 191, 94, 0.14); }
+  .icon.blue { background: rgba(111, 180, 255, 0.14); }
+  .icon.violet { background: rgba(180, 140, 255, 0.14); }
+  .icon.coral { background: rgba(255, 122, 102, 0.14); }
+
+  /* Feature rows: the screenshot takes the larger share */
+  .feature { display: grid; grid-template-columns: 5fr 7fr; gap: 56px; align-items: center; padding: 40px 0; }
+  .feature.flip { grid-template-columns: 7fr 5fr; }
+  .feature.flip .copy { order: 2; }
+  .feature ul { padding-left: 20px; color: var(--muted); }
+  .feature li { margin: 6px 0; }
+  .feature li b { color: var(--text); font-weight: 600; }
+  @media (max-width: 860px) { .feature, .feature.flip { grid-template-columns: 1fr; gap: 28px; } .feature.flip .copy { order: 0; } }
+
+  /* Starting worlds */
+  .worlds { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .world h3 { margin: 4px 0 6px; font-size: 19px; }
+  .world .tag { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .world p { font-size: 15px; }
+
+  /* The long climb, era by era */
+  .eras { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); counter-reset: era; }
+  .era { counter-increment: era; position: relative; }
+  .era::before { content: counter(era); display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #03201a; font-weight: 800; }
+  .era p { font-size: 15px; }
+
+  /* Tools */
+  .tools { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 8px; }
+  .tool { display: flex; gap: 14px; align-items: baseline; padding: 14px 18px; border-radius: 12px; background: rgba(255, 255, 255, 0.025); border: 1px solid var(--panel-edge); }
+  .tool b { min-width: 0; flex: 1; font-weight: 600; }
+  .tool span { color: var(--muted); font-size: 14px; }
+  .tool code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; color: var(--amber); white-space: nowrap; }
+
+  /* Final call to action */
+  .final { text-align: center; padding: 110px 0; }
+  .final .card { padding: 56px 28px; }
+  .fine { max-width: 640px; font-size: 13px; opacity: 0.8; }
+
+  footer { border-top: 1px solid var(--panel-edge); padding: 34px 0 46px; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<nav aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="images/icon.png" alt="" width="28" height="28">GAIA ENGINE</a>
+    <ul>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#planet">The planet</a></li>
+      <li><a href="#worlds">Worlds</a></li>
+      <li><a href="#tools">Tools</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="../onyxkeep/">← OnyxKeep</a></li>
+    </ul>
+    <a class="button primary small" href="play/" data-goatcounter-click="play-nav">Play now</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow">A planet simulator for your browser</div>
+    <h1>Grow a living world,<br><span class="glow">from first cell to starship.</span></h1>
+    <p class="lede">Gaia Engine hands you a planet and a few billion years. Raise mountains, steer the climate, seed the oceans and watch life climb from single cells to a civilization ready to leave for the stars, on a world where plates drift, rivers run and every biome answers to the weather.</p>
+    <div class="cta">
+      <a class="button primary" href="play/" data-goatcounter-click="play-hero">Play free in your browser</a>
+      <a class="button secondary" href="#features">See what it does</a>
+    </div>
+    <p class="platform">Free. Nothing to install. Every world comes from a seed you can share.</p>
+
+    <div class="showcase">
+      <a class="shot" href="images/hero.jpg">
+        <img src="images/hero.jpg" width="1800" height="1128"
+             alt="Gaia Engine showing Living Earth: a globe of blue oceans and green and tan continents under drifting clouds, with rivers and lakes, the tool bar on the left, and the world map, climate, atmosphere, geology and biosphere panels on the right">
+      </a>
+      <p class="caption">Living Earth, 4.1 billion years in: a thriving biosphere on sixteen tectonic plates.</p>
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap center">
+    <h2>A whole planet in one tab</h2>
+    <p class="section-lede">Rock, air, water and life all push on one another. Change one and the rest of the world answers.</p>
+    <div class="grid" style="text-align: left;">
+      <div class="card">
+        <div class="icon coral" aria-hidden="true">⛰</div>
+        <h3>Real plate tectonics</h3>
+        <p>The crust is split into drifting plates. Where they collide, mountains rise and trenches sink; where they part, oceans open along mid-ocean ridges. Arc volcanoes erupt and earthquakes strike the cities built on the faults.</p>
+      </div>
+      <div class="card">
+        <div class="icon blue" aria-hidden="true">≋</div>
+        <h3>Climate you can feel</h3>
+        <p>Temperature follows latitude, height and the greenhouse. Moisture blows in from the sea and fades inland and uphill. Ice ages, hothouses and snowballs come and go as the air changes.</p>
+      </div>
+      <div class="card">
+        <div class="icon" aria-hidden="true">❦</div>
+        <h3>Rivers, lakes and biomes</h3>
+        <p>Rain drains downhill to the sea in rivers that widen as they merge, and fills hollows into lakes. Plants spread into eleven biomes, from tundra and taiga to savanna and tropical rainforest.</p>
+      </div>
+      <div class="card">
+        <div class="icon violet" aria-hidden="true">✺</div>
+        <h3>Eleven kinds of life</h3>
+        <p>Prokaryotes to eukaryotes, radiates and arthropods, fish to amphibians, reptiles, dinosaurs, birds, mammals and whales. Each class has the temperatures and oxygen it needs, and evolves into the next when it can.</p>
+      </div>
+      <div class="card">
+        <div class="icon amber" aria-hidden="true">♜</div>
+        <h3>Civilizations</h3>
+        <p>Once a species becomes sapient, cities spread from the Stone Age to the Nanotech Age. Factories pump out CO₂, wars and plagues thin the towns, and if they last, the Exodus carries them to the stars.</p>
+      </div>
+      <div class="card">
+        <div class="icon" aria-hidden="true">◐</div>
+        <h3>Seven ways to look</h3>
+        <p>Switch the globe and map between terrain, temperature, rainfall, life, civilization, tectonic plates with their motion arrows, and plant types. Turn off the clouds, or light the whole globe to see past the night side.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="planet">
+  <div class="wrap">
+    <div class="feature">
+      <div class="copy">
+        <h2>Plates that push back</h2>
+        <p class="section-lede" style="margin-bottom: 18px;">Every world is built on a set of plates, and how they move shapes everything on top of them.</p>
+        <ul>
+          <li><b>Continents ride on plates.</b> Each one turns about its own pole, and the arrows show which way the ground beneath them is moving and how fast.</li>
+          <li><b>Boundaries do the work:</b> colliding continents fold into mountain belts, ocean crust dives into trenches under volcanic arcs, and rifts tear continents apart.</li>
+          <li><b>Not every world has them.</b> Mars-like worlds are one rigid shell with a few giant volcanoes. Venus-like worlds lock up until the whole crust founders and floods the plains with lava.</li>
+          <li><b>Water keeps them moving.</b> Boil the oceans away and the plates seize up.</li>
+        </ul>
+      </div>
+      <a class="shot" href="images/plates.jpg">
+        <img src="images/plates.jpg" width="1800" height="1128" loading="lazy"
+             alt="The Plates layer: the globe divided into coloured plates, with red lines where plates collide, blue where they pull apart and yellow where they slide past each other, and white arrows showing each plate's motion">
+      </a>
+    </div>
+
+    <div class="feature flip">
+      <div class="copy">
+        <h2>Every biome in its place</h2>
+        <p class="section-lede" style="margin-bottom: 18px;">Where plants grow, and which kind, follows from the temperature and the rain.</p>
+        <ul>
+          <li><b>Eleven biomes</b> from Whittaker's diagram: tundra, cold and hot deserts, taiga, grassland, temperate forest and rainforest, savanna, and tropical seasonal forest and rainforest.</li>
+          <li><b>See the share of each</b> across the land in the Plants layer's legend, as forests spread and deserts creep.</li>
+          <li><b>Plant forests yourself</b> to cool the planet and pull carbon out of the air.</li>
+        </ul>
+      </div>
+      <a class="shot" href="images/plants.jpg">
+        <img src="images/plants.jpg" width="1800" height="1128" loading="lazy"
+             alt="The Plants layer: a continent coloured by biome, with tropical forests in greens, savanna in gold and deserts in brown, and a legend listing each biome's share of the land">
+      </a>
+    </div>
+
+    <div class="feature">
+      <div class="copy">
+        <h2>Life that finds its niche</h2>
+        <p class="section-lede" style="margin-bottom: 18px;">Each kind of life spreads wherever the water, warmth and oxygen suit it, and gives way where they don't.</p>
+        <ul>
+          <li><b>Evolution climbs a ladder</b> of eleven classes, each needing more oxygen than the last.</li>
+          <li><b>Life shapes the air:</b> sea life and forests make oxygen, and a thriving biosphere keeps the climate in balance.</li>
+          <li><b>Disasters reset the clock.</b> A meteor, a runaway greenhouse or a snowball world can wipe out what took a billion years to grow.</li>
+        </ul>
+      </div>
+      <a class="shot" href="images/life.jpg">
+        <img src="images/life.jpg" width="1800" height="1128" loading="lazy"
+             alt="The Life layer: the globe coloured by the dominant kind of life in each place, from prokaryotes in the sea to reptiles, dinosaurs and mammals on land, with the biosphere panel listing each class's share">
+      </a>
+    </div>
+
+    <div class="feature flip">
+      <div class="copy">
+        <h2>Worlds worth fixing</h2>
+        <p class="section-lede" style="margin-bottom: 18px;">Not every planet starts out kind. Some you'll have to remake from the sky down.</p>
+        <ul>
+          <li><b>Terraform Venus:</b> scrub a crushing CO₂ greenhouse out of the sky until its oceans can stay liquid.</li>
+          <li><b>Warm Mars:</b> thicken its thin air and bring in ice comets for water.</li>
+          <li><b>Tune the planet itself</b> with sliders for solar input, evolution, cloud cover, the greenhouse, volcanism, tectonics and erosion.</li>
+        </ul>
+      </div>
+      <a class="shot" href="images/venus.jpg">
+        <img src="images/venus.jpg" width="1800" height="1128" loading="lazy"
+             alt="Venus in Gaia Engine: a hot golden world at 155 degrees under a thick haze, with shallow seas and rivers, and the geology panel showing an episodic lid partway to its next global resurfacing">
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="worlds">
+  <div class="wrap">
+    <div class="center">
+      <h2>Five worlds to start from</h2>
+      <p class="section-lede">Pick a starting world, roll a seed or type one in, and choose its tectonics, or let the planet decide.</p>
+    </div>
+    <div class="worlds">
+      <div class="card world"><div class="tag" style="color: var(--accent);">Sandbox</div><h3>Living Earth</h3><p>A blue-green world with oceans, forests and animals up to mammals. Sapience is close.</p></div>
+      <div class="card world"><div class="tag" style="color: var(--blue);">From scratch</div><h3>Young Earth</h3><p>Barren rock under a faint sun and a CO₂-rich sky. Nurse the first cells into a biosphere.</p></div>
+      <div class="card world"><div class="tag" style="color: var(--violet);">Water world</div><h3>Aquarium</h3><p>A near-total ocean dotted with islands. Life starts in the sea and must find land.</p></div>
+      <div class="card world"><div class="tag" style="color: var(--coral);">Terraform · −60&nbsp;°C</div><h3>Mars</h3><p>Cold, dry and thin-aired. Thicken the atmosphere and bring water to terraform it.</p></div>
+      <div class="card world"><div class="tag" style="color: var(--amber);">Terraform · +150&nbsp;°C</div><h3>Venus</h3><p>A crushing CO₂ greenhouse hot enough to melt lead. Scrub the sky to cool it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="eras">
+  <div class="wrap">
+    <div class="center">
+      <h2>Four billion years, four eras</h2>
+      <p class="section-lede">Each era brings its own problems, and the planet moves through them as fast as you can keep it alive.</p>
+    </div>
+    <div class="eras">
+      <div class="card era"><h3>Geologic</h3><p>Rock, water and air settle. Volcanoes build the atmosphere and the first oceans fill.</p></div>
+      <div class="card era"><h3>Evolution</h3><p>Life takes hold and climbs from single cells to animals, reshaping the air as it goes.</p></div>
+      <div class="card era"><h3>Civilization</h3><p>A species wakes up. Towns spread across the land it can farm.</p></div>
+      <div class="card era"><h3>Technology</h3><p>Industry, the atom and the network. Keep the planet alive long enough to launch the Exodus.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="tools">
+  <div class="wrap">
+    <div class="center">
+      <h2>A planet-sized tool kit</h2>
+      <p class="section-lede">Every change costs Ω energy, which builds up over time, faster on a world full of life. Pick a tool and click the globe to use it.</p>
+    </div>
+    <div class="tools">
+      <div class="tool"><b>Raise &amp; lower land</b><code>3 Ω</code></div>
+      <div class="tool"><b>Volcano</b><code>30 Ω</code></div>
+      <div class="tool"><b>Meteor</b><code>60 Ω</code></div>
+      <div class="tool"><b>Ice comet</b><code>50 Ω</code></div>
+      <div class="tool"><b>Oxygenator</b><code>60 Ω</code></div>
+      <div class="tool"><b>CO₂ vent</b><code>40 Ω</code></div>
+      <div class="tool"><b>CO₂ scrubber</b><code>60 Ω</code></div>
+      <div class="tool"><b>Seed life</b><code>20 Ω</code></div>
+      <div class="tool"><b>Plant forest</b><code>10 Ω</code></div>
+      <div class="tool"><b>Monolith</b><code>200 Ω</code></div>
+    </div>
+    <p class="caption" style="margin-top: 22px;">The Monolith lifts nearby life a step up the ladder, or gives a civilization a leap in technology.</p>
+  </div>
+</section>
+
+<section class="final" id="play">
+  <div class="wrap">
+    <div class="card">
+      <h2>A planet is waiting to be born.</h2>
+      <p class="section-lede" style="margin: 0 auto 32px;">Gaia Engine runs entirely in your browser, on your own computer. Pick a world, roll a seed and start the clock.</p>
+      <div class="cta">
+        <a class="button primary" href="play/" data-goatcounter-click="play-final">Play Gaia Engine</a>
+      </div>
+      <p class="platform">Free. Best on a desktop or laptop with a recent browser; it needs an internet connection to start.</p>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap center">
+    <h2>Questions, bugs or ideas?</h2>
+    <p class="section-lede">Found a problem, want a feature, or grew a world you're proud of? We'd love to hear from you.</p>
+    <div class="cta">
+      <a class="button secondary" href="mailto:onyxkeephelp@gmail.com" data-goatcounter-click="contact-email">onyxkeephelp@gmail.com</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 Eric Freitas. Gaia Engine. An <a href="../onyxkeep/">OnyxKeep</a> project.</div>
+    <div>Contact: <a href="mailto:onyxkeephelp@gmail.com">onyxkeephelp@gmail.com</a></div>
+  </div>
+</footer>
+
+<script>
+  // A slowly drifting star field behind the page; still for people who prefer reduced motion
+  (function () {
+    const canvas = document.getElementById('sky');
+    const context = canvas.getContext('2d');
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const colors = ['#ffffff', '#d6f5ee', '#cfe3ff', '#ffe9c4'];
+    let stars = [];
+
+    function resize() {
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = innerWidth * ratio;
+      canvas.height = innerHeight * ratio;
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      const count = Math.round(innerWidth * innerHeight / 3500);
+      stars = Array.from({ length: count }, () => ({
+        x: Math.random() * innerWidth,
+        y: Math.random() * innerHeight,
+        r: Math.random() ** 3 * 1.6 + 0.3,
+        speed: Math.random() * 0.06 + 0.01,
+        phase: Math.random() * Math.PI * 2,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+    }
+
+    function draw(time) {
+      context.clearRect(0, 0, innerWidth, innerHeight);
+      for (const star of stars) {
+        if (!still) {
+          star.x -= star.speed;
+          if (star.x < -2) star.x = innerWidth + 2;
+        }
+        const twinkle = still ? 0.8 : 0.6 + 0.4 * Math.sin(time / 900 + star.phase);
+        context.globalAlpha = twinkle;
+        context.fillStyle = star.color;
+        context.beginPath();
+        context.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+        context.fill();
+      }
+      context.globalAlpha = 1;
+      if (!still) requestAnimationFrame(draw);
+    }
+
+    addEventListener('resize', () => { resize(); if (still) draw(0); });
+    resize();
+    requestAnimationFrame(draw);
+  })();
+</script>
+<!-- Visitor counts (GoatCounter: no cookies, nothing personal kept); the marked links count as events -->
+<script data-goatcounter="https://thunorstorm.goatcounter.com/count"
+        async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

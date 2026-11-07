@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OnyxKeep — Projects by Eric Freitas</title>
-<meta name="description" content="OnyxKeep: current projects by Eric Freitas, including Caster 5E and Estrelas.">
+<meta name="description" content="OnyxKeep: current projects by Eric Freitas, including Caster 5E, Estrelas and Gaia Engine.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="img/favicon.svg">
 <style>
   :root {
     --bg: #0c0c0e;
@@ -114,6 +115,23 @@
     margin-bottom: 1rem;
   }
 
+  /* BRAND LOCKUP */
+  .brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    margin-bottom: 2.25rem;
+  }
+  .brand-mark { width: 64px; height: auto; flex-shrink: 0; }
+  .brand-name {
+    font-family: 'Space Grotesk', 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 2.4rem;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--text);
+  }
+
   /* PROJECT STRIPS */
   .github-strip {
     background: var(--card);
@@ -180,6 +198,8 @@
   .reveal.visible { opacity: 1; transform: none; }
 
   @media (max-width: 768px) {
+    .brand-mark { width: 48px; }
+    .brand-name { font-size: 1.9rem; }
     nav { padding: 1rem 1.5rem; }
     section { padding: 7rem 1.5rem 4rem; }
     .github-strip { padding: 1.5rem; }
@@ -199,8 +219,9 @@
 </nav>
 
 <section>
-  <div class="section-header reveal">
-    <span class="section-number">ONYXKEEP</span>
+  <div class="brand-lockup reveal">
+    <svg viewBox="30 8 145 176" class="brand-mark" role="img" aria-label="OnyxKeep castle logo"><defs><mask id="okmask" maskUnits="userSpaceOnUse" x="30" y="8" width="145" height="176"><g fill="#fff"><rect x="78" y="20" width="22" height="50"/><rect x="78" y="12" width="6" height="9"/><rect x="86" y="12" width="6" height="9"/><rect x="94" y="12" width="6" height="9"/><rect x="122" y="34" width="24" height="36"/><rect x="122" y="26" width="6" height="9"/><rect x="131" y="26" width="6" height="9"/><rect x="140" y="26" width="6" height="9"/><rect x="60" y="68" width="90" height="112"/><rect x="60" y="58" width="10" height="11"/><rect x="76" y="58" width="10" height="11"/><rect x="92" y="58" width="10" height="11"/><rect x="108" y="58" width="10" height="11"/><rect x="124" y="58" width="10" height="11"/><rect x="140" y="58" width="10" height="11"/><rect x="46" y="52" width="18" height="70"/><polygon points="42,53 68,53 55,20"/><rect x="146" y="110" width="20" height="70"/><polygon points="142,111 170,111 156,82"/></g><g fill="#000"><path d="M92 180 V150 A13 13 0 0 1 118 150 V180 Z"/><path d="M73 98 v-9 a3 3 0 0 1 6 0 v9 z"/><path d="M102 98 v-9 a3 3 0 0 1 6 0 v9 z"/><path d="M131 98 v-9 a3 3 0 0 1 6 0 v9 z"/><rect x="87.8" y="30" width="2.5" height="12"/><rect x="132.8" y="42" width="2.5" height="12"/><rect x="53.8" y="72" width="2.5" height="12"/><rect x="154.8" y="124" width="2.5" height="12"/><rect x="154.8" y="148" width="2.5" height="12"/><rect x="68" y="120" width="2.5" height="12"/><rect x="139.5" y="120" width="2.5" height="12"/></g><g fill="#fff"><g stroke="#fff" stroke-width="2"><line x1="97" y1="136" x2="97" y2="168"/><line x1="101" y1="136" x2="101" y2="168"/><line x1="105" y1="136" x2="105" y2="168"/><line x1="109" y1="136" x2="109" y2="168"/><line x1="113" y1="136" x2="113" y2="168"/><line x1="92" y1="146" x2="118" y2="146"/><line x1="92" y1="154" x2="118" y2="154"/><line x1="92" y1="162" x2="118" y2="162"/></g><polygon points="95.4,167 98.6,167 97,172"/><polygon points="99.4,167 102.6,167 101,172"/><polygon points="103.4,167 106.6,167 105,172"/><polygon points="107.4,167 110.6,167 109,172"/><polygon points="111.4,167 114.6,167 113,172"/></g></mask></defs><g mask="url(#okmask)"><rect x="30" y="8" width="145" height="176" style="fill: var(--text)"/><g fill="#c9c4b9"><polygon points="60,69 104,69 60,128"/><polygon points="78,20 90,20 78,42"/><polygon points="46,53 55,53 46,80"/></g></g></svg>
+    <span class="brand-name">OnyxKeep</span>
   </div>
   <h1 class="section-title reveal">Current <em>Projects</em></h1>
 
@@ -214,10 +235,19 @@
   </a>
 
   <a href="../estrelas/" class="github-strip app-strip reveal">
-    <img src="../estrelas/img/icon.png" alt="" width="44" height="44" style="border-radius:10px;flex-shrink:0;">
+    <img src="../estrelas/images/icon.png" alt="" width="44" height="44" style="border-radius:10px;flex-shrink:0;">
     <div class="github-text">
       <h3>Estrelas</h3>
       <p>An endless star map for science-fiction game masters, for Mac, built with SwiftUI &amp; RealityKit</p>
+    </div>
+    <span class="github-arrow">→</span>
+  </a>
+
+  <a href="../gaia/" class="github-strip app-strip reveal">
+    <img src="../gaia/images/icon.png" alt="" width="44" height="44" style="border-radius:10px;flex-shrink:0;">
+    <div class="github-text">
+      <h3>Gaia Engine</h3>
+      <p>A planet simulator for your browser: grow a living world from first cell to starship</p>
     </div>
     <span class="github-arrow">→</span>
   </a>
